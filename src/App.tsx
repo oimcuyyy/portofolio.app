@@ -389,12 +389,12 @@ function App() {
         </div>
 
         {/* ABOUT ME TERMINAL */}
-        <div data-aos="fade-up" data-aos-delay="600" className="mt-16 w-full max-w-3xl text-left bg-white border border-emerald-500/30 rounded-sm shadow-[0_0_20px_rgba(16,185,129,0.1)] overflow-hidden">
-          <div className="bg-slate-100 px-4 py-2 border-b border-emerald-500/30 flex items-center gap-2">
+        <div data-aos="fade-up" data-aos-delay="600" className="mt-16 w-full max-w-3xl text-left bg-white dark:bg-[#050505] border border-emerald-500/30 rounded-sm shadow-[0_0_20px_rgba(16,185,129,0.1)] overflow-hidden">
+          <div className="bg-slate-100 dark:bg-[#111] px-4 py-2 border-b border-emerald-500/30 flex items-center gap-2">
             <Terminal size={14} className="text-emerald-500" />
             <span className="text-xs text-emerald-500/70 font-mono">rochim@portfolio: ~/about_me</span>
           </div>
-          <div className="p-5 font-mono text-sm leading-relaxed text-slate-700">
+          <div className="p-5 font-mono text-sm leading-relaxed text-slate-700 dark:text-slate-300">
             <p className="mb-2"><span className="text-emerald-400">$ cat</span> whoami.txt</p>
             <p className="text-emerald-300/90 pl-4 border-l-2 border-emerald-500/30 mb-4">
               Halo! Saya adalah seorang pengembang web dari Jakarta yang sangat tertarik dengan ekosistem <span className="text-emerald-400 font-bold">JavaScript & PHP</span>. 
