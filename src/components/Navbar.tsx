@@ -271,10 +271,10 @@ const Navbar: React.FC = () => {
           <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 font-mono">
             <span>Direct Inquiries</span>
             <a
-              href="mailto:rochimuloh@gmail.com"
+              href="mailto:belajarmandiri03034@gmail.com"
               className="text-emerald-600 dark:text-emerald-400 hover:underline flex items-center gap-1"
             >
-              <span>rochimuloh@gmail.com</span>
+              <span>belajarmandiri03034@gmail.com</span>
               <ExternalLink size={11} />
             </a>
           </div>
@@ -285,7 +285,7 @@ const Navbar: React.FC = () => {
               <a
                 href="https://github.com/oimcuyyy"
                 target="_blank"
-                rel="noreferrer"
+                rel="noopener noreferrer"
                 className="p-2.5 rounded-xl bg-slate-100 dark:bg-white/[0.05] border border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-400 hover:text-emerald-500 hover:border-emerald-500/40 transition-colors"
                 aria-label="GitHub"
               >
@@ -294,7 +294,7 @@ const Navbar: React.FC = () => {
               <a
                 href="https://www.instagram.com/lunarxoim/"
                 target="_blank"
-                rel="noreferrer"
+                rel="noopener noreferrer"
                 className="p-2.5 rounded-xl bg-slate-100 dark:bg-white/[0.05] border border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-400 hover:text-emerald-500 hover:border-emerald-500/40 transition-colors"
                 aria-label="Instagram"
               >

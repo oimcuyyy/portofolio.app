@@ -150,7 +150,7 @@ const Projects: React.FC<ProjectsProps> = ({
                       <a
                         href={project.github_url}
                         target="_blank"
-                        rel="noreferrer"
+                        rel="noopener noreferrer"
                         className="inline-flex items-center gap-1.5 text-xs font-mono font-semibold text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors"
                       >
                         <Code2 size={14} />
@@ -164,7 +164,7 @@ const Projects: React.FC<ProjectsProps> = ({
                       <a
                         href={project.demo_url}
                         target="_blank"
-                        rel="noreferrer"
+                        rel="noopener noreferrer"
                         className="inline-flex items-center gap-1.5 text-xs font-mono font-semibold text-emerald-600 dark:text-emerald-400 hover:underline transition-colors"
                       >
                         <span>Live Preview</span>

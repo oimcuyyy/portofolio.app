@@ -35,7 +35,7 @@ const Footer: React.FC = () => {
             <a
               href="https://github.com/oimcuyyy"
               target="_blank"
-              rel="noreferrer"
+              rel="noopener noreferrer"
               className="p-3 rounded-full bg-white dark:bg-white/[0.05] border border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-300 hover:text-emerald-500 dark:hover:text-emerald-400 hover:border-emerald-500/40 hover:-translate-y-0.5 transition-all duration-300 shadow-sm"
               aria-label="GitHub Profile"
             >
@@ -44,7 +44,7 @@ const Footer: React.FC = () => {
             <a
               href="https://www.instagram.com/lunarxoim/"
               target="_blank"
-              rel="noreferrer"
+              rel="noopener noreferrer"
               className="p-3 rounded-full bg-white dark:bg-white/[0.05] border border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-300 hover:text-emerald-500 dark:hover:text-emerald-400 hover:border-emerald-500/40 hover:-translate-y-0.5 transition-all duration-300 shadow-sm"
               aria-label="Instagram Profile"
             >

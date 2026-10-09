@@ -17,7 +17,7 @@ const Contact: React.FC<ContactProps> = ({
   sentSuccess,
 }) => {
   const [copied, setCopied] = useState(false);
-  const emailAddress = 'rochimuloh@gmail.com'; // Bisa disesuaikan
+  const emailAddress = 'belajarmandiri03034@gmail.com';
 
   const handleCopyEmail = () => {
     navigator.clipboard.writeText(emailAddress);

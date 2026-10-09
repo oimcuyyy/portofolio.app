@@ -108,6 +108,14 @@ function App() {
     e.preventDefault();
     setLoading(true);
 
+    // Anti-spam cooldown check (20 seconds)
+    const lastSent = localStorage.getItem('last_msg_sent_ts');
+    if (lastSent && Date.now() - parseInt(lastSent, 10) < 20000) {
+      alert('Mohon tunggu beberapa detik sebelum mengirim pesan berikutnya.');
+      setLoading(false);
+      return;
+    }
+
     const cleanName = sanitizeInput(formData.name).slice(0, 100);
     const cleanEmail = sanitizeInput(formData.email).slice(0, 120);
     const cleanMessage = sanitizeInput(formData.message).slice(0, 2000);
@@ -132,6 +140,7 @@ function App() {
     }]);
 
     if (!error) {
+      localStorage.setItem('last_msg_sent_ts', Date.now().toString());
       setSentSuccess(true);
       setFormData({ name: '', email: '', message: '' });
       setTimeout(() => setSentSuccess(false), 5000);
@@ -325,12 +334,12 @@ function App() {
               
               <div className="flex items-center gap-3 border-t border-slate-200 dark:border-white/[0.08] pt-6 mt-auto">
                 {selectedProject.github_url && (
-                  <a href={selectedProject.github_url} target="_blank" rel="noreferrer" className="flex items-center gap-2 px-5 py-3 rounded-full bg-slate-100 dark:bg-white/[0.06] hover:bg-slate-200 dark:hover:bg-white/10 text-slate-700 dark:text-white font-semibold text-xs uppercase tracking-wider transition">
+                  <a href={selectedProject.github_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-5 py-3 rounded-full bg-slate-100 dark:bg-white/[0.06] hover:bg-slate-200 dark:hover:bg-white/10 text-slate-700 dark:text-white font-semibold text-xs uppercase tracking-wider transition">
                     <Code2 size={16} /> Source Code
                   </a>
                 )}
                 {selectedProject.demo_url && (
-                  <a href={selectedProject.demo_url} target="_blank" rel="noreferrer" className="flex items-center gap-2 px-6 py-3 rounded-full bg-slate-900 dark:bg-white text-white dark:text-slate-950 hover:bg-emerald-600 dark:hover:bg-slate-200 font-bold text-xs uppercase tracking-wider shadow-lg transition">
+                  <a href={selectedProject.demo_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-6 py-3 rounded-full bg-slate-900 dark:bg-white text-white dark:text-slate-950 hover:bg-emerald-600 dark:hover:bg-slate-200 font-bold text-xs uppercase tracking-wider shadow-lg transition">
                     <ExternalLink size={15} /> Buka Demo
                   </a>
                 )}
