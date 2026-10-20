@@ -1,38 +1,17 @@
 import React from 'react';
 import { Layout, Server, Sparkles, Compass, Zap } from 'lucide-react';
 import { SpotlightCard } from './Interactive';
-
-const disciplines = [
-  {
-    number: '01',
-    title: 'Modern Frontend Architecture',
-    subtitle: 'Responsive, fluid & accessible interfaces',
-    description:
-      'Membangun antarmuka web interaktif berbasis React 19 dan Next.js dengan optimasi Core Web Vitals, tipografi proporsional, serta animasi mikroskopik yang responsif terhadap setiap aksi pengguna.',
-    icon: <Layout className="text-emerald-400" size={24} />,
-    tags: ['React 19', 'Next.js', 'Tailwind CSS', 'Framer Motion'],
-  },
-  {
-    number: '02',
-    title: 'Robust Backend & API Integration',
-    subtitle: 'Scalable data structures & secure services',
-    description:
-      'Merancang REST API terstruktur dan manajemen database relasional (PostgreSQL, MySQL, Supabase, Laravel) dengan validasi ketat, autentikasi aman, dan performa query yang cepat.',
-    icon: <Server className="text-teal-400" size={24} />,
-    tags: ['Laravel', 'PHP', 'Supabase', 'PostgreSQL REST'],
-  },
-  {
-    number: '03',
-    title: 'Tactile UI/UX & Interaction Design',
-    subtitle: 'Crafted details without digital slop',
-    description:
-      'Mengutamakan estetika visual yang tidak monoton — palet warna terkalibrasi, kontras WCAG yang nyaman di mata, hierarki layout asimetris, dan kenyamanan navigasi di semua ukuran layar.',
-    icon: <Sparkles className="text-cyan-400" size={24} />,
-    tags: ['Design Systems', 'Haptic Micro-interactions', 'Dark Mode'],
-  },
-];
+import { useLanguage } from '../context/LanguageContext';
 
 const Services: React.FC = () => {
+  const { t, language } = useLanguage();
+
+  const icons = [
+    <Layout className="text-emerald-400" size={24} key="layout" />,
+    <Server className="text-teal-400" size={24} key="server" />,
+    <Sparkles className="text-cyan-400" size={24} key="sparkles" />,
+  ];
+
   return (
     <section id="services" className="py-24 px-6 max-w-6xl mx-auto relative z-10">
       
@@ -40,19 +19,19 @@ const Services: React.FC = () => {
       <div className="max-w-2xl mb-16" data-aos="fade-up">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-mono text-xs uppercase tracking-widest mb-3">
           <Compass size={14} />
-          <span>Core Disciplines</span>
+          <span>{t.services.badge}</span>
         </div>
         <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-          Prinsip &amp; pendekatan rekayasa digital.
+          {t.services.title}
         </h2>
         <p className="text-slate-600 dark:text-slate-400 text-sm sm:text-base mt-3 leading-relaxed">
-          Mengedepankan craftsmanship kode yang teruji, kecepatan eksekusi, dan pengalaman visual yang elegan.
+          {t.services.desc}
         </p>
       </div>
 
       {/* STAGGERED VALUE CARDS */}
       <div className="grid md:grid-cols-3 gap-6">
-        {disciplines.map((item, index) => (
+        {t.services.items.map((item, index) => (
           <SpotlightCard
             key={item.number}
             className="flex flex-col justify-between p-8 sm:p-9 bg-white/70 dark:bg-[#070b14]/70 border border-slate-200/80 dark:border-white/10 group hover:-translate-y-1 transition-all duration-300 shadow-lg"
@@ -65,7 +44,7 @@ const Services: React.FC = () => {
                   {item.number}
                 </span>
                 <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center group-hover:scale-105 transition-transform">
-                  {item.icon}
+                  {icons[index]}
                 </div>
               </div>
 
@@ -111,10 +90,12 @@ const Services: React.FC = () => {
           </div>
           <div>
             <h4 className="text-base font-bold text-slate-900 dark:text-white">
-              Performansi &amp; Desain Tanpa Kompromi
+              {language === 'id' ? 'Performansi & Desain Tanpa Kompromi' : 'Uncompromising Performance & Design'}
             </h4>
             <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
-              Setiap baris kode dioptimasi untuk kecepatan render, aksesibilitas keyboard, dan user experience maksimal.
+              {language === 'id'
+                ? 'Setiap baris kode dioptimasi untuk kecepatan render, aksesibilitas keyboard, dan user experience maksimal.'
+                : 'Every line of code is optimized for render speed, keyboard accessibility, and maximum user experience.'}
             </p>
           </div>
         </div>
@@ -122,7 +103,7 @@ const Services: React.FC = () => {
           href="#contact"
           className="px-6 py-2.5 rounded-full bg-slate-900 dark:bg-white text-white dark:text-slate-950 text-xs font-bold tracking-wide uppercase hover:bg-emerald-600 dark:hover:bg-slate-200 transition-colors shrink-0"
         >
-          Mulai Diskusi
+          {language === 'id' ? 'Mulai Diskusi' : 'Start a Conversation'}
         </a>
       </div>
 
@@ -131,3 +112,4 @@ const Services: React.FC = () => {
 };
 
 export default Services;
+

@@ -30,6 +30,7 @@ import {
 import { SiPostgresql } from 'react-icons/si';
 import type { Skill } from '../types';
 import { SpotlightCard } from './Interactive';
+import { useLanguage } from '../context/LanguageContext';
 
 interface SkillWithDesc extends Skill {
   description?: string;
@@ -298,13 +299,17 @@ const defaultTechList: (SkillWithDesc & { level: string })[] = [
 const categories = ['All', 'Frontend', 'Backend', 'Database', 'Tools'];
 
 const TechStack: React.FC<TechStackProps> = ({ skills }) => {
+  const { t } = useLanguage();
   const [activeCategory, setActiveCategory] = useState('All');
 
   const allSkills = skills.length > 0 ? skills.map(s => ({
     ...s,
     level: s.level || 'Competent',
-    description: s.description || 'Keahlian profesional dalam membangun sistem web berkualitas tinggi.',
-  })) : defaultTechList;
+    description: t.skills.items[s.name] || s.description || 'Keahlian profesional dalam membangun sistem web berkualitas tinggi.',
+  })) : defaultTechList.map(s => ({
+    ...s,
+    description: t.skills.items[s.name] || s.description,
+  }));
 
   const filteredSkills = activeCategory === 'All'
     ? allSkills
@@ -324,13 +329,13 @@ const TechStack: React.FC<TechStackProps> = ({ skills }) => {
         <div className="max-w-xl">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-mono text-xs uppercase tracking-widest mb-3">
             <Sparkles size={12} />
-            <span>Technical Capabilities</span>
+            <span>{t.skills.badge}</span>
           </div>
           <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-            Tools, stack &amp; engineering foundation.
+            {t.skills.title}
           </h2>
           <p className="text-slate-600 dark:text-slate-400 text-sm sm:text-base mt-3 leading-relaxed">
-            Teknologi yang saya gunakan untuk mentransformasikan gagasan menjadi perangkat lunak siap pakai dengan arsitektur bersih.
+            {t.skills.desc}
           </p>
         </div>
 
@@ -346,7 +351,7 @@ const TechStack: React.FC<TechStackProps> = ({ skills }) => {
                   : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
-              {cat}
+              {cat === 'All' ? t.skills.filterAll : cat}
             </button>
           ))}
         </div>
@@ -396,7 +401,7 @@ const TechStack: React.FC<TechStackProps> = ({ skills }) => {
 
                 {/* Card Bottom: Proficiency Tag */}
                 <div className="mt-6 pt-4 border-t border-slate-200/60 dark:border-white/[0.06] flex items-center justify-between text-xs font-mono">
-                  <span className="text-slate-400 dark:text-slate-500">Proficiency</span>
+                  <span className="text-slate-400 dark:text-slate-500">{t.skills.proficiency}</span>
                   <span className="inline-flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-semibold">
                     <CheckCircle2 size={12} />
                     {skill.level}
@@ -414,4 +419,5 @@ const TechStack: React.FC<TechStackProps> = ({ skills }) => {
 };
 
 export default TechStack;
+
 

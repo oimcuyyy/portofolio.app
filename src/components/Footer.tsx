@@ -1,8 +1,11 @@
 import React from 'react';
 import { FaGithub, FaInstagram } from 'react-icons/fa';
 import { Mail, ArrowUp, Code2 } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
 
 const Footer: React.FC = () => {
+  const { t } = useLanguage();
+
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -26,7 +29,7 @@ const Footer: React.FC = () => {
               <span className="font-mono">rochim<span className="text-emerald-500">.dev</span></span>
             </a>
             <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm">
-              Rekayasa Perangkat Lunak &bull; SMKN 20 Jakarta. Mengembangkan produk digital yang bersih, performan, dan bermakna.
+              {t.footer.tagline}
             </p>
           </div>
 
@@ -62,8 +65,8 @@ const Footer: React.FC = () => {
             <button
               onClick={scrollToTop}
               className="p-3 rounded-full bg-slate-900 dark:bg-white text-white dark:text-slate-950 hover:bg-emerald-600 dark:hover:bg-slate-200 transition-colors ml-2 cursor-pointer shadow-sm"
-              aria-label="Kembali ke atas"
-              title="Kembali ke atas"
+              aria-label={t.footer.backToTop}
+              title={t.footer.backToTop}
             >
               <ArrowUp size={15} />
             </button>
@@ -74,11 +77,11 @@ const Footer: React.FC = () => {
         {/* BOTTOM ROW: COPYRIGHT & METRICS */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-mono text-slate-400 dark:text-slate-500 text-center sm:text-left">
           <div>
-            &copy; {new Date().getFullYear()} Muhammad Rochimuloh. Hak cipta dilindungi.
+            &copy; {new Date().getFullYear()} Muhammad Rochimuloh. {t.footer.copyright}
           </div>
           <div className="flex items-center gap-2">
             <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span>Jakarta, ID &bull; WIB (UTC+7)</span>
+            <span>{t.footer.timezone}</span>
           </div>
         </div>
 
@@ -88,3 +91,4 @@ const Footer: React.FC = () => {
 };
 
 export default Footer;
+

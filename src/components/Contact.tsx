@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Mail, Send, CheckCircle2, Copy, Check, MessageSquare, Clock } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
 
 interface ContactProps {
   formData: { name: string; email: string; message: string };
@@ -16,6 +17,7 @@ const Contact: React.FC<ContactProps> = ({
   loading,
   sentSuccess,
 }) => {
+  const { t, language } = useLanguage();
   const [copied, setCopied] = useState(false);
   const emailAddress = 'belajarmandiri03034@gmail.com';
 
@@ -32,13 +34,13 @@ const Contact: React.FC<ContactProps> = ({
       <div className="text-center max-w-2xl mx-auto mb-16" data-aos="fade-up">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-mono text-xs uppercase tracking-widest mb-3">
           <MessageSquare size={13} />
-          <span>Get In Touch</span>
+          <span>{t.contact.badge}</span>
         </div>
         <h2 className="text-3xl sm:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-          Mari berdiskusi &amp; bangun sesuatu.
+          {t.contact.title}
         </h2>
         <p className="text-slate-600 dark:text-slate-400 text-sm sm:text-base mt-3 leading-relaxed">
-          Punya tawaran proyek, peluang magang, atau sekadar ingin berdiskusi mengenai teknologi? Pintu komunikasi selalu terbuka.
+          {t.contact.desc}
         </p>
       </div>
 
@@ -53,10 +55,10 @@ const Contact: React.FC<ContactProps> = ({
               <Mail size={18} />
             </div>
             <h3 className="text-base font-bold text-slate-900 dark:text-white mb-1">
-              Email Langsung
+              {t.contact.directEmail}
             </h3>
             <p className="text-xs text-slate-500 dark:text-slate-400 mb-4">
-              Kirim email langsung untuk pertanyaan kerja sama atau rekrutmen.
+              {t.contact.directEmailDesc}
             </p>
             
             <div className="flex items-center justify-between p-3 rounded-xl bg-slate-100 dark:bg-white/[0.04] border border-slate-200/80 dark:border-white/[0.08]">
@@ -71,12 +73,12 @@ const Contact: React.FC<ContactProps> = ({
                 {copied ? (
                   <>
                     <Check size={13} className="text-emerald-500" />
-                    <span>Tersalin!</span>
+                    <span>{t.contact.copied}</span>
                   </>
                 ) : (
                   <>
                     <Copy size={13} />
-                    <span>Salin</span>
+                    <span>{t.contact.copyEmail}</span>
                   </>
                 )}
               </button>
@@ -91,16 +93,16 @@ const Contact: React.FC<ContactProps> = ({
               </div>
               <div>
                 <h4 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider font-mono">
-                  Waktu Respon
+                  {t.contact.fastResponse}
                 </h4>
                 <p className="text-xs text-slate-600 dark:text-slate-400">
-                  Biasanya membalas dalam waktu &lt; 24 jam kerja.
+                  {t.contact.fastResponseDesc}
                 </p>
               </div>
             </div>
 
             <div className="pt-4 border-t border-slate-200/60 dark:border-white/[0.06] text-xs text-slate-500 dark:text-slate-400 font-mono">
-              Lokasi: <span className="text-slate-800 dark:text-white font-semibold">Jakarta, Indonesia (WIB / GMT+7)</span>
+              {language === 'id' ? 'Lokasi:' : 'Location:'} <span className="text-slate-800 dark:text-white font-semibold">Jakarta, Indonesia (WIB / GMT+7)</span>
             </div>
           </div>
 
@@ -114,7 +116,7 @@ const Contact: React.FC<ContactProps> = ({
               <div className="mb-6 p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center gap-3 text-emerald-700 dark:text-emerald-300 animate-in fade-in">
                 <CheckCircle2 className="text-emerald-500 shrink-0" size={20} />
                 <p className="text-xs sm:text-sm font-medium">
-                  Pesan Anda berhasil terkirim. Terima kasih, saya akan segera menghubungi kembali!
+                  {t.contact.successMsg}
                 </p>
               </div>
             )}
@@ -124,7 +126,7 @@ const Contact: React.FC<ContactProps> = ({
               {/* Nama Lengkap */}
               <div>
                 <label htmlFor="name" className="block text-xs font-mono uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-2">
-                  Nama Lengkap
+                  {t.contact.nameLabel}
                 </label>
                 <input
                   type="text"
@@ -132,7 +134,7 @@ const Contact: React.FC<ContactProps> = ({
                   required
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  placeholder="e.g. Alex Pratama"
+                  placeholder={t.contact.namePlaceholder}
                   className="w-full px-4 py-3.5 rounded-xl bg-slate-100/70 dark:bg-white/[0.04] border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-600 text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/50 transition-all"
                 />
               </div>
@@ -140,7 +142,7 @@ const Contact: React.FC<ContactProps> = ({
               {/* Email */}
               <div>
                 <label htmlFor="email" className="block text-xs font-mono uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-2">
-                  Alamat Email
+                  {t.contact.emailLabel}
                 </label>
                 <input
                   type="email"
@@ -148,7 +150,7 @@ const Contact: React.FC<ContactProps> = ({
                   required
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  placeholder="alex@domain.com"
+                  placeholder={t.contact.emailPlaceholder}
                   className="w-full px-4 py-3.5 rounded-xl bg-slate-100/70 dark:bg-white/[0.04] border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-600 text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/50 transition-all"
                 />
               </div>
@@ -156,7 +158,7 @@ const Contact: React.FC<ContactProps> = ({
               {/* Pesan */}
               <div>
                 <label htmlFor="message" className="block text-xs font-mono uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-2">
-                  Pesan / Keperluan Proyek
+                  {t.contact.messageLabel}
                 </label>
                 <textarea
                   id="message"
@@ -164,7 +166,7 @@ const Contact: React.FC<ContactProps> = ({
                   rows={4}
                   value={formData.message}
                   onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                  placeholder="Ceritakan gambaran proyek atau pertanyaan yang ingin Anda diskusikan..."
+                  placeholder={t.contact.messagePlaceholder}
                   className="w-full px-4 py-3.5 rounded-xl bg-slate-100/70 dark:bg-white/[0.04] border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-600 text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/50 transition-all resize-none"
                 />
               </div>
@@ -178,11 +180,11 @@ const Contact: React.FC<ContactProps> = ({
                 {loading ? (
                   <span className="flex items-center gap-2">
                     <span className="w-4 h-4 border-2 border-slate-300 border-t-emerald-500 rounded-full animate-spin" />
-                    Mengirim Pesan...
+                    {t.contact.sendingBtn}
                   </span>
                 ) : (
                   <span className="flex items-center gap-2">
-                    <span>Kirim Pesan Sekarang</span>
+                    <span>{t.contact.sendBtn}</span>
                     <Send size={15} />
                   </span>
                 )}

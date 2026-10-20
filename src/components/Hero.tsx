@@ -1,16 +1,12 @@
 import React from 'react';
 import { ArrowUpRight, Download, MapPin, CheckCircle2 } from 'lucide-react';
 import { motion } from 'framer-motion';
-
-// =========================================================================
-// 📸 GANTI FOTO ANDA DI SINI:
-// File default ada di: src/assets/profile.jpg
-// Anda cukup mengganti file profile.jpg di folder src/assets/
-// atau ubah import / URL di bawah ini ke file foto Anda sendiri.
-// =========================================================================
 import profilePhoto from '../assets/profile.jpg';
+import { useLanguage } from '../context/LanguageContext';
 
 const Hero: React.FC = () => {
+  const { t } = useLanguage();
+
   return (
     <section className="relative min-h-[90dvh] flex items-center justify-center pt-24 sm:pt-28 pb-12 sm:pb-16 overflow-hidden">
       {/* Ambient background glow orbs */}
@@ -30,22 +26,22 @@ const Hero: React.FC = () => {
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
               </span>
               <span className="text-[11px] sm:text-xs font-semibold tracking-wide text-emerald-700 dark:text-emerald-400 font-mono">
-                Available for Projects &amp; Collaboration
+                {t.hero.availability}
               </span>
             </div>
 
             {/* Main Title - Confident & Human */}
             <h1 className="text-3xl sm:text-5xl lg:text-[4.25rem] font-extrabold tracking-tight text-slate-900 dark:text-slate-50 leading-[1.12] sm:leading-[1.08] mb-5 sm:mb-6">
-              Designing &amp; building{' '}
+              {t.hero.title1}{' '}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 via-teal-400 to-cyan-400">
-                high-caliber
+                {t.hero.titleHighlight}
               </span>{' '}
-              digital products.
+              {t.hero.title2}
             </h1>
 
             {/* Bio Narrative */}
             <p className="text-base sm:text-lg text-slate-600 dark:text-slate-300/80 mb-8 max-w-xl leading-relaxed">
-              Halo, saya <span className="text-slate-900 dark:text-white font-semibold">Muhammad Rochimuloh</span> — Software Engineering student di SMKN 20 Jakarta. Menggabungkan arsitektur frontend modern, performa backend tangguh, dan haptic user experience.
+              {t.hero.bio}
             </p>
 
             {/* CTA Button Group with Nested Button-in-Button */}
@@ -56,7 +52,7 @@ const Hero: React.FC = () => {
                 href="#projects"
                 className="group relative inline-flex items-center gap-3 pl-6 pr-2.5 py-2.5 rounded-full bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-950 text-sm font-semibold hover:bg-emerald-600 dark:hover:bg-white active:scale-[0.98] transition-all duration-300 shadow-xl shadow-slate-900/10 dark:shadow-[0_0_35px_rgba(16,185,129,0.18)]"
               >
-                <span>Lihat Karya Saya</span>
+                <span>{t.hero.ctaProjects}</span>
                 <span className="w-8 h-8 rounded-full bg-white/15 dark:bg-black/10 flex items-center justify-center transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
                   <ArrowUpRight size={16} strokeWidth={2.5} />
                 </span>
@@ -69,7 +65,7 @@ const Hero: React.FC = () => {
                 className="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-white/60 dark:bg-white/[0.05] border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-200 text-sm font-semibold hover:bg-slate-100 dark:hover:bg-white/10 hover:border-emerald-500/30 transition-all duration-300 active:scale-[0.98] backdrop-blur-md"
               >
                 <Download size={15} className="text-emerald-500" />
-                <span>Download CV</span>
+                <span>{t.hero.ctaCv}</span>
               </a>
 
               {/* Tertiary Contact Link */}
@@ -77,13 +73,13 @@ const Hero: React.FC = () => {
                 href="#contact"
                 className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500 hover:text-emerald-500 dark:text-slate-400 dark:hover:text-emerald-400 transition-colors"
               >
-                Hubungi Saya →
+                {t.hero.ctaContact}
               </a>
             </div>
 
             {/* Tech Badges Minimal Row */}
             <div className="mt-12 pt-6 border-t border-slate-200/80 dark:border-white/[0.07] w-full flex flex-wrap items-center gap-6 text-xs text-slate-500 dark:text-slate-400 font-mono">
-              <span className="text-slate-400 dark:text-slate-500 uppercase tracking-wider text-[11px]">Core Stack</span>
+              <span className="text-slate-400 dark:text-slate-500 uppercase tracking-wider text-[11px]">{t.hero.coreStack}</span>
               <span className="hover:text-emerald-400 transition-colors">React 19</span>
               <span className="w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-700" />
               <span className="hover:text-emerald-400 transition-colors">TypeScript</span>

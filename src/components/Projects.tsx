@@ -3,6 +3,8 @@ import { PlusCircle, LogOut, Code2, ExternalLink, ArrowUpRight, FolderGit2 } fro
 import type { Project } from '../types';
 import { SpotlightCard } from './Interactive';
 
+import { useLanguage } from '../context/LanguageContext';
+
 interface ProjectsProps {
   projects: Project[];
   session: any;
@@ -18,6 +20,8 @@ const Projects: React.FC<ProjectsProps> = ({
   handleLogoutAdmin,
   setSelectedProject,
 }) => {
+  const { t } = useLanguage();
+
   return (
     <section id="projects" className="py-24 px-6 max-w-6xl mx-auto relative z-10">
       
@@ -26,13 +30,13 @@ const Projects: React.FC<ProjectsProps> = ({
         <div>
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-mono text-xs uppercase tracking-widest mb-3">
             <FolderGit2 size={13} />
-            <span>Curated Works</span>
+            <span>{t.projects.badge}</span>
           </div>
           <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-            Karya terpilih &amp; produk digital.
+            {t.projects.title}
           </h2>
           <p className="text-slate-600 dark:text-slate-400 text-sm sm:text-base mt-2 max-w-xl">
-            Aplikasi web nyata dan eksperimen rekayasa software dengan fokus performa, kegunaan, dan estetika.
+            {t.projects.desc}
           </p>
         </div>
 
@@ -44,11 +48,11 @@ const Projects: React.FC<ProjectsProps> = ({
                 onClick={() => setIsModalOpen(true)}
                 className="px-4 py-2 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-500 hover:text-white text-xs font-bold tracking-wide transition-all duration-300 flex items-center gap-2 cursor-pointer shadow-sm"
               >
-                <PlusCircle size={15} /> Tambah Proyek
+                <PlusCircle size={15} /> {t.projects.addProject}
               </button>
               <button
                 onClick={handleLogoutAdmin}
-                title="Logout Admin"
+                title={t.projects.logoutAdmin}
                 className="p-2 rounded-full bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-400 hover:bg-rose-600 hover:text-white transition-all duration-300 cursor-pointer"
               >
                 <LogOut size={15} />
@@ -62,8 +66,7 @@ const Projects: React.FC<ProjectsProps> = ({
       {projects.length === 0 ? (
         <div className="p-12 text-center rounded-[2rem] border border-dashed border-slate-300 dark:border-white/10 bg-white/40 dark:bg-white/[0.02]">
           <FolderGit2 size={36} className="mx-auto text-slate-400 mb-3" />
-          <h3 className="text-lg font-bold text-slate-800 dark:text-white">Belum ada proyek yang dimuat</h3>
-          <p className="text-xs text-slate-500 mt-1">Pastikan database Supabase terhubung atau login admin untuk menambah proyek.</p>
+          <h3 className="text-lg font-bold text-slate-800 dark:text-white">{t.projects.noProjects}</h3>
         </div>
       ) : (
         <div className="grid md:grid-cols-2 gap-8 lg:gap-10">

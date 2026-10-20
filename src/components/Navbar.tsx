@@ -14,21 +14,24 @@ import {
   MapPin,
 } from 'lucide-react';
 import { FaGithub, FaInstagram } from 'react-icons/fa';
+import { TbLanguage } from 'react-icons/tb';
 import profilePhoto from '../assets/profile.jpg';
-
-const navLinks = [
-  { name: 'About', href: '#about', icon: User, number: '01' },
-  { name: 'Capabilities', href: '#skills', icon: Layers, number: '02' },
-  { name: 'Experience', href: '#experience', icon: GraduationCap, number: '03' },
-  { name: 'Projects', href: '#projects', icon: FolderGit2, number: '04' },
-  { name: 'Contact', href: '#contact', icon: Mail, number: '05' },
-];
+import { useLanguage } from '../context/LanguageContext';
 
 const Navbar: React.FC = () => {
+  const { language, setLanguage, toggleLanguage, t } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(true);
   const [activeSection, setActiveSection] = useState('about');
   const [scrolled, setScrolled] = useState(false);
+
+  const navLinks = [
+    { name: t.nav.about, href: '#about', icon: User, number: '01', id: 'about' },
+    { name: t.nav.capabilities, href: '#skills', icon: Layers, number: '02', id: 'skills' },
+    { name: t.nav.experience, href: '#experience', icon: GraduationCap, number: '03', id: 'experience' },
+    { name: t.nav.projects, href: '#projects', icon: FolderGit2, number: '04', id: 'projects' },
+    { name: t.nav.contact, href: '#contact', icon: Mail, number: '05', id: 'contact' },
+  ];
 
   useEffect(() => {
     // Check initial theme
@@ -84,7 +87,7 @@ const Navbar: React.FC = () => {
   return (
     <>
       {/* FLOATING LEFT LAUNCHER DOCK */}
-      <div className="fixed left-4 sm:left-6 top-6 sm:top-8 z-50 flex items-center gap-2.5">
+      <div className="fixed left-4 sm:left-6 top-6 sm:top-8 z-50 flex items-center gap-2 sm:gap-2.5">
         
         {/* Main Left Menu Trigger Button */}
         <button
@@ -96,8 +99,8 @@ const Navbar: React.FC = () => {
               ? 'bg-white/80 dark:bg-[#070b14]/85 backdrop-blur-xl border-slate-200/80 dark:border-white/15 text-slate-800 dark:text-slate-100 hover:border-emerald-500/40 hover:shadow-emerald-500/10'
               : 'bg-white/60 dark:bg-[#070b14]/60 backdrop-blur-md border-slate-200/60 dark:border-white/10 text-slate-800 dark:text-slate-100 hover:bg-white/90 dark:hover:bg-[#070b14]/90'
           }`}
-          aria-label={isOpen ? 'Tutup navigasi' : 'Buka navigasi'}
-          title="Buka Navigasi"
+          aria-label={isOpen ? t.nav.closeNav : t.nav.openNav}
+          title={t.nav.openNav}
         >
           {/* Animated Hamburger / Close Icon */}
           <div className="w-5 h-5 flex items-center justify-center relative">
@@ -133,13 +136,26 @@ const Navbar: React.FC = () => {
           onClick={toggleTheme}
           className="p-2 sm:p-2.5 rounded-full bg-white/70 dark:bg-[#070b14]/75 backdrop-blur-xl border border-slate-200/80 dark:border-white/15 text-slate-700 dark:text-slate-200 hover:text-emerald-500 dark:hover:text-emerald-400 hover:border-emerald-500/40 transition-all shadow-lg cursor-pointer"
           aria-label="Toggle Theme"
-          title={isDarkMode ? 'Beralih ke mode terang' : 'Beralih ke mode gelap'}
+          title={isDarkMode ? t.nav.lightMode : t.nav.darkMode}
         >
           {isDarkMode ? (
             <Sun size={15} className="text-amber-400 hover:rotate-45 transition-transform" />
           ) : (
             <Moon size={15} className="text-emerald-600 hover:-rotate-12 transition-transform" />
           )}
+        </button>
+
+        {/* Language Switcher Pill (ID / EN) */}
+        <button
+          onClick={toggleLanguage}
+          className="group flex items-center gap-1.5 px-3 py-1.5 sm:px-3 sm:py-2 rounded-full bg-white/70 dark:bg-[#070b14]/75 backdrop-blur-xl border border-slate-200/80 dark:border-white/15 text-slate-700 dark:text-slate-200 hover:border-emerald-500/40 transition-all shadow-lg cursor-pointer text-[11px] font-mono font-bold"
+          aria-label={t.nav.switchLang}
+          title={t.nav.switchLang}
+        >
+          <TbLanguage size={14} className="text-emerald-500 group-hover:rotate-12 transition-transform" />
+          <span className={language === 'id' ? 'text-emerald-500 dark:text-emerald-400 font-extrabold' : 'text-slate-400 dark:text-slate-500'}>ID</span>
+          <span className="text-slate-300 dark:text-slate-700">/</span>
+          <span className={language === 'en' ? 'text-emerald-500 dark:text-emerald-400 font-extrabold' : 'text-slate-400 dark:text-slate-500'}>EN</span>
         </button>
 
       </div>
@@ -204,12 +220,42 @@ const Navbar: React.FC = () => {
             </div>
           </div>
 
+          {/* Language Switcher Inside Drawer */}
+          <div className="flex items-center justify-between py-2 px-3.5 rounded-2xl bg-slate-100/70 dark:bg-white/[0.04] border border-slate-200/80 dark:border-white/10 mt-3 text-xs font-mono">
+            <span className="text-slate-500 dark:text-slate-400 flex items-center gap-2">
+              <TbLanguage size={15} className="text-emerald-500" />
+              <span>{language === 'id' ? 'Pilihan Bahasa' : 'Language'}</span>
+            </span>
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => setLanguage('id')}
+                className={`px-2.5 py-1 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                  language === 'id'
+                    ? 'bg-emerald-500 text-white shadow-sm'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                }`}
+              >
+                ID
+              </button>
+              <button
+                onClick={() => setLanguage('en')}
+                className={`px-2.5 py-1 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                  language === 'en'
+                    ? 'bg-emerald-500 text-white shadow-sm'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                }`}
+              >
+                EN
+              </button>
+            </div>
+          </div>
+
         </div>
 
         {/* DRAWER MIDDLE: NAVIGATION LINKS */}
         <div className="px-6 sm:px-8 py-2 overflow-y-auto flex-1">
           <div className="text-[11px] font-mono uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-3 px-3">
-            Menu Navigasi
+            {language === 'id' ? 'Menu Navigasi' : 'Navigation Menu'}
           </div>
           
           <nav className="flex flex-col space-y-1.5">
