@@ -1,5 +1,33 @@
 import React, { useState } from 'react';
-import { Layers, Cpu, Database, Wrench, Sparkles, CheckCircle2 } from 'lucide-react';
+import { Sparkles, CheckCircle2 } from 'lucide-react';
+import {
+  TbBrandReact,
+  TbBrandNextjs,
+  TbBrandTypescript,
+  TbBrandTailwind,
+  TbBrandLaravel,
+  TbBrandPhp,
+  TbBrandSupabase,
+  TbBrandMysql,
+  TbBrandGit,
+  TbBrandGithub,
+  TbBrandVite,
+  TbBrandJavascript,
+  TbBrandPython,
+  TbBrandVue,
+  TbBrandNodejs,
+  TbBrandDocker,
+  TbBrandFigma,
+  TbBrandHtml5,
+  TbBrandCss3,
+  TbBrandMongodb,
+  TbCode,
+  TbLayersIntersect,
+  TbCpu,
+  TbDatabase,
+  TbTool
+} from 'react-icons/tb';
+import { SiPostgresql } from 'react-icons/si';
 import type { Skill } from '../types';
 import { SpotlightCard } from './Interactive';
 
@@ -11,6 +39,202 @@ interface SkillWithDesc extends Skill {
 interface TechStackProps {
   skills: SkillWithDesc[];
 }
+
+interface TechBrand {
+  primaryIcon: React.ReactNode;
+  secondaryIcon?: React.ReactNode;
+  bgClass: string;
+  borderClass: string;
+  secondaryBgClass?: string;
+  secondaryBorderClass?: string;
+}
+
+const getTechBrand = (name: string, category: string): TechBrand => {
+  const n = name.toLowerCase();
+
+  if (n.includes('react') || n.includes('next')) {
+    return {
+      primaryIcon: <TbBrandReact size={22} className="text-[#61DAFB]" />,
+      secondaryIcon: n.includes('next') ? <TbBrandNextjs size={20} className="text-slate-800 dark:text-white" /> : undefined,
+      bgClass: 'bg-cyan-500/10',
+      borderClass: 'border-cyan-500/25',
+      secondaryBgClass: 'bg-slate-500/10',
+      secondaryBorderClass: 'border-slate-500/25',
+    };
+  }
+
+  if (n.includes('typescript') || n.includes('ts')) {
+    return {
+      primaryIcon: <TbBrandTypescript size={22} className="text-[#3178C6]" />,
+      bgClass: 'bg-blue-500/10',
+      borderClass: 'border-blue-500/25',
+    };
+  }
+
+  if (n.includes('tailwind')) {
+    return {
+      primaryIcon: <TbBrandTailwind size={22} className="text-[#38BDF8]" />,
+      bgClass: 'bg-sky-500/10',
+      borderClass: 'border-sky-500/25',
+    };
+  }
+
+  if (n.includes('laravel') || n.includes('php')) {
+    return {
+      primaryIcon: <TbBrandLaravel size={22} className="text-[#FF2D20]" />,
+      secondaryIcon: n.includes('php') ? <TbBrandPhp size={22} className="text-[#777BB4]" /> : undefined,
+      bgClass: 'bg-red-500/10',
+      borderClass: 'border-red-500/25',
+      secondaryBgClass: 'bg-indigo-500/10',
+      secondaryBorderClass: 'border-indigo-500/25',
+    };
+  }
+
+  if (n.includes('supabase')) {
+    return {
+      primaryIcon: <TbBrandSupabase size={22} className="text-[#3ECF8E]" />,
+      bgClass: 'bg-emerald-500/10',
+      borderClass: 'border-emerald-500/25',
+    };
+  }
+
+  if (n.includes('postgre') || n.includes('mysql') || n.includes('sql')) {
+    return {
+      primaryIcon: <SiPostgresql size={20} className="text-[#4169E1]" />,
+      secondaryIcon: n.includes('mysql') ? <TbBrandMysql size={22} className="text-[#00758F]" /> : undefined,
+      bgClass: 'bg-blue-500/10',
+      borderClass: 'border-blue-500/25',
+      secondaryBgClass: 'bg-cyan-500/10',
+      secondaryBorderClass: 'border-cyan-500/25',
+    };
+  }
+
+  if (n.includes('git') || n.includes('github')) {
+    return {
+      primaryIcon: <TbBrandGit size={22} className="text-[#F05032]" />,
+      secondaryIcon: <TbBrandGithub size={20} className="text-slate-800 dark:text-slate-200" />,
+      bgClass: 'bg-orange-500/10',
+      borderClass: 'border-orange-500/25',
+      secondaryBgClass: 'bg-slate-500/10',
+      secondaryBorderClass: 'border-slate-500/25',
+    };
+  }
+
+  if (n.includes('vite')) {
+    return {
+      primaryIcon: <TbBrandVite size={22} className="text-[#646CFF]" />,
+      bgClass: 'bg-purple-500/10',
+      borderClass: 'border-purple-500/25',
+    };
+  }
+
+  if (n.includes('javascript') || n.includes('js')) {
+    return {
+      primaryIcon: <TbBrandJavascript size={22} className="text-[#F7DF1E]" />,
+      bgClass: 'bg-yellow-500/10',
+      borderClass: 'border-yellow-500/25',
+    };
+  }
+
+  if (n.includes('python')) {
+    return {
+      primaryIcon: <TbBrandPython size={22} className="text-[#3776AB]" />,
+      bgClass: 'bg-blue-500/10',
+      borderClass: 'border-blue-500/25',
+    };
+  }
+
+  if (n.includes('vue')) {
+    return {
+      primaryIcon: <TbBrandVue size={22} className="text-[#4FC08D]" />,
+      bgClass: 'bg-emerald-500/10',
+      borderClass: 'border-emerald-500/25',
+    };
+  }
+
+  if (n.includes('node')) {
+    return {
+      primaryIcon: <TbBrandNodejs size={22} className="text-[#5FA04E]" />,
+      bgClass: 'bg-green-500/10',
+      borderClass: 'border-green-500/25',
+    };
+  }
+
+  if (n.includes('docker')) {
+    return {
+      primaryIcon: <TbBrandDocker size={22} className="text-[#2496ED]" />,
+      bgClass: 'bg-sky-500/10',
+      borderClass: 'border-sky-500/25',
+    };
+  }
+
+  if (n.includes('figma')) {
+    return {
+      primaryIcon: <TbBrandFigma size={22} className="text-[#F24E1E]" />,
+      bgClass: 'bg-pink-500/10',
+      borderClass: 'border-pink-500/25',
+    };
+  }
+
+  if (n.includes('html')) {
+    return {
+      primaryIcon: <TbBrandHtml5 size={22} className="text-[#E34F26]" />,
+      bgClass: 'bg-orange-500/10',
+      borderClass: 'border-orange-500/25',
+    };
+  }
+
+  if (n.includes('css')) {
+    return {
+      primaryIcon: <TbBrandCss3 size={22} className="text-[#1572B6]" />,
+      bgClass: 'bg-blue-500/10',
+      borderClass: 'border-blue-500/25',
+    };
+  }
+
+  if (n.includes('mongo')) {
+    return {
+      primaryIcon: <TbBrandMongodb size={22} className="text-[#47A248]" />,
+      bgClass: 'bg-green-500/10',
+      borderClass: 'border-green-500/25',
+    };
+  }
+
+  switch (category.toLowerCase()) {
+    case 'frontend':
+    case 'styling':
+      return {
+        primaryIcon: <TbLayersIntersect size={20} className="text-emerald-400" />,
+        bgClass: 'bg-emerald-500/10',
+        borderClass: 'border-emerald-500/20',
+      };
+    case 'backend':
+    case 'language':
+      return {
+        primaryIcon: <TbCpu size={20} className="text-teal-400" />,
+        bgClass: 'bg-teal-500/10',
+        borderClass: 'border-teal-500/20',
+      };
+    case 'database':
+      return {
+        primaryIcon: <TbDatabase size={20} className="text-cyan-400" />,
+        bgClass: 'bg-cyan-500/10',
+        borderClass: 'border-cyan-500/20',
+      };
+    case 'tools':
+      return {
+        primaryIcon: <TbTool size={20} className="text-emerald-400" />,
+        bgClass: 'bg-emerald-500/10',
+        borderClass: 'border-emerald-500/20',
+      };
+    default:
+      return {
+        primaryIcon: <TbCode size={20} className="text-emerald-400" />,
+        bgClass: 'bg-emerald-500/10',
+        borderClass: 'border-emerald-500/20',
+      };
+  }
+};
 
 const defaultTechList: (SkillWithDesc & { level: string })[] = [
   {
@@ -92,21 +316,6 @@ const TechStack: React.FC<TechStackProps> = ({ skills }) => {
         return true;
       });
 
-  const getCategoryIcon = (category: string) => {
-    switch (category.toLowerCase()) {
-      case 'frontend':
-      case 'styling':
-        return <Layers size={18} className="text-emerald-400" />;
-      case 'backend':
-      case 'language':
-        return <Cpu size={18} className="text-teal-400" />;
-      case 'database':
-        return <Database size={18} className="text-cyan-400" />;
-      default:
-        return <Wrench size={18} className="text-emerald-400" />;
-    }
-  };
-
   return (
     <section id="skills" className="py-24 px-6 max-w-6xl mx-auto relative z-10">
       
@@ -147,6 +356,8 @@ const TechStack: React.FC<TechStackProps> = ({ skills }) => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
         {filteredSkills.map((skill, index) => {
           const isHighlight = index === 0 || index === 3;
+          const brand = getTechBrand(skill.name, skill.category);
+
           return (
             <SpotlightCard
               key={skill.id || index}
@@ -156,10 +367,17 @@ const TechStack: React.FC<TechStackProps> = ({ skills }) => {
             >
               <div className="p-6 sm:p-7 flex flex-col h-full" data-aos="fade-up" data-aos-delay={index * 40}>
                 
-                {/* Card Top: Icon & Badge */}
+                {/* Card Top: Brand Logo(s) & Category Badge */}
                 <div className="flex items-center justify-between mb-5">
-                  <div className="w-10 h-10 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shadow-sm">
-                    {getCategoryIcon(skill.category)}
+                  <div className="flex items-center gap-2">
+                    <div className={`w-10 h-10 rounded-2xl ${brand.bgClass} border ${brand.borderClass} flex items-center justify-center shadow-sm transition-transform duration-300 hover:scale-110`}>
+                      {brand.primaryIcon}
+                    </div>
+                    {brand.secondaryIcon && (
+                      <div className={`w-10 h-10 rounded-2xl ${brand.secondaryBgClass || brand.bgClass} border ${brand.secondaryBorderClass || brand.borderClass} flex items-center justify-center shadow-sm transition-transform duration-300 hover:scale-110`}>
+                        {brand.secondaryIcon}
+                      </div>
+                    )}
                   </div>
                   <span className="text-[11px] font-mono uppercase tracking-wider text-slate-500 dark:text-slate-400 px-2.5 py-1 rounded-full bg-slate-100 dark:bg-white/[0.05] border border-slate-200 dark:border-white/[0.07]">
                     {skill.category}
@@ -169,7 +387,7 @@ const TechStack: React.FC<TechStackProps> = ({ skills }) => {
                 {/* Card Body */}
                 <div className="flex-1">
                   <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2 flex items-center gap-2">
-                    {skill.name}
+                    <span>{skill.name}</span>
                   </h3>
                   <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
                     {skill.description}
@@ -196,3 +414,4 @@ const TechStack: React.FC<TechStackProps> = ({ skills }) => {
 };
 
 export default TechStack;
+
