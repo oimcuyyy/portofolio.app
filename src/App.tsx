@@ -151,22 +151,47 @@ function App() {
     setLoading(false);
   };
 
+  const [failedAttempts, setFailedAttempts] = useState(0);
+  const [lockoutTime, setLockoutTime] = useState<number | null>(null);
+
+  const closeLoginModal = () => {
+    setIsLoginModalOpen(false);
+    setAdminEmail('');
+    setAdminPassword('');
+  };
+
   const handleLoginAdmin = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (lockoutTime && Date.now() < lockoutTime) {
+      const remainingSecs = Math.ceil((lockoutTime - Date.now()) / 1000);
+      alert(`Terlalu banyak percobaan login gagal. Mohon tunggu ${remainingSecs} detik demi keamanan.`);
+      return;
+    }
+
     setLoginLoading(true);
 
     const { error } = await supabase.auth.signInWithPassword({
-      email: adminEmail,
+      email: adminEmail.trim(),
       password: adminPassword,
     });
 
     if (error) {
       setAdminPassword('');
-      alert('Login Gagal: Kredensial tidak valid.');
+      const newAttempts = failedAttempts + 1;
+      setFailedAttempts(newAttempts);
+
+      if (newAttempts >= 5) {
+        setLockoutTime(Date.now() + 30000);
+        setFailedAttempts(0);
+        alert('Terlalu banyak percobaan login gagal. Akses login terkunci sementara selama 30 detik.');
+      } else {
+        alert(`Login Gagal: Kredensial tidak valid. Sisa percobaan: ${5 - newAttempts}`);
+      }
     } else {
-      setIsLoginModalOpen(false);
-      setAdminEmail('');
-      setAdminPassword('');
+      setFailedAttempts(0);
+      setLockoutTime(null);
+      closeLoginModal();
     }
     setLoginLoading(false);
   };
@@ -183,9 +208,29 @@ function App() {
     }
     setAddLoading(true);
 
+    const cleanTitle = sanitizeInput(newProject.title).slice(0, 150);
+    const cleanDesc = sanitizeInput(newProject.description).slice(0, 2000);
+    const cleanImg = newProject.image_url.trim();
+    const cleanGithub = newProject.github_url.trim();
+    const cleanDemo = newProject.demo_url.trim();
+    const cleanStack = newProject.tech_stack
+      .split(',')
+      .map(item => sanitizeInput(item).trim())
+      .filter(Boolean);
+
+    if (!cleanTitle || !cleanDesc) {
+      alert('Judul dan deskripsi proyek wajib diisi.');
+      setAddLoading(false);
+      return;
+    }
+
     const formattedData = {
-      ...newProject,
-      tech_stack: newProject.tech_stack.split(',').map(item => item.trim())
+      title: cleanTitle,
+      description: cleanDesc,
+      image_url: cleanImg,
+      tech_stack: cleanStack,
+      github_url: cleanGithub,
+      demo_url: cleanDemo
     };
 
     const { error } = await supabase.from('projects').insert([formattedData]);
@@ -353,7 +398,7 @@ function App() {
       {isLoginModalOpen && (
         <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
           <div className="bg-white dark:bg-[#070b14] border border-slate-200 dark:border-white/10 w-full max-w-sm rounded-[2rem] shadow-2xl p-7 relative">
-            <button onClick={() => setIsLoginModalOpen(false)} className="absolute top-5 right-5 p-2 rounded-full text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/10 transition cursor-pointer"><X size={18} /></button>
+            <button onClick={closeLoginModal} className="absolute top-5 right-5 p-2 rounded-full text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/10 transition cursor-pointer" aria-label="Close modal"><X size={18} /></button>
             <h3 className="text-lg font-extrabold text-slate-900 dark:text-white mb-5 flex items-center gap-2">
               <Lock size={17} className="text-emerald-500" /> Admin Authentication
             </h3>
@@ -361,11 +406,11 @@ function App() {
             <form onSubmit={handleLoginAdmin} className="space-y-4">
               <div>
                 <label className="block text-xs font-mono uppercase tracking-wider mb-1.5 text-slate-500 dark:text-slate-400">Email</label>
-                <input required type="email" className="w-full bg-slate-100/80 dark:bg-white/[0.05] border border-slate-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-slate-900 dark:text-white text-sm focus:outline-none focus:border-emerald-500" value={adminEmail} onChange={e => setAdminEmail(e.target.value)} />
+                <input required type="email" autoComplete="email" className="w-full bg-slate-100/80 dark:bg-white/[0.05] border border-slate-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-slate-900 dark:text-white text-sm focus:outline-none focus:border-emerald-500" value={adminEmail} onChange={e => setAdminEmail(e.target.value)} />
               </div>
               <div>
                 <label className="block text-xs font-mono uppercase tracking-wider mb-1.5 text-slate-500 dark:text-slate-400">Password</label>
-                <input required type="password" className="w-full bg-slate-100/80 dark:bg-white/[0.05] border border-slate-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-slate-900 dark:text-white text-sm focus:outline-none focus:border-emerald-500" value={adminPassword} onChange={e => setAdminPassword(e.target.value)} />
+                <input required type="password" autoComplete="current-password" className="w-full bg-slate-100/80 dark:bg-white/[0.05] border border-slate-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-slate-900 dark:text-white text-sm focus:outline-none focus:border-emerald-500" value={adminPassword} onChange={e => setAdminPassword(e.target.value)} />
               </div>
               <button disabled={loginLoading} type="submit" className="w-full mt-2 bg-slate-900 dark:bg-white text-white dark:text-slate-950 font-bold py-3 rounded-xl hover:bg-emerald-600 dark:hover:bg-slate-200 transition text-sm cursor-pointer shadow-lg">
                 {loginLoading ? 'Authenticating...' : 'Sign In'}
