@@ -64,7 +64,7 @@ export const SenjaLyricsModal: React.FC = () => {
       }}
     >
       <div className="relative w-full max-w-xl max-h-[90vh] flex flex-col rounded-3xl bg-gradient-to-b from-amber-950/70 via-slate-950/90 to-black/95 border border-amber-500/30 shadow-[0_0_50px_rgba(245,158,11,0.25)] overflow-hidden text-white">
-        
+
         {/* TOP AMBIENT GLOW */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-28 bg-amber-500/15 blur-3xl pointer-events-none" />
 
@@ -119,13 +119,12 @@ export const SenjaLyricsModal: React.FC = () => {
                 key={idx}
                 ref={isActive ? activeLineRef : null}
                 onClick={() => seek(line.time)}
-                className={`group relative p-3 sm:p-4 rounded-2xl transition-all duration-300 cursor-pointer select-none ${
-                  isActive
+                className={`group relative p-3 sm:p-4 rounded-2xl transition-all duration-300 cursor-pointer select-none ${isActive
                     ? 'bg-amber-500/20 border border-amber-500/40 shadow-[0_0_20px_rgba(245,158,11,0.2)] scale-[1.02]'
                     : isPast
-                    ? 'text-white/45 hover:text-white/80 hover:bg-white/[0.03]'
-                    : 'text-white/60 hover:text-white hover:bg-white/[0.04]'
-                }`}
+                      ? 'text-white/45 hover:text-white/80 hover:bg-white/[0.03]'
+                      : 'text-white/60 hover:text-white hover:bg-white/[0.04]'
+                  }`}
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-start gap-3">
@@ -141,11 +140,10 @@ export const SenjaLyricsModal: React.FC = () => {
                     )}
 
                     <p
-                      className={`text-base sm:text-lg font-medium leading-relaxed transition-colors ${
-                        isActive
+                      className={`text-base sm:text-lg font-medium leading-relaxed transition-colors ${isActive
                           ? 'text-amber-200 font-bold drop-shadow-[0_2px_10px_rgba(245,158,11,0.5)]'
                           : ''
-                      }`}
+                        }`}
                     >
                       {line.text}
                     </p>
@@ -164,7 +162,7 @@ export const SenjaLyricsModal: React.FC = () => {
 
         {/* MODAL FOOTER CONTROLS */}
         <div className="relative z-10 p-4 sm:p-6 border-t border-white/10 bg-slate-950/80 backdrop-blur-md flex flex-col gap-3">
-          
+
           {/* Progress Slider */}
           <div className="flex items-center gap-3">
             <span className="text-xs font-mono text-white/60 w-10 text-right">

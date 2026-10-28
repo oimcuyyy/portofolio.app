@@ -20,24 +20,22 @@ const SenjaPlayer: React.FC = () => {
     <>
       <div className="w-full mt-6 max-w-xl" data-aos="fade-up" data-aos-delay="100">
         <div
-          className={`group relative overflow-hidden rounded-2xl p-3 sm:p-4 border transition-all duration-700 backdrop-blur-xl ${
-            isSenjaMode
+          className={`group relative overflow-hidden rounded-2xl p-3 sm:p-4 border transition-all duration-700 backdrop-blur-xl ${isSenjaMode
               ? 'bg-gradient-to-r from-amber-950/45 via-orange-950/35 to-rose-950/45 border-amber-500/40 shadow-[0_0_40px_rgba(245,158,11,0.25)]'
               : 'bg-white/70 dark:bg-white/[0.04] border-slate-200 dark:border-white/10 hover:border-amber-500/30 shadow-md'
-          }`}
+            }`}
         >
           {/* Ambient Warm Sunset Glow behind widget */}
           <div
-            className={`absolute -inset-1 rounded-2xl bg-gradient-to-r from-amber-500/20 via-orange-500/20 to-rose-500/20 blur-xl pointer-events-none transition-opacity duration-700 ${
-              isSenjaMode ? 'opacity-100' : 'opacity-0 group-hover:opacity-50'
-            }`}
+            className={`absolute -inset-1 rounded-2xl bg-gradient-to-r from-amber-500/20 via-orange-500/20 to-rose-500/20 blur-xl pointer-events-none transition-opacity duration-700 ${isSenjaMode ? 'opacity-100' : 'opacity-0 group-hover:opacity-50'
+              }`}
           />
 
           <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
-            
+
             {/* LEFT: Spotify-style Vinyl Record with Artwork + Song Info */}
             <div className="flex items-center gap-3.5 min-w-0 flex-1">
-              
+
               {/* ROTATING SPOTIFY-STYLE VINYL RECORD */}
               <div
                 onClick={togglePlay}
@@ -46,20 +44,18 @@ const SenjaPlayer: React.FC = () => {
               >
                 {/* Vinyl Outer Disc */}
                 <div
-                  className={`relative w-13 h-13 sm:w-14 sm:h-14 rounded-full vinyl-disc p-1 border flex items-center justify-center transition-all duration-700 shadow-lg ${
-                    isPlaying
+                  className={`relative w-13 h-13 sm:w-14 sm:h-14 rounded-full vinyl-disc p-1 border flex items-center justify-center transition-all duration-700 shadow-lg ${isPlaying
                       ? 'border-amber-400/50 shadow-[0_0_20px_rgba(245,158,11,0.5)]'
                       : 'border-white/15 group-hover/vinyl:border-amber-400/40'
-                  }`}
+                    }`}
                 >
                   {/* Concentric Grooves Texture */}
                   <div className="absolute inset-0 rounded-full vinyl-grooves pointer-events-none" />
 
                   {/* Spinning Disc Core with Artwork */}
                   <div
-                    className={`relative w-11 h-11 sm:w-12 sm:h-12 rounded-full overflow-hidden flex items-center justify-center ${
-                      isPlaying ? 'animate-vinyl-spin' : 'animate-vinyl-paused'
-                    }`}
+                    className={`relative w-11 h-11 sm:w-12 sm:h-12 rounded-full overflow-hidden flex items-center justify-center ${isPlaying ? 'animate-vinyl-spin' : 'animate-vinyl-paused'
+                      }`}
                   >
                     {/* Album Art Image (Raim Laode - Dunia yang Nanti) */}
                     <img
@@ -105,11 +101,10 @@ const SenjaPlayer: React.FC = () => {
 
                 {/* Subtitle / Live Lyric Line */}
                 <p
-                  className={`text-xs truncate mt-0.5 transition-all duration-300 ${
-                    isPlaying
+                  className={`text-xs truncate mt-0.5 transition-all duration-300 ${isPlaying
                       ? 'text-amber-700 dark:text-amber-300 font-medium animate-fade-in'
                       : 'text-slate-500 dark:text-slate-400'
-                  }`}
+                    }`}
                   title={currentLyricText}
                 >
                   {currentLyricText}
@@ -129,15 +124,14 @@ const SenjaPlayer: React.FC = () => {
 
             {/* RIGHT: Equalizer Bars, Lirik Button & Play/Pause */}
             <div className="flex items-center gap-2.5 shrink-0 self-end sm:self-center">
-              
+
               {/* Equalizer Bars */}
               <div className="hidden sm:flex items-end gap-1 h-5 px-1.5 py-0.5" aria-hidden="true">
                 {[0, 1, 2, 3].map((bar) => (
                   <span
                     key={bar}
-                    className={`w-1 rounded-full transition-all duration-300 ${
-                      isSenjaMode ? 'bg-amber-400' : 'bg-slate-400 dark:bg-slate-600'
-                    }`}
+                    className={`w-1 rounded-full transition-all duration-300 ${isSenjaMode ? 'bg-amber-400' : 'bg-slate-400 dark:bg-slate-600'
+                      }`}
                     style={{
                       height: isPlaying ? `${[14, 20, 11, 17][bar]}px` : '4px',
                       animation: isPlaying
@@ -163,11 +157,10 @@ const SenjaPlayer: React.FC = () => {
               <button
                 type="button"
                 onClick={togglePlay}
-                className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold tracking-wide transition-all duration-300 shadow-md active:scale-95 cursor-pointer ${
-                  isPlaying
+                className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold tracking-wide transition-all duration-300 shadow-md active:scale-95 cursor-pointer ${isPlaying
                     ? 'bg-gradient-to-r from-amber-500 to-rose-500 text-white shadow-amber-500/30 hover:brightness-110'
                     : 'bg-slate-900 dark:bg-white text-white dark:text-slate-950 hover:bg-amber-600 dark:hover:bg-amber-400 hover:text-white dark:hover:text-slate-950'
-                }`}
+                  }`}
                 aria-label={isPlaying ? 'Jeda Lagu Dunia Yang Nanti' : 'Putar Lagu Dunia Yang Nanti'}
               >
                 {isPlaying ? (
