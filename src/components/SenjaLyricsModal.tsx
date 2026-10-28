@@ -86,7 +86,7 @@ export const SenjaLyricsModal: React.FC = () => {
     >
       {/* SPOTIFY LYRICS CONTAINER */}
       <div className="relative w-full h-full sm:h-[92vh] max-w-2xl sm:rounded-3xl bg-gradient-to-b from-[#1f0e1a] via-[#120716] to-[#07030a] border-0 sm:border sm:border-amber-500/20 shadow-[0_0_80px_rgba(0,0,0,0.9)] flex flex-col overflow-hidden text-white select-none">
-        
+
         {/* Subtle Ambient Dusk Glow */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-4/5 h-44 bg-gradient-to-b from-amber-500/15 via-rose-500/10 to-transparent blur-3xl pointer-events-none" />
 
@@ -143,20 +143,18 @@ export const SenjaLyricsModal: React.FC = () => {
                   lineRefs.current[idx] = el;
                 }}
                 onClick={() => seek(line.time)}
-                className={`transition-all duration-500 cursor-pointer text-left ${
-                  isActive
+                className={`transition-all duration-500 cursor-pointer text-left ${isActive
                     ? 'text-white opacity-100 scale-[1.03] origin-left drop-shadow-[0_4px_24px_rgba(245,158,11,0.35)]'
                     : isPast
-                    ? 'text-white/30 hover:text-white/75 hover:opacity-100'
-                    : 'text-white/45 hover:text-white/85 hover:opacity-100'
-                }`}
+                      ? 'text-white/30 hover:text-white/75 hover:opacity-100'
+                      : 'text-white/45 hover:text-white/85 hover:opacity-100'
+                  }`}
               >
                 <p
-                  className={`font-extrabold tracking-tight transition-all duration-300 select-none ${
-                    isActive
+                  className={`font-extrabold tracking-tight transition-all duration-300 select-none ${isActive
                       ? 'text-2xl sm:text-3xl lg:text-4xl text-amber-100'
                       : 'text-xl sm:text-2xl lg:text-3xl'
-                  }`}
+                    }`}
                 >
                   {line.text}
                 </p>
@@ -167,7 +165,7 @@ export const SenjaLyricsModal: React.FC = () => {
 
         {/* BOTTOM STICKY PLAYER CONTROLLER */}
         <div className="relative z-20 px-5 py-4 sm:px-6 sm:py-5 border-t border-white/[0.08] bg-black/60 backdrop-blur-xl shrink-0 flex flex-col gap-3">
-          
+
           {/* Progress Slider */}
           <div className="flex items-center gap-3">
             <span className="text-xs font-mono text-white/60 w-10 text-right">
