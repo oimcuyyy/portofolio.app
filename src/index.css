@@ -121,6 +121,25 @@
   --sidebar-ring: oklch(0.556 0 0);
 }
 
+/* ==========================================================================
+   SENJA THEME (Sunset Twilight Mode)
+   Inspired by "Dunia yang Nanti" by Raim Laode
+   ========================================================================== */
+html.senja body {
+  background-color: #0e0714 !important;
+  transition: background-color 1s ease, color 1s ease;
+}
+
+html.senja ::selection {
+  background-color: rgba(245, 158, 11, 0.4) !important;
+  color: #fff7ed !important;
+}
+
+html.senja .dark {
+  --border: rgba(245, 158, 11, 0.18);
+  --ring: #f59e0b;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

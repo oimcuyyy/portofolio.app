@@ -1,18 +1,33 @@
 import React from 'react';
-import { ArrowUpRight, Download, MapPin, CheckCircle2 } from 'lucide-react';
+import { ArrowUpRight, Download, MapPin, CheckCircle2, Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
 import profilePhotoWebp from '../assets/profile.webp';
 import profilePhoto from '../assets/profile.jpg';
 import { useLanguage } from '../context/LanguageContext';
+import { useSenja } from '../context/SenjaContext';
+import SenjaPlayer from './SenjaPlayer';
 
 const Hero: React.FC = () => {
   const { t } = useLanguage();
+  const { isSenjaMode } = useSenja();
 
   return (
     <section className="relative min-h-[90dvh] flex items-center justify-center pt-24 sm:pt-28 pb-12 sm:pb-16 overflow-hidden">
-      {/* Ambient background glow orbs */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[340px] sm:w-[520px] h-[340px] sm:h-[520px] bg-emerald-500/10 dark:bg-emerald-500/15 rounded-full blur-[100px] sm:blur-[140px] pointer-events-none -z-10" />
-      <div className="absolute bottom-10 right-10 w-60 sm:w-80 h-60 sm:h-80 bg-cyan-500/10 rounded-full blur-[90px] sm:blur-[120px] pointer-events-none -z-10" />
+      {/* Ambient background glow orbs - Dynamic Sunset transition */}
+      <div 
+        className={`absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[340px] sm:w-[540px] h-[340px] sm:h-[540px] rounded-full blur-[100px] sm:blur-[140px] pointer-events-none -z-10 transition-all duration-1000 ${
+          isSenjaMode
+            ? 'bg-amber-500/25 dark:bg-amber-500/30'
+            : 'bg-emerald-500/10 dark:bg-emerald-500/15'
+        }`} 
+      />
+      <div 
+        className={`absolute bottom-10 right-10 w-60 sm:w-80 h-60 sm:h-80 rounded-full blur-[90px] sm:blur-[120px] pointer-events-none -z-10 transition-all duration-1000 ${
+          isSenjaMode
+            ? 'bg-rose-500/25 dark:bg-rose-500/30'
+            : 'bg-cyan-500/10'
+        }`} 
+      />
 
       <div className="container mx-auto px-5 sm:px-6 max-w-6xl relative z-10">
         <div className="grid lg:grid-cols-12 gap-10 lg:gap-8 items-center">
@@ -20,21 +35,48 @@ const Hero: React.FC = () => {
           {/* LEFT COLUMN: Editorial Typography & Actions */}
           <div className="lg:col-span-7 flex flex-col items-start text-left" data-aos="fade-up" data-aos-duration="800">
 
-            {/* Live Availability Pill */}
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/[0.08] dark:bg-emerald-500/10 border border-emerald-500/25 backdrop-blur-md mb-5 sm:mb-6">
+            {/* Live Availability Pill - Dynamic Senja status */}
+            <div 
+              className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full border backdrop-blur-md mb-5 sm:mb-6 transition-all duration-700 ${
+                isSenjaMode
+                  ? 'bg-amber-500/15 border-amber-500/35 text-amber-600 dark:text-amber-300'
+                  : 'bg-emerald-500/[0.08] dark:bg-emerald-500/10 border-emerald-500/25 text-emerald-700 dark:text-emerald-400'
+              }`}
+            >
               <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+                <span 
+                  className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${
+                    isSenjaMode ? 'bg-amber-400' : 'bg-emerald-400'
+                  }`} 
+                />
+                <span 
+                  className={`relative inline-flex rounded-full h-2 w-2 ${
+                    isSenjaMode ? 'bg-amber-500' : 'bg-emerald-500'
+                  }`} 
+                />
               </span>
-              <span className="text-[11px] sm:text-xs font-semibold tracking-wide text-emerald-700 dark:text-emerald-400 font-mono">
-                {t.hero.availability}
+              <span className="text-[11px] sm:text-xs font-semibold tracking-wide font-mono flex items-center gap-1.5">
+                {isSenjaMode ? (
+                  <>
+                    <Sparkles size={11} className="text-amber-400" />
+                    <span>Menikmati Senja • Bersama Raim Laode</span>
+                  </>
+                ) : (
+                  <span>{t.hero.availability}</span>
+                )}
               </span>
             </div>
 
             {/* Main Title - Confident & Human */}
             <h1 className="text-3xl sm:text-5xl lg:text-[4.25rem] font-extrabold tracking-tight text-slate-900 dark:text-slate-50 leading-[1.12] sm:leading-[1.08] mb-5 sm:mb-6">
               {t.hero.title1}{' '}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 via-teal-400 to-cyan-400">
+              <span 
+                className={`text-transparent bg-clip-text transition-all duration-1000 ${
+                  isSenjaMode
+                    ? 'bg-gradient-to-r from-amber-400 via-orange-400 to-rose-400'
+                    : 'bg-gradient-to-r from-emerald-500 via-teal-400 to-cyan-400'
+                }`}
+              >
                 {t.hero.titleHighlight}
               </span>{' '}
               {t.hero.title2}
@@ -51,7 +93,11 @@ const Hero: React.FC = () => {
               {/* Primary Action */}
               <a
                 href="#projects"
-                className="group relative inline-flex items-center gap-3 pl-6 pr-2.5 py-2.5 rounded-full bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-950 text-sm font-semibold hover:bg-emerald-600 dark:hover:bg-white active:scale-[0.98] transition-all duration-300 shadow-xl shadow-slate-900/10 dark:shadow-[0_0_35px_rgba(16,185,129,0.18)]"
+                className={`group relative inline-flex items-center gap-3 pl-6 pr-2.5 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 shadow-xl active:scale-[0.98] ${
+                  isSenjaMode
+                    ? 'bg-amber-500 text-slate-950 hover:bg-amber-400 shadow-amber-500/20'
+                    : 'bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-950 hover:bg-emerald-600 dark:hover:bg-white shadow-slate-900/10 dark:shadow-[0_0_35px_rgba(16,185,129,0.18)]'
+                }`}
               >
                 <span>{t.hero.ctaProjects}</span>
                 <span className="w-8 h-8 rounded-full bg-white/15 dark:bg-black/10 flex items-center justify-center transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
@@ -63,20 +109,23 @@ const Hero: React.FC = () => {
               <a
                 href="/cv-muhammadrochimuloh.pdf"
                 download
-                className="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-white/60 dark:bg-white/[0.05] border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-200 text-sm font-semibold hover:bg-slate-100 dark:hover:bg-white/10 hover:border-emerald-500/30 transition-all duration-300 active:scale-[0.98] backdrop-blur-md"
+                className="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-white/60 dark:bg-white/[0.05] border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-200 text-sm font-semibold hover:bg-slate-100 dark:hover:bg-white/10 hover:border-amber-500/30 transition-all duration-300 active:scale-[0.98] backdrop-blur-md"
               >
-                <Download size={15} className="text-emerald-500" />
+                <Download size={15} className={isSenjaMode ? 'text-amber-500' : 'text-emerald-500'} />
                 <span>{t.hero.ctaCv}</span>
               </a>
 
               {/* Tertiary Contact Link */}
               <a
                 href="#contact"
-                className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500 hover:text-emerald-500 dark:text-slate-400 dark:hover:text-emerald-400 transition-colors"
+                className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500 hover:text-amber-500 dark:text-slate-400 dark:hover:text-amber-400 transition-colors"
               >
                 {t.hero.ctaContact}
               </a>
             </div>
+
+            {/* SENJA MUSIC PLAYER WIDGET (Dunia Yang Nanti - Raim Laode) */}
+            <SenjaPlayer />
 
             {/* Tech Badges Minimal Row */}
             <div className="mt-12 pt-6 border-t border-slate-200/80 dark:border-white/[0.07] w-full flex flex-wrap items-center gap-6 text-xs text-slate-500 dark:text-slate-400 font-mono">

@@ -1,7 +1,14 @@
 import { useRef, useEffect } from 'react';
+import { useSenja } from '../context/SenjaContext';
 
 export function ParticleNetwork() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const { isSenjaMode } = useSenja();
+  const isSenjaRef = useRef(isSenjaMode);
+
+  useEffect(() => {
+    isSenjaRef.current = isSenjaMode;
+  }, [isSenjaMode]);
 
   useEffect(() => {
     // Respect reduced-motion preferences
@@ -113,13 +120,17 @@ export function ParticleNetwork() {
       let numberOfParticles = (canvas.height * canvas.width) / 12000;
       if (numberOfParticles > maxParticles) numberOfParticles = maxParticles;
 
+      const senjaPalette = ['#fbbf24', '#f97316', '#f43f5e', '#fb7185', '#e879f9'];
+
       for (let i = 0; i < numberOfParticles; i++) {
         let size = (Math.random() * 2) + 1;
         let x = (Math.random() * ((canvas.width - size * 2) - (size * 2)) + size * 2);
         let y = (Math.random() * ((canvas.height - size * 2) - (size * 2)) + size * 2);
         let directionX = (Math.random() * 1.5) - 0.75;
         let directionY = (Math.random() * 1.5) - 0.75;
-        let color = '#10b981'; // Emerald neon green
+        let color = isSenjaRef.current 
+          ? senjaPalette[i % senjaPalette.length]
+          : '#10b981';
         particlesArray.push(new Particle(x, y, directionX, directionY, size, color));
       }
     }
@@ -128,6 +139,7 @@ export function ParticleNetwork() {
       if (!ctx) return;
       const len = particlesArray.length;
       ctx.lineWidth = 0.8;
+      const isSenja = isSenjaRef.current;
 
       for (let a = 0; a < len; a++) {
         const pA = particlesArray[a];
@@ -138,8 +150,10 @@ export function ParticleNetwork() {
           const distSq = dx * dx + dy * dy;
 
           if (distSq < 10000) {
-            const opacity = (1 - (distSq / 10000)) * 0.35;
-            ctx.strokeStyle = `rgba(16, 185, 129, ${opacity})`;
+            const opacity = (1 - (distSq / 10000)) * (isSenja ? 0.45 : 0.35);
+            ctx.strokeStyle = isSenja 
+              ? `rgba(251, 146, 60, ${opacity})`
+              : `rgba(16, 185, 129, ${opacity})`;
             ctx.beginPath();
             ctx.moveTo(pA.x, pA.y);
             ctx.lineTo(pB.x, pB.y);
@@ -180,7 +194,7 @@ export function ParticleNetwork() {
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseout', handleMouseOut);
     };
-  }, []);
+  }, [isSenjaMode]);
 
   return (
     <canvas
