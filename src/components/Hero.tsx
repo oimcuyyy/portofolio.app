@@ -16,10 +16,10 @@ const Hero: React.FC = () => {
 
       <div className="container mx-auto px-5 sm:px-6 max-w-6xl relative z-10">
         <div className="grid lg:grid-cols-12 gap-10 lg:gap-8 items-center">
-          
+
           {/* LEFT COLUMN: Editorial Typography & Actions */}
           <div className="lg:col-span-7 flex flex-col items-start text-left" data-aos="fade-up" data-aos-duration="800">
-            
+
             {/* Live Availability Pill */}
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/[0.08] dark:bg-emerald-500/10 border border-emerald-500/25 backdrop-blur-md mb-5 sm:mb-6">
               <span className="relative flex h-2 w-2">
@@ -47,7 +47,7 @@ const Hero: React.FC = () => {
 
             {/* CTA Button Group with Nested Button-in-Button */}
             <div className="flex flex-wrap items-center gap-4 w-full sm:w-auto">
-              
+
               {/* Primary Action */}
               <a
                 href="#projects"
@@ -95,13 +95,13 @@ const Hero: React.FC = () => {
           {/* RIGHT COLUMN: DOUBLE-BEZEL HARDWARE PROFILE PHOTO CARD */}
           <div className="lg:col-span-5 flex justify-center" data-aos="fade-left" data-aos-duration="1000">
             <div className="relative group w-full max-w-sm sm:max-w-md">
-              
+
               {/* Outer Shell (Double-Bezel Hardware Enclosure) */}
               <div className="relative p-2.5 sm:p-3 rounded-[2.5rem] bg-gradient-to-b from-white/15 to-white/5 dark:from-white/10 dark:to-transparent border border-white/20 dark:border-white/10 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.4)] backdrop-blur-2xl">
-                
+
                 {/* Inner Core */}
                 <div className="relative rounded-[2rem] overflow-hidden bg-slate-900 border border-white/10 shadow-[inset_0_1px_1px_rgba(255,255,255,0.2)]">
-                  
+
                   {/* The User Photo */}
                   <div className="aspect-[3/4] sm:aspect-[4/5] relative overflow-hidden bg-slate-950">
                     <picture>

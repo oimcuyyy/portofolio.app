@@ -29,19 +29,19 @@ export function ParticleNetwork() {
       canvas.height = window.innerHeight;
       init();
     };
-    
+
     window.addEventListener('resize', handleResize);
 
     const handleMouseMove = (e: MouseEvent) => {
       mouse.x = e.clientX;
       mouse.y = e.clientY;
     };
-    
+
     const handleMouseOut = () => {
       mouse.x = null;
       mouse.y = null;
     };
-    
+
     window.addEventListener('mousemove', handleMouseMove);
     window.addEventListener('mouseout', handleMouseOut);
 
@@ -72,7 +72,7 @@ export function ParticleNetwork() {
 
       update() {
         if (!canvas) return;
-        
+
         // Bounce off edges
         if (this.x > canvas.width || this.x < 0) {
           this.directionX = -this.directionX;
@@ -86,7 +86,7 @@ export function ParticleNetwork() {
           let dx = mouse.x - this.x;
           let dy = mouse.y - this.y;
           let distance = Math.sqrt(dx * dx + dy * dy);
-          
+
           if (distance < mouse.radius + this.size) {
             const forceDirectionX = dx / distance;
             const forceDirectionY = dy / distance;
@@ -99,7 +99,7 @@ export function ParticleNetwork() {
             this.y -= directionY;
           }
         }
-        
+
         // Move particle
         this.x += this.directionX;
         this.y += this.directionY;
@@ -111,8 +111,8 @@ export function ParticleNetwork() {
       if (!canvas) return;
       particlesArray = [];
       let numberOfParticles = (canvas.height * canvas.width) / 12000;
-      if(numberOfParticles > maxParticles) numberOfParticles = maxParticles;
-      
+      if (numberOfParticles > maxParticles) numberOfParticles = maxParticles;
+
       for (let i = 0; i < numberOfParticles; i++) {
         let size = (Math.random() * 2) + 1;
         let x = (Math.random() * ((canvas.width - size * 2) - (size * 2)) + size * 2);
@@ -183,8 +183,8 @@ export function ParticleNetwork() {
   }, []);
 
   return (
-    <canvas 
-      ref={canvasRef} 
+    <canvas
+      ref={canvasRef}
       className="fixed inset-0 z-0 pointer-events-none opacity-40 mix-blend-screen"
     />
   );
