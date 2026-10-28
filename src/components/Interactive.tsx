@@ -69,16 +69,14 @@ export function CustomCursor() {
           opacity: 1,
         }}
         transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-        className={`rounded-full transition-colors duration-200 ${
-          isHovered
+        className={`rounded-full transition-colors duration-200 ${isHovered
             ? 'w-9 h-9 border border-emerald-400/80 bg-emerald-500/15 backdrop-blur-[1px]'
             : 'w-4 h-4 border border-emerald-400/60 bg-emerald-400/20'
-        } flex items-center justify-center`}
+          } flex items-center justify-center`}
       >
         <span
-          className={`rounded-full bg-emerald-400 transition-all duration-200 ${
-            isHovered ? 'w-1.5 h-1.5 opacity-80' : 'w-1 h-1 opacity-100'
-          }`}
+          className={`rounded-full bg-emerald-400 transition-all duration-200 ${isHovered ? 'w-1.5 h-1.5 opacity-80' : 'w-1 h-1 opacity-100'
+            }`}
         />
       </motion.div>
     </motion.div>
