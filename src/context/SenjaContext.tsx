@@ -96,7 +96,7 @@ class AcousticSunsetSynthesizer {
     if (this.ctx && this.ctx.state !== 'closed') {
       try {
         this.ctx.close();
-      } catch {}
+      } catch { }
       this.ctx = null;
     }
   }
@@ -172,7 +172,7 @@ export const SenjaProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       synthRef.current?.stop();
       try {
         ytPlayerRef.current?.destroy();
-      } catch {}
+      } catch { }
     };
   }, []);
 
@@ -213,7 +213,7 @@ export const SenjaProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       if (ytPlayerRef.current && isYtReadyRef.current) {
         ytPlayerRef.current.pauseVideo();
       }
-    } catch {}
+    } catch { }
 
     synthRef.current?.stop();
   };
@@ -240,8 +240,8 @@ export const SenjaProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     >
       {children}
       {/* Invisible YouTube Player Container */}
-      <div 
-        id="senja-yt-wrapper" 
+      <div
+        id="senja-yt-wrapper"
         className="fixed -top-[9999px] -left-[9999px] w-[1px] h-[1px] opacity-0 pointer-events-none overflow-hidden"
         aria-hidden="true"
       >

@@ -128,7 +128,7 @@ export function ParticleNetwork() {
         let y = (Math.random() * ((canvas.height - size * 2) - (size * 2)) + size * 2);
         let directionX = (Math.random() * 1.5) - 0.75;
         let directionY = (Math.random() * 1.5) - 0.75;
-        let color = isSenjaRef.current 
+        let color = isSenjaRef.current
           ? senjaPalette[i % senjaPalette.length]
           : '#10b981';
         particlesArray.push(new Particle(x, y, directionX, directionY, size, color));
@@ -151,7 +151,7 @@ export function ParticleNetwork() {
 
           if (distSq < 10000) {
             const opacity = (1 - (distSq / 10000)) * (isSenja ? 0.45 : 0.35);
-            ctx.strokeStyle = isSenja 
+            ctx.strokeStyle = isSenja
               ? `rgba(251, 146, 60, ${opacity})`
               : `rgba(16, 185, 129, ${opacity})`;
             ctx.beginPath();
