@@ -1,182 +1,96 @@
-import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef, useMemo } from 'react';
+import { DUNIA_YANG_NANTI_LYRICS } from '../data/lyrics';
 
 interface SenjaContextType {
   isSenjaMode: boolean;
   isPlaying: boolean;
+  currentTime: number;
+  duration: number;
+  volume: number;
+  isLyricsOpen: boolean;
+  currentLyricIndex: number;
+  currentLyricText: string;
   togglePlay: () => void;
   play: () => void;
   pause: () => void;
-  volume: number;
+  seek: (time: number) => void;
   setVolume: (v: number) => void;
+  toggleLyrics: () => void;
+  setIsLyricsOpen: (open: boolean) => void;
 }
 
 const SenjaContext = createContext<SenjaContextType | undefined>(undefined);
 
-// Web Audio Ambient Acoustic Guitar Engine (Dunia Yang Nanti chords: D - F#m - G - A)
-class AcousticSunsetSynthesizer {
-  private ctx: AudioContext | null = null;
-  private isRunning = false;
-  private timer: any = null;
-
-  start() {
-    if (this.isRunning) return;
-    try {
-      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
-      if (!AudioCtx) return;
-      this.ctx = new AudioCtx();
-      this.isRunning = true;
-
-      // Chord progression for "Dunia Yang Nanti" (D, F#m, G, A) in Hz
-      const chords = [
-        [146.83, 220.00, 293.66, 369.99, 440.00], // D Major
-        [185.00, 220.00, 277.18, 369.99, 440.00], // F# minor
-        [196.00, 246.94, 293.66, 392.00, 493.88], // G Major
-        [220.00, 277.18, 329.63, 440.00, 554.37], // A Major
-      ];
-
-      let chordIdx = 0;
-      let noteIdx = 0;
-
-      const playPluck = () => {
-        if (!this.isRunning || !this.ctx) return;
-        const currentChord = chords[chordIdx];
-        const freq = currentChord[noteIdx % currentChord.length];
-
-        this.pluckNote(freq);
-
-        noteIdx++;
-        if (noteIdx >= 8) {
-          noteIdx = 0;
-          chordIdx = (chordIdx + 1) % chords.length;
-        }
-
-        // Fingerstyle tempo ~ 105 BPM
-        this.timer = setTimeout(playPluck, 280);
-      };
-
-      playPluck();
-    } catch (e) {
-      console.warn('Acoustic synthesizer fallback error:', e);
-    }
-  }
-
-  private pluckNote(freq: number) {
-    if (!this.ctx) return;
-    const now = this.ctx.currentTime;
-
-    const osc = this.ctx.createOscillator();
-    const gain = this.ctx.createGain();
-    const filter = this.ctx.createBiquadFilter();
-
-    // Warm acoustic guitar sound
-    osc.type = 'triangle';
-    osc.frequency.setValueAtTime(freq, now);
-
-    // Warm low-pass acoustic resonance
-    filter.type = 'lowpass';
-    filter.frequency.setValueAtTime(freq * 3.5, now);
-    filter.frequency.exponentialRampToValueAtTime(freq * 1.2, now + 0.8);
-
-    // Pluck envelope
-    gain.gain.setValueAtTime(0.001, now);
-    gain.gain.linearRampToValueAtTime(0.12, now + 0.02);
-    gain.gain.exponentialRampToValueAtTime(0.0001, now + 1.2);
-
-    osc.connect(filter);
-    filter.connect(gain);
-    gain.connect(this.ctx.destination);
-
-    osc.start(now);
-    osc.stop(now + 1.3);
-  }
-
-  stop() {
-    this.isRunning = false;
-    if (this.timer) clearTimeout(this.timer);
-    if (this.ctx && this.ctx.state !== 'closed') {
-      try {
-        this.ctx.close();
-      } catch { }
-      this.ctx = null;
-    }
-  }
-}
-
 export const SenjaProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isSenjaMode, setIsSenjaMode] = useState(false);
-  const [volume, setVolume] = useState(0.8);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(200.55); // ~3m20s song duration
+  const [volume, setVolumeState] = useState(0.85);
+  const [isLyricsOpen, setIsLyricsOpen] = useState(false);
 
-  const synthRef = useRef<AcousticSunsetSynthesizer | null>(null);
-  const ytPlayerRef = useRef<any>(null);
-  const isYtReadyRef = useRef<boolean>(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  // Initialize YouTube Iframe Player in background
+  // Setup native HTML5 audio with zero-latency preloading
   useEffect(() => {
-    synthRef.current = new AcousticSunsetSynthesizer();
+    const audio = new Audio();
+    audio.preload = 'auto';
+    audio.volume = volume;
 
-    // Function to initialize YT player
-    const initYT = () => {
-      if ((window as any).YT && (window as any).YT.Player) {
-        try {
-          ytPlayerRef.current = new (window as any).YT.Player('senja-youtube-frame', {
-            height: '1',
-            width: '1',
-            videoId: 'awWKxGftWh4', // Raim Laode - Dunia Yang Nanti (Official)
-            playerVars: {
-              autoplay: 0,
-              controls: 0,
-              disablekb: 1,
-              enablejsapi: 1,
-              fs: 0,
-              modestbranding: 1,
-              playsinline: 1,
-              rel: 0,
-              origin: window.location.origin,
-            },
-            events: {
-              onReady: () => {
-                isYtReadyRef.current = true;
-                if (ytPlayerRef.current && typeof ytPlayerRef.current.setVolume === 'function') {
-                  ytPlayerRef.current.setVolume(Math.round(volume * 100));
-                }
-              },
-              onStateChange: (event: any) => {
-                // YT.PlayerState.ENDED = 0
-                if (event.data === 0) {
-                  pause();
-                }
-              },
-              onError: (err: any) => {
-                console.warn('[Senja Music] YouTube player fallback to synth:', err);
-              },
-            },
-          });
-        } catch (e) {
-          console.warn('[Senja Music] YT embed init warning:', e);
-        }
+    // Prioritize AAC m4a with fallback to WebM
+    const canPlayM4A = audio.canPlayType('audio/mp4; codecs="mp4a.40.2"');
+    if (canPlayM4A === 'probably' || canPlayM4A === 'maybe') {
+      audio.src = '/audio/dunia-yang-nanti.m4a';
+    } else {
+      audio.src = '/audio/dunia-yang-nanti.webm';
+    }
+
+    const handleLoadedMetadata = () => {
+      if (audio.duration && !isNaN(audio.duration) && isFinite(audio.duration)) {
+        setDuration(audio.duration);
       }
     };
 
-    if (!(window as any).YT) {
-      const tag = document.createElement('script');
-      tag.src = 'https://www.youtube.com/iframe_api';
-      const firstScriptTag = document.getElementsByTagName('script')[0];
-      firstScriptTag?.parentNode?.insertBefore(tag, firstScriptTag);
-      (window as any).onYouTubeIframeAPIReady = initYT;
-    } else {
-      initYT();
-    }
+    const handleTimeUpdate = () => {
+      setCurrentTime(audio.currentTime);
+    };
+
+    const handleEnded = () => {
+      setIsPlaying(false);
+      setIsSenjaMode(false);
+      setCurrentTime(0);
+    };
+
+    const handlePlay = () => {
+      setIsPlaying(true);
+      setIsSenjaMode(true);
+    };
+
+    const handlePause = () => {
+      setIsPlaying(false);
+    };
+
+    audio.addEventListener('loadedmetadata', handleLoadedMetadata);
+    audio.addEventListener('timeupdate', handleTimeUpdate);
+    audio.addEventListener('ended', handleEnded);
+    audio.addEventListener('play', handlePlay);
+    audio.addEventListener('pause', handlePause);
+
+    audioRef.current = audio;
 
     return () => {
-      synthRef.current?.stop();
-      try {
-        ytPlayerRef.current?.destroy();
-      } catch { }
+      audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
+      audio.removeEventListener('timeupdate', handleTimeUpdate);
+      audio.removeEventListener('ended', handleEnded);
+      audio.removeEventListener('play', handlePlay);
+      audio.removeEventListener('pause', handlePause);
+      audio.pause();
+      audio.src = '';
+      audioRef.current = null;
     };
   }, []);
 
-  // Sync document class when Senja Mode changes
+  // Sync Senja Mode styling to root HTML class
   useEffect(() => {
     if (isSenjaMode) {
       document.documentElement.classList.add('senja');
@@ -185,37 +99,45 @@ export const SenjaProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
   }, [isSenjaMode]);
 
-  const play = () => {
-    setIsPlaying(true);
-    setIsSenjaMode(true);
-
-    let playedYT = false;
-    if (ytPlayerRef.current && isYtReadyRef.current) {
-      try {
-        ytPlayerRef.current.playVideo();
-        playedYT = true;
-      } catch (err) {
-        console.warn('YT play failed, using acoustic fallback', err);
+  // Compute active lyric index based on currentTime
+  const currentLyricIndex = useMemo(() => {
+    let index = -1;
+    for (let i = 0; i < DUNIA_YANG_NANTI_LYRICS.length; i++) {
+      if (currentTime >= DUNIA_YANG_NANTI_LYRICS[i].time) {
+        index = i;
+      } else {
+        break;
       }
     }
+    return index;
+  }, [currentTime]);
 
-    // If YouTube isn't ready or blocked, immediately play acoustic synthesizer
-    if (!playedYT) {
-      synthRef.current?.start();
+  const currentLyricText = useMemo(() => {
+    if (currentLyricIndex >= 0 && currentLyricIndex < DUNIA_YANG_NANTI_LYRICS.length) {
+      return DUNIA_YANG_NANTI_LYRICS[currentLyricIndex].text;
+    }
+    return isPlaying ? '♫ Raim Laode — Dunia yang Nanti' : 'Raim Laode — Sentuh untuk memutar lagu & suasana senja';
+  }, [currentLyricIndex, isPlaying]);
+
+  // Zero-delay playback trigger
+  const play = () => {
+    if (!audioRef.current) return;
+    setIsSenjaMode(true);
+    setIsPlaying(true);
+    const playPromise = audioRef.current.play();
+    if (playPromise !== undefined) {
+      playPromise.catch((err) => {
+        console.warn('Playback interrupted or autoplay restricted:', err);
+        setIsPlaying(false);
+      });
     }
   };
 
   const pause = () => {
+    if (!audioRef.current) return;
+    audioRef.current.pause();
     setIsPlaying(false);
     setIsSenjaMode(false);
-
-    try {
-      if (ytPlayerRef.current && isYtReadyRef.current) {
-        ytPlayerRef.current.pauseVideo();
-      }
-    } catch { }
-
-    synthRef.current?.stop();
   };
 
   const togglePlay = () => {
@@ -226,27 +148,49 @@ export const SenjaProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
   };
 
+  const seek = (time: number) => {
+    if (!audioRef.current) return;
+    const clamped = Math.max(0, Math.min(time, duration));
+    audioRef.current.currentTime = clamped;
+    setCurrentTime(clamped);
+    if (!isPlaying) {
+      play();
+    }
+  };
+
+  const setVolume = (v: number) => {
+    const clamped = Math.max(0, Math.min(v, 1));
+    setVolumeState(clamped);
+    if (audioRef.current) {
+      audioRef.current.volume = clamped;
+    }
+  };
+
+  const toggleLyrics = () => {
+    setIsLyricsOpen((prev) => !prev);
+  };
+
   return (
     <SenjaContext.Provider
       value={{
         isSenjaMode,
         isPlaying,
+        currentTime,
+        duration,
+        volume,
+        isLyricsOpen,
+        currentLyricIndex,
+        currentLyricText,
         togglePlay,
         play,
         pause,
-        volume,
+        seek,
         setVolume,
+        toggleLyrics,
+        setIsLyricsOpen,
       }}
     >
       {children}
-      {/* Invisible YouTube Player Container */}
-      <div
-        id="senja-yt-wrapper"
-        className="fixed -top-[9999px] -left-[9999px] w-[1px] h-[1px] opacity-0 pointer-events-none overflow-hidden"
-        aria-hidden="true"
-      >
-        <div id="senja-youtube-frame" />
-      </div>
     </SenjaContext.Provider>
   );
 };
