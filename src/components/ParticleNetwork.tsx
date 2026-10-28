@@ -58,22 +58,22 @@ export function ParticleNetwork() {
       directionX: number;
       directionY: number;
       size: number;
-      color: string;
+      senjaColor: string;
 
-      constructor(x: number, y: number, directionX: number, directionY: number, size: number, color: string) {
+      constructor(x: number, y: number, directionX: number, directionY: number, size: number, senjaColor: string) {
         this.x = x;
         this.y = y;
         this.directionX = directionX;
         this.directionY = directionY;
         this.size = size;
-        this.color = color;
+        this.senjaColor = senjaColor;
       }
 
       draw() {
         if (!ctx) return;
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2, false);
-        ctx.fillStyle = this.color;
+        ctx.fillStyle = isSenjaRef.current ? this.senjaColor : '#10b981';
         ctx.fill();
       }
 
@@ -128,10 +128,8 @@ export function ParticleNetwork() {
         let y = (Math.random() * ((canvas.height - size * 2) - (size * 2)) + size * 2);
         let directionX = (Math.random() * 1.5) - 0.75;
         let directionY = (Math.random() * 1.5) - 0.75;
-        let color = isSenjaRef.current
-          ? senjaPalette[i % senjaPalette.length]
-          : '#10b981';
-        particlesArray.push(new Particle(x, y, directionX, directionY, size, color));
+        const senjaColor = senjaPalette[i % senjaPalette.length];
+        particlesArray.push(new Particle(x, y, directionX, directionY, size, senjaColor));
       }
     }
 
