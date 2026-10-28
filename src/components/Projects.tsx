@@ -2,7 +2,7 @@ import React from 'react';
 import { PlusCircle, LogOut, Code2, ExternalLink, ArrowUpRight, FolderGit2 } from 'lucide-react';
 import type { Project } from '../types';
 import { SpotlightCard } from './Interactive';
-
+import { sanitizeUrl } from '../lib/waf';
 import { useLanguage } from '../context/LanguageContext';
 
 interface ProjectsProps {
@@ -151,7 +151,7 @@ const Projects: React.FC<ProjectsProps> = ({
                   >
                     {project.github_url ? (
                       <a
-                        href={project.github_url}
+                        href={sanitizeUrl(project.github_url)}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-1.5 text-xs font-mono font-semibold text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors"
@@ -165,7 +165,7 @@ const Projects: React.FC<ProjectsProps> = ({
 
                     {project.demo_url && (
                       <a
-                        href={project.demo_url}
+                        href={sanitizeUrl(project.demo_url)}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-1.5 text-xs font-mono font-semibold text-emerald-600 dark:text-emerald-400 hover:underline transition-colors"

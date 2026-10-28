@@ -4,18 +4,24 @@ export function ParticleNetwork() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
+    // Respect reduced-motion preferences
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      return;
+    }
+
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
     let particlesArray: Particle[] = [];
-    const maxParticles = 100;
+    const isMobile = window.innerWidth < 768;
+    const maxParticles = isMobile ? 28 : 55;
 
     let mouse = {
       x: null as number | null,
       y: null as number | null,
-      radius: 150
+      radius: isMobile ? 90 : 130
     };
 
     const handleResize = () => {
@@ -119,42 +125,57 @@ export function ParticleNetwork() {
     }
 
     function connect() {
-      let opacityValue = 1;
-      for (let a = 0; a < particlesArray.length; a++) {
-        for (let b = a; b < particlesArray.length; b++) {
-          let distance = ((particlesArray[a].x - particlesArray[b].x) * (particlesArray[a].x - particlesArray[b].x))
-            + ((particlesArray[a].y - particlesArray[b].y) * (particlesArray[a].y - particlesArray[b].y));
-          
-          if (distance < 12000) {
-            opacityValue = 1 - (distance / 12000);
-            ctx!.strokeStyle = `rgba(16, 185, 129, ${opacityValue * 0.5})`;
-            ctx!.lineWidth = 1;
-            ctx!.beginPath();
-            ctx!.moveTo(particlesArray[a].x, particlesArray[a].y);
-            ctx!.lineTo(particlesArray[b].x, particlesArray[b].y);
-            ctx!.stroke();
+      if (!ctx) return;
+      const len = particlesArray.length;
+      ctx.lineWidth = 0.8;
+
+      for (let a = 0; a < len; a++) {
+        const pA = particlesArray[a];
+        for (let b = a + 1; b < len; b++) {
+          const pB = particlesArray[b];
+          const dx = pA.x - pB.x;
+          const dy = pA.y - pB.y;
+          const distSq = dx * dx + dy * dy;
+
+          if (distSq < 10000) {
+            const opacity = (1 - (distSq / 10000)) * 0.35;
+            ctx.strokeStyle = `rgba(16, 185, 129, ${opacity})`;
+            ctx.beginPath();
+            ctx.moveTo(pA.x, pA.y);
+            ctx.lineTo(pB.x, pB.y);
+            ctx.stroke();
           }
         }
       }
     }
 
     let animationId: number;
+    let isPaused = false;
+
     function animate() {
-      animationId = requestAnimationFrame(animate);
-      if (!canvas || !ctx) return;
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      
-      for (let i = 0; i < particlesArray.length; i++) {
-        particlesArray[i].update();
+      if (!isPaused) {
+        if (canvas && ctx) {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          for (let i = 0; i < particlesArray.length; i++) {
+            particlesArray[i].update();
+          }
+          connect();
+        }
       }
-      connect();
+      animationId = requestAnimationFrame(animate);
     }
+
+    const handleVisibilityChange = () => {
+      isPaused = document.hidden;
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
 
     handleResize(); // sets width, height, and calls init()
     animate();
 
     return () => {
       cancelAnimationFrame(animationId);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
       window.removeEventListener('resize', handleResize);
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseout', handleMouseOut);

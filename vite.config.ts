@@ -10,4 +10,29 @@ export default defineConfig({
       "@": fileURLToPath(new URL("./src", import.meta.url)),
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id: string) {
+          if (id.includes("node_modules/react/") || id.includes("node_modules/react-dom/")) {
+            return "vendor-react"
+          }
+          if (id.includes("node_modules/@supabase/")) {
+            return "vendor-supabase"
+          }
+          if (id.includes("node_modules/framer-motion/") || id.includes("node_modules/aos/")) {
+            return "vendor-motion"
+          }
+          if (
+            id.includes("node_modules/lucide-react/") ||
+            id.includes("node_modules/@tabler/") ||
+            id.includes("node_modules/react-icons/")
+          ) {
+            return "vendor-icons"
+          }
+        },
+      },
+    },
+    chunkSizeWarningLimit: 600,
+  },
 })

@@ -1,6 +1,7 @@
 import React from 'react';
 import { ArrowUpRight, Download, MapPin, CheckCircle2 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import profilePhotoWebp from '../assets/profile.webp';
 import profilePhoto from '../assets/profile.jpg';
 import { useLanguage } from '../context/LanguageContext';
 
@@ -103,11 +104,18 @@ const Hero: React.FC = () => {
                   
                   {/* The User Photo */}
                   <div className="aspect-[3/4] sm:aspect-[4/5] relative overflow-hidden bg-slate-950">
-                    <img
-                      src={profilePhoto}
-                      alt="Muhammad Rochimuloh"
-                      className="w-full h-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-105"
-                    />
+                    <picture>
+                      <source srcSet={profilePhotoWebp} type="image/webp" />
+                      <img
+                        src={profilePhoto}
+                        alt="Muhammad Rochimuloh"
+                        width={670}
+                        height={1024}
+                        fetchPriority="high"
+                        decoding="async"
+                        className="w-full h-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-105"
+                      />
+                    </picture>
 
                     {/* Subtle Lighting Vignette */}
                     <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/20 to-transparent opacity-60" />

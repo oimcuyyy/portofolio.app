@@ -4,6 +4,14 @@ import 'aos/dist/aos.css';
 import { supabase } from './lib/supabase';
 import type { Project, Skill } from './types';
 import { X, Lock, Info, ExternalLink, Code2 } from 'lucide-react';
+import {
+  initUrlTamperingGuard,
+  inspectPayload,
+  sanitizeUrl,
+  isValidSafeUrl,
+  checkRateLimit,
+  sanitizeText,
+} from './lib/waf';
 import { CustomCursor } from './components/Interactive';
 import { ParticleNetwork } from './components/ParticleNetwork';
 import Navbar from './components/Navbar';
@@ -53,6 +61,9 @@ function App() {
   const [addLoading, setAddLoading] = useState(false);
 
   useEffect(() => {
+    // Run WAF URL Tampering Guard to neutralize any query param or hash manipulation
+    initUrlTamperingGuard();
+
     AOS.init({
       duration: 1000,
       once: true,
@@ -100,25 +111,42 @@ function App() {
     if (messagesData) setMessages(messagesData);
   };
 
-  const sanitizeInput = (str: string) => {
-    return str.replace(/<[^>]*>?/gm, '').trim();
-  };
-
   const handleSubmitMessage = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // WAF Rate Limiter: max 3 messages per minute
+    const rateCheck = checkRateLimit('contact_submit', 3, 60000);
+    if (!rateCheck.allowed) {
+      alert(`[WAF Shield] Terlalu banyak pengiriman pesan. Mohon tunggu ${rateCheck.remainingSecs} detik sebelum mencoba lagi.`);
+      return;
+    }
+
     setLoading(true);
 
-    // Anti-spam cooldown check (20 seconds)
-    const lastSent = localStorage.getItem('last_msg_sent_ts');
-    if (lastSent && Date.now() - parseInt(lastSent, 10) < 20000) {
-      alert('Mohon tunggu beberapa detik sebelum mengirim pesan berikutnya.');
+    // WAF Deep Inspection for SQL Injection and XSS attacks
+    const checkName = inspectPayload(formData.name, 'Nama');
+    const checkEmail = inspectPayload(formData.email, 'Email');
+    const checkMsg = inspectPayload(formData.message, 'Pesan');
+
+    if (!checkName.isSafe) {
+      alert(`[WAF Alert] ${checkName.reason}`);
+      setLoading(false);
+      return;
+    }
+    if (!checkEmail.isSafe) {
+      alert(`[WAF Alert] ${checkEmail.reason}`);
+      setLoading(false);
+      return;
+    }
+    if (!checkMsg.isSafe) {
+      alert(`[WAF Alert] ${checkMsg.reason}`);
       setLoading(false);
       return;
     }
 
-    const cleanName = sanitizeInput(formData.name).slice(0, 100);
-    const cleanEmail = sanitizeInput(formData.email).slice(0, 120);
-    const cleanMessage = sanitizeInput(formData.message).slice(0, 2000);
+    const cleanName = checkName.sanitized.slice(0, 100);
+    const cleanEmail = checkEmail.sanitized.slice(0, 120);
+    const cleanMessage = checkMsg.sanitized.slice(0, 2000);
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!cleanName || !cleanEmail || !cleanMessage) {
@@ -140,7 +168,6 @@ function App() {
     }]);
 
     if (!error) {
-      localStorage.setItem('last_msg_sent_ts', Date.now().toString());
       setSentSuccess(true);
       setFormData({ name: '', email: '', message: '' });
       setTimeout(() => setSentSuccess(false), 5000);
@@ -163,16 +190,30 @@ function App() {
   const handleLoginAdmin = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // WAF Rate Limiter: max 5 login attempts per minute
+    const rateCheck = checkRateLimit('admin_login', 5, 60000);
+    if (!rateCheck.allowed) {
+      alert(`[WAF Shield] Terlalu banyak percobaan login. Akses dibatasi selama ${rateCheck.remainingSecs} detik.`);
+      return;
+    }
+
     if (lockoutTime && Date.now() < lockoutTime) {
       const remainingSecs = Math.ceil((lockoutTime - Date.now()) / 1000);
       alert(`Terlalu banyak percobaan login gagal. Mohon tunggu ${remainingSecs} detik demi keamanan.`);
       return;
     }
 
+    // WAF Inspection on admin email input
+    const emailCheck = inspectPayload(adminEmail, 'Email');
+    if (!emailCheck.isSafe) {
+      alert(`[WAF Alert] ${emailCheck.reason}`);
+      return;
+    }
+
     setLoginLoading(true);
 
     const { error } = await supabase.auth.signInWithPassword({
-      email: adminEmail.trim(),
+      email: emailCheck.sanitized.trim(),
       password: adminPassword,
     });
 
@@ -203,19 +244,51 @@ function App() {
   const handleAddProject = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!session) {
-      alert('Anda harus login sebagai admin!');
+      alert('Akses Ditolak: Anda harus login sebagai admin untuk menambah proyek!');
       return;
     }
     setAddLoading(true);
 
-    const cleanTitle = sanitizeInput(newProject.title).slice(0, 150);
-    const cleanDesc = sanitizeInput(newProject.description).slice(0, 2000);
+    // WAF Inspection
+    const titleCheck = inspectPayload(newProject.title, 'Judul Proyek');
+    const descCheck = inspectPayload(newProject.description, 'Deskripsi');
+    if (!titleCheck.isSafe) {
+      alert(`[WAF Alert] ${titleCheck.reason}`);
+      setAddLoading(false);
+      return;
+    }
+    if (!descCheck.isSafe) {
+      alert(`[WAF Alert] ${descCheck.reason}`);
+      setAddLoading(false);
+      return;
+    }
+
+    const cleanTitle = titleCheck.sanitized.slice(0, 150);
+    const cleanDesc = descCheck.sanitized.slice(0, 2000);
     const cleanImg = newProject.image_url.trim();
     const cleanGithub = newProject.github_url.trim();
     const cleanDemo = newProject.demo_url.trim();
+
+    // WAF Link Guard: Validate URLs to prevent Link Tampering & javascript: execution
+    if (cleanImg && !isValidSafeUrl(cleanImg)) {
+      alert('[WAF Alert] URL Gambar Mockup tidak aman atau tidak valid. Gunakan https:// atau http://');
+      setAddLoading(false);
+      return;
+    }
+    if (cleanGithub && !isValidSafeUrl(cleanGithub)) {
+      alert('[WAF Alert] URL Repo GitHub tidak aman atau tidak valid. Gunakan https:// atau http://');
+      setAddLoading(false);
+      return;
+    }
+    if (cleanDemo && !isValidSafeUrl(cleanDemo)) {
+      alert('[WAF Alert] URL Live Demo tidak aman atau tidak valid. Gunakan https:// atau http://');
+      setAddLoading(false);
+      return;
+    }
+
     const cleanStack = newProject.tech_stack
       .split(',')
-      .map(item => sanitizeInput(item).trim())
+      .map(item => sanitizeText(item))
       .filter(Boolean);
 
     if (!cleanTitle || !cleanDesc) {
@@ -379,12 +452,12 @@ function App() {
               
               <div className="flex items-center gap-3 border-t border-slate-200 dark:border-white/[0.08] pt-6 mt-auto">
                 {selectedProject.github_url && (
-                  <a href={selectedProject.github_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-5 py-3 rounded-full bg-slate-100 dark:bg-white/[0.06] hover:bg-slate-200 dark:hover:bg-white/10 text-slate-700 dark:text-white font-semibold text-xs uppercase tracking-wider transition">
+                  <a href={sanitizeUrl(selectedProject.github_url)} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-5 py-3 rounded-full bg-slate-100 dark:bg-white/[0.06] hover:bg-slate-200 dark:hover:bg-white/10 text-slate-700 dark:text-white font-semibold text-xs uppercase tracking-wider transition">
                     <Code2 size={16} /> Source Code
                   </a>
                 )}
                 {selectedProject.demo_url && (
-                  <a href={selectedProject.demo_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-6 py-3 rounded-full bg-slate-900 dark:bg-white text-white dark:text-slate-950 hover:bg-emerald-600 dark:hover:bg-slate-200 font-bold text-xs uppercase tracking-wider shadow-lg transition">
+                  <a href={sanitizeUrl(selectedProject.demo_url)} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-6 py-3 rounded-full bg-slate-900 dark:bg-white text-white dark:text-slate-950 hover:bg-emerald-600 dark:hover:bg-slate-200 font-bold text-xs uppercase tracking-wider shadow-lg transition">
                     <ExternalLink size={15} /> Buka Demo
                   </a>
                 )}
