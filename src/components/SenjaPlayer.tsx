@@ -32,7 +32,7 @@ export const SenjaPlayer: React.FC = () => {
                   ? activeTheme === 'lany'
                     ? 'text-sky-400'
                     : activeTheme === 'hindia'
-                    ? 'text-rose-400'
+                    ? 'text-white'
                     : 'text-amber-400'
                   : 'text-emerald-500'
               }`}
@@ -52,7 +52,7 @@ export const SenjaPlayer: React.FC = () => {
                   activeTheme === 'lany'
                     ? 'bg-sky-400'
                     : activeTheme === 'hindia'
-                    ? 'bg-rose-400'
+                    ? 'bg-white shadow-[0_0_6px_#ffffff]'
                     : 'bg-amber-400'
                 }`}
               />
@@ -78,7 +78,7 @@ export const SenjaPlayer: React.FC = () => {
             const cardBgClass = isLany
               ? 'bg-gradient-to-r from-sky-950/50 via-indigo-950/40 to-purple-950/50 border-sky-500/40 shadow-[0_0_30px_rgba(56,189,248,0.22)] ring-1 ring-sky-500/25'
               : isHindia
-              ? 'bg-gradient-to-r from-rose-950/50 via-red-950/40 to-slate-950/50 border-rose-500/40 shadow-[0_0_30px_rgba(244,63,94,0.22)] ring-1 ring-rose-500/25'
+              ? 'bg-gradient-to-r from-zinc-900/80 via-neutral-900/70 to-black/90 border-white/40 shadow-[0_0_35px_rgba(255,255,255,0.2)] ring-1 ring-white/30'
               : isSenja
               ? 'bg-gradient-to-r from-amber-950/50 via-orange-950/40 to-rose-950/50 border-amber-500/40 shadow-[0_0_30px_rgba(245,158,11,0.22)] ring-1 ring-amber-500/25'
               : 'bg-white/70 dark:bg-white/[0.04] border-slate-200 dark:border-white/10 hover:border-emerald-500/30 hover:bg-white/85 dark:hover:bg-white/[0.06] shadow-sm';
@@ -87,7 +87,7 @@ export const SenjaPlayer: React.FC = () => {
             const ambientGlow = isLany
               ? 'bg-gradient-to-r from-sky-500/20 via-indigo-500/20 to-purple-500/20'
               : isHindia
-              ? 'bg-gradient-to-r from-rose-500/20 via-red-500/20 to-amber-500/20'
+              ? 'bg-gradient-to-r from-white/15 via-zinc-400/10 to-transparent'
               : isSenja
               ? 'bg-gradient-to-r from-amber-500/20 via-orange-500/20 to-rose-500/20'
               : 'bg-transparent';
@@ -96,7 +96,7 @@ export const SenjaPlayer: React.FC = () => {
             const vinylBorder = isLany
               ? 'border-sky-400/60 shadow-[0_0_16px_rgba(56,189,248,0.5)]'
               : isHindia
-              ? 'border-rose-400/60 shadow-[0_0_16px_rgba(244,63,94,0.5)]'
+              ? 'border-white/80 shadow-[0_0_20px_rgba(255,255,255,0.5)]'
               : isSenja
               ? 'border-amber-400/60 shadow-[0_0_16px_rgba(245,158,11,0.5)]'
               : 'border-slate-300 dark:border-white/15 group-hover/card:border-slate-400 dark:group-hover/card:border-white/30';
@@ -105,14 +105,14 @@ export const SenjaPlayer: React.FC = () => {
             const pulseDotColor = isLany
               ? 'bg-sky-400'
               : isHindia
-              ? 'bg-rose-400'
+              ? 'bg-white shadow-[0_0_8px_#ffffff]'
               : 'bg-amber-400';
 
             // Badge styling
             const badgeClass = isLany
               ? 'bg-sky-500/15 text-sky-600 dark:text-sky-300 border-sky-500/30'
               : isHindia
-              ? 'bg-rose-500/15 text-rose-600 dark:text-rose-300 border-rose-500/30'
+              ? 'bg-white/15 text-white border-white/30'
               : isSenja
               ? 'bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30'
               : 'bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-white/10';
@@ -121,7 +121,7 @@ export const SenjaPlayer: React.FC = () => {
             const playBtnClass = isLany
               ? 'bg-gradient-to-r from-sky-500 to-indigo-600 text-white shadow-sky-500/30'
               : isHindia
-              ? 'bg-gradient-to-r from-rose-500 to-red-600 text-white shadow-rose-500/30'
+              ? 'bg-white text-black hover:bg-zinc-200 shadow-[0_0_20px_rgba(255,255,255,0.3)]'
               : isSenja
               ? 'bg-gradient-to-r from-amber-500 to-rose-500 text-white shadow-amber-500/30'
               : 'bg-slate-900 dark:bg-white text-white dark:text-slate-950 hover:bg-emerald-600 dark:hover:bg-emerald-400 hover:text-white dark:hover:text-slate-950';
@@ -130,21 +130,21 @@ export const SenjaPlayer: React.FC = () => {
             const lyricColor = isLany
               ? 'text-sky-700 dark:text-sky-300'
               : isHindia
-              ? 'text-rose-700 dark:text-rose-300'
+              ? 'text-white drop-shadow-[0_2px_8px_rgba(255,255,255,0.5)]'
               : 'text-amber-700 dark:text-amber-300';
 
             // Mini progress bar gradient
             const progressBarClass = isLany
               ? 'from-sky-400 via-indigo-400 to-purple-400'
               : isHindia
-              ? 'from-rose-500 via-red-500 to-amber-500'
+              ? 'from-white via-zinc-200 to-zinc-400'
               : 'from-amber-400 via-orange-400 to-rose-500';
 
             // Mic icon color
             const micColor = isLany
               ? 'text-sky-400'
               : isHindia
-              ? 'text-rose-400'
+              ? 'text-white'
               : isSenja
               ? 'text-amber-400'
               : 'text-slate-400 dark:text-slate-500';

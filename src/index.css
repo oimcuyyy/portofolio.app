@@ -352,37 +352,38 @@ html.theme-lany ::-webkit-scrollbar-thumb:hover {
 }
 
 /* ==========================================================================
-   HINDIA THEME (Noir Doves / Electric Crimson & Raw Monochrome)
-   Inspired by "everything u are" by Hindia (DOVES, '25)
+   HINDIA THEME (Vintage Monochrome / Hitam Putih & Abu-abu Doves)
+   Inspired by "everything u are" by Hindia (Doves, '25)
    ========================================================================== */
 html.theme-hindia {
-  --color-emerald-50: #fff1f2;
-  --color-emerald-100: #ffe4e6;
-  --color-emerald-200: #fecdd3;
-  --color-emerald-300: #fda4af;
-  --color-emerald-400: #fb7185;
-  --color-emerald-500: #f43f5e;
-  --color-emerald-600: #e11d48;
-  --color-emerald-700: #be123c;
-  --color-emerald-800: #9f1239;
-  --color-emerald-900: #881337;
-  --color-emerald-950: #4c0519;
+  --color-emerald-50: #ffffff;
+  --color-emerald-100: #fafafa;
+  --color-emerald-200: #f4f4f5;
+  --color-emerald-300: #e4e4e7;
+  --color-emerald-400: #d4d4d8;
+  --color-emerald-500: #a1a1aa;
+  --color-emerald-600: #71717a;
+  --color-emerald-700: #52525b;
+  --color-emerald-800: #3f3f46;
+  --color-emerald-900: #27272a;
+  --color-emerald-950: #18181b;
 
-  --color-teal-300: #fca5a5;
-  --color-teal-400: #f87171;
-  --color-teal-500: #ef4444;
-  --color-teal-600: #dc2626;
+  --color-teal-300: #e4e4e7;
+  --color-teal-400: #d4d4d8;
+  --color-teal-500: #a1a1aa;
+  --color-teal-600: #71717a;
 
-  --color-cyan-300: #fdba74;
-  --color-cyan-400: #fb923c;
-  --color-cyan-500: #f97316;
-  --color-cyan-600: #ea580c;
+  --color-cyan-300: #f4f4f5;
+  --color-cyan-400: #e4e4e7;
+  --color-cyan-500: #d4d4d8;
+  --color-cyan-600: #a1a1aa;
 
-  --spotlight-color: rgba(244, 63, 94, 0.22);
+  --spotlight-color: rgba(255, 255, 255, 0.16);
 }
 
 html.theme-hindia body {
-  background-color: #070709 !important;
+  background-color: #050505 !important;
+  color: #f4f4f5 !important;
   transition: background-color 0.8s ease, color 0.8s ease;
 }
 
@@ -392,8 +393,8 @@ html.theme-hindia body::before {
   inset: 0;
   background: radial-gradient(
     ellipse 85% 65% at 50% -10%,
-    rgba(244, 63, 94, 0.14) 0%,
-    rgba(225, 29, 72, 0.08) 50%,
+    rgba(255, 255, 255, 0.08) 0%,
+    rgba(161, 161, 170, 0.04) 50%,
     transparent 100%
   );
   pointer-events: none;
@@ -401,26 +402,26 @@ html.theme-hindia body::before {
 }
 
 html.theme-hindia .dark {
-  --background: oklch(0.10 0.02 10);
-  --border: rgba(244, 63, 94, 0.22);
-  --ring: #f43f5e;
+  --background: #050505;
+  --border: rgba(255, 255, 255, 0.15);
+  --ring: #ffffff;
 }
 
 html.theme-hindia [class*="text-emerald-"],
 html.theme-hindia [class*="text-teal-"] {
-  color: #fb7185 !important;
+  color: #ffffff !important;
 }
 
 html.theme-hindia [class*="hover:text-emerald-"]:hover,
 html.theme-hindia [class*="hover:text-teal-"]:hover,
 html.theme-hindia [class*="group-hover:text-emerald-"],
 html.theme-hindia [class*="group-hover:text-teal-"] {
-  color: #fda4af !important;
+  color: #e4e4e7 !important;
 }
 
 html.theme-hindia [class*="bg-emerald-500/"],
 html.theme-hindia [class*="bg-emerald-400/"] {
-  background-color: rgba(244, 63, 94, 0.15) !important;
+  background-color: rgba(255, 255, 255, 0.12) !important;
 }
 
 html.theme-hindia .bg-emerald-400,
@@ -428,37 +429,46 @@ html.theme-hindia .bg-emerald-500,
 html.theme-hindia .bg-emerald-600,
 html.theme-hindia .bg-teal-400,
 html.theme-hindia .bg-teal-500 {
-  background-color: #f43f5e !important;
+  background-color: #ffffff !important;
+  color: #000000 !important;
 }
 
 html.theme-hindia [class*="hover:bg-emerald-"]:hover,
 html.theme-hindia [class*="hover:bg-teal-"]:hover {
-  background-color: #e11d48 !important;
+  background-color: #e4e4e7 !important;
+  color: #000000 !important;
 }
 
 html.theme-hindia [class*="border-emerald-500/"],
 html.theme-hindia [class*="border-emerald-400/"] {
-  border-color: rgba(244, 63, 94, 0.35) !important;
+  border-color: rgba(255, 255, 255, 0.25) !important;
 }
 
 html.theme-hindia .border-emerald-400,
 html.theme-hindia .border-emerald-500,
 html.theme-hindia .border-emerald-600,
 html.theme-hindia [class*="hover:border-emerald-"]:hover {
-  border-color: #f43f5e !important;
+  border-color: #ffffff !important;
 }
 
 html.theme-hindia [class*="shadow-emerald-"] {
-  box-shadow: 0 10px 30px -5px rgba(244, 63, 94, 0.25) !important;
+  box-shadow: 0 10px 30px -5px rgba(255, 255, 255, 0.12) !important;
 }
 
 html.theme-hindia ::selection {
-  background-color: rgba(244, 63, 94, 0.45) !important;
-  color: #fff1f2 !important;
+  background-color: rgba(255, 255, 255, 0.35) !important;
+  color: #ffffff !important;
 }
 
 html.theme-hindia ::-webkit-scrollbar-thumb:hover {
-  background: rgba(244, 63, 94, 0.5) !important;
+  background: rgba(255, 255, 255, 0.4) !important;
+}
+
+html.theme-hindia .card-tech,
+html.theme-hindia .project-card,
+html.theme-hindia img:not(.vinyl-disc img) {
+  filter: grayscale(100%) contrast(105%);
+  transition: filter 0.8s ease;
 }
 
 @layer base {

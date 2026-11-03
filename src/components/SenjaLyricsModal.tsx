@@ -86,31 +86,31 @@ export const SenjaLyricsModal: React.FC = () => {
   const modalBackdropClass = isLany
     ? 'from-[#0a1128] via-[#050b1a] to-[#02050e]'
     : isHindia
-    ? 'from-[#1a080d] via-[#100407] to-[#060203]'
+    ? 'from-[#18181b] via-[#09090b] to-[#000000]'
     : 'from-[#1f0e1a] via-[#120716] to-[#07030a]';
 
   const glowGradient = isLany
     ? 'from-sky-500/20 via-indigo-500/15 to-transparent'
     : isHindia
-    ? 'from-rose-500/20 via-red-500/15 to-transparent'
+    ? 'from-white/15 via-zinc-400/10 to-transparent'
     : 'from-amber-500/20 via-rose-500/15 to-transparent';
 
   const activeTextColor = isLany
     ? 'text-sky-100 drop-shadow-[0_4px_24px_rgba(56,189,248,0.45)]'
     : isHindia
-    ? 'text-rose-100 drop-shadow-[0_4px_24px_rgba(244,63,94,0.45)]'
+    ? 'text-white drop-shadow-[0_4px_24px_rgba(255,255,255,0.6)]'
     : 'text-amber-100 drop-shadow-[0_4px_24px_rgba(245,158,11,0.45)]';
 
   const progressBarGradient = isLany
     ? 'from-sky-400 via-indigo-400 to-purple-400'
     : isHindia
-    ? 'from-rose-500 via-red-500 to-amber-500'
+    ? 'from-white via-zinc-200 to-zinc-400'
     : 'from-amber-400 via-orange-400 to-rose-500';
 
   const playBtnGradient = isLany
     ? 'from-sky-500 to-indigo-600 shadow-sky-500/30'
     : isHindia
-    ? 'from-rose-500 to-red-600 shadow-rose-500/30'
+    ? 'from-white to-zinc-200 text-black shadow-[0_0_20px_rgba(255,255,255,0.3)]'
     : 'from-amber-500 to-rose-600 shadow-amber-500/30';
 
   const modalContent = (

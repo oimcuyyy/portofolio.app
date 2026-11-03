@@ -151,7 +151,7 @@ export function ParticleNetwork() {
 
       const senjaPalette = ['#fbbf24', '#f97316', '#f43f5e', '#fb7185', '#e879f9'];
       const lanyPalette = ['#38bdf8', '#818cf8', '#c084fc', '#60a5fa', '#a78bfa'];
-      const hindiaPalette = ['#f43f5e', '#fb7185', '#fda4af', '#f8fafc', '#cbd5e1'];
+      const hindiaPalette = ['#ffffff', '#f4f4f5', '#e4e4e7', '#a1a1aa', '#71717a'];
 
       for (let i = 0; i < numberOfParticles; i++) {
         const size = Math.random() * 2 + 1;
@@ -199,7 +199,7 @@ export function ParticleNetwork() {
             } else if (activeTheme === 'lany') {
               ctx.strokeStyle = `rgba(56, 189, 248, ${opacity})`;
             } else if (activeTheme === 'hindia') {
-              ctx.strokeStyle = `rgba(244, 63, 94, ${opacity})`;
+              ctx.strokeStyle = `rgba(255, 255, 255, ${opacity * 0.75})`;
             } else {
               ctx.strokeStyle = `rgba(16, 185, 129, ${opacity})`;
             }

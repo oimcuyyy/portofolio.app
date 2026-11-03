@@ -31,7 +31,7 @@ interface SkillWithDesc extends Skill {
 }
 
 function App() {
-  const { isPlaying, activeTheme, isSenjaMode } = useSenja();
+  const { isPlaying, activeTheme } = useSenja();
   const [projects, setProjects] = useState<Project[]>([]);
   const [skills, setSkills] = useState<SkillWithDesc[]>([]);
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
@@ -334,9 +334,13 @@ function App() {
       className={`min-h-screen font-sans relative overflow-x-hidden transition-all duration-1000 ${
         isLoadingScreenActive ? 'pointer-events-none select-none' : ''
       } ${
-        isSenjaMode
+        !isPlaying
+          ? 'bg-[#fafbfc] dark:bg-[#05070d] text-slate-800 dark:text-slate-200 selection:bg-emerald-500/30 selection:text-emerald-200'
+          : activeTheme === 'senja'
           ? 'bg-[#100814] text-amber-100 selection:bg-rose-500/30 selection:text-amber-100'
-          : 'bg-[#fafbfc] dark:bg-[#05070d] text-slate-800 dark:text-slate-200 selection:bg-emerald-500/30 selection:text-emerald-200'
+          : activeTheme === 'lany'
+          ? 'bg-[#030712] text-sky-100 selection:bg-sky-500/30 selection:text-sky-100'
+          : 'bg-[#050505] text-zinc-100 selection:bg-white/30 selection:text-white'
       }`}
     >
       {/* CINEMATIC PRELOADER LOADING SCREEN */}
@@ -353,7 +357,7 @@ function App() {
             ? 'radial-gradient(rgba(245, 158, 11, 0.4) 1px, transparent 1px)'
             : activeTheme === 'lany'
             ? 'radial-gradient(rgba(56, 189, 248, 0.35) 1px, transparent 1px)'
-            : 'radial-gradient(rgba(244, 63, 94, 0.35) 1px, transparent 1px)',
+            : 'radial-gradient(rgba(255, 255, 255, 0.22) 1px, transparent 1px)',
           backgroundSize: '24px 24px'
         }}
       />
@@ -365,7 +369,7 @@ function App() {
             ? 'bg-gradient-to-b from-amber-950/25 via-transparent to-purple-950/40'
             : activeTheme === 'lany'
             ? 'bg-gradient-to-b from-sky-950/30 via-transparent to-indigo-950/40'
-            : 'bg-gradient-to-b from-rose-950/30 via-transparent to-slate-950/50'
+            : 'bg-gradient-to-b from-zinc-900/30 via-transparent to-black/70'
         }`}
       />
 
@@ -378,7 +382,7 @@ function App() {
             ? 'bg-gradient-to-tr from-amber-600/35 via-rose-500/25 to-purple-600/25'
             : activeTheme === 'lany'
             ? 'bg-gradient-to-tr from-sky-500/30 via-indigo-500/25 to-purple-600/25'
-            : 'bg-gradient-to-tr from-rose-600/30 via-red-600/20 to-slate-700/20'
+            : 'bg-gradient-to-tr from-zinc-500/20 via-zinc-700/15 to-transparent'
         }`}
       />
 

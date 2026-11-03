@@ -9,7 +9,7 @@ import SenjaPlayer from './SenjaPlayer';
 
 const Hero: React.FC = () => {
   const { t } = useLanguage();
-  const { isPlaying, activeTheme, currentSong, isSenjaMode } = useSenja();
+  const { isPlaying, activeTheme, currentSong } = useSenja();
 
   return (
     <section className="relative min-h-[90dvh] flex items-center justify-center pt-24 sm:pt-28 pb-12 sm:pb-16 overflow-hidden">
@@ -22,7 +22,7 @@ const Hero: React.FC = () => {
             ? 'bg-amber-500/25 dark:bg-amber-500/30'
             : activeTheme === 'lany'
             ? 'bg-sky-500/25 dark:bg-sky-500/30'
-            : 'bg-rose-500/25 dark:bg-rose-500/30'
+            : 'bg-white/10 dark:bg-white/10'
         }`}
       />
       <div
@@ -33,7 +33,7 @@ const Hero: React.FC = () => {
             ? 'bg-rose-500/25 dark:bg-rose-500/30'
             : activeTheme === 'lany'
             ? 'bg-indigo-500/25 dark:bg-indigo-500/30'
-            : 'bg-red-500/25 dark:bg-red-500/30'
+            : 'bg-zinc-600/15 dark:bg-zinc-600/20'
         }`}
       />
 
@@ -121,10 +121,15 @@ const Hero: React.FC = () => {
               {/* Primary Action */}
               <a
                 href="#projects"
-                className={`group relative inline-flex items-center gap-3 pl-6 pr-2.5 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 shadow-xl active:scale-[0.98] ${isSenjaMode
+                className={`group relative inline-flex items-center gap-3 pl-6 pr-2.5 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 shadow-xl active:scale-[0.98] ${
+                  !isPlaying
+                    ? 'bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-950 hover:bg-emerald-600 dark:hover:bg-white shadow-slate-900/10 dark:shadow-[0_0_35px_rgba(16,185,129,0.18)]'
+                    : activeTheme === 'senja'
                     ? 'bg-amber-500 text-slate-950 hover:bg-amber-400 shadow-amber-500/20'
-                    : 'bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-950 hover:bg-emerald-600 dark:hover:bg-white shadow-slate-900/10 dark:shadow-[0_0_35px_rgba(16,185,129,0.18)]'
-                  }`}
+                    : activeTheme === 'lany'
+                    ? 'bg-sky-500 text-white hover:bg-sky-400 shadow-sky-500/20'
+                    : 'bg-white text-black hover:bg-zinc-200 shadow-[0_0_25px_rgba(255,255,255,0.25)]'
+                }`}
               >
                 <span>{t.hero.ctaProjects}</span>
                 <span className="w-8 h-8 rounded-full bg-white/15 dark:bg-black/10 flex items-center justify-center transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
@@ -137,10 +142,27 @@ const Hero: React.FC = () => {
                 href="/cv-muhammadrochimuloh.pdf"
                 download
                 className={`inline-flex items-center gap-2 px-5 py-3 rounded-full bg-white/60 dark:bg-white/[0.05] border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-200 text-sm font-semibold hover:bg-slate-100 dark:hover:bg-white/10 ${
-                  isSenjaMode ? 'hover:border-amber-500/40' : 'hover:border-emerald-500/40'
+                  !isPlaying
+                    ? 'hover:border-emerald-500/40'
+                    : activeTheme === 'senja'
+                    ? 'hover:border-amber-500/40'
+                    : activeTheme === 'lany'
+                    ? 'hover:border-sky-500/40'
+                    : 'hover:border-white/50'
                 } transition-all duration-300 active:scale-[0.98] backdrop-blur-md`}
               >
-                <Download size={15} className={isSenjaMode ? 'text-amber-500' : 'text-emerald-500'} />
+                <Download
+                  size={15}
+                  className={
+                    !isPlaying
+                      ? 'text-emerald-500'
+                      : activeTheme === 'senja'
+                      ? 'text-amber-500'
+                      : activeTheme === 'lany'
+                      ? 'text-sky-400'
+                      : 'text-white'
+                  }
+                />
                 <span>{t.hero.ctaCv}</span>
               </a>
 
@@ -148,9 +170,13 @@ const Hero: React.FC = () => {
               <a
                 href="#contact"
                 className={`px-4 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500 ${
-                  isSenjaMode
+                  !isPlaying
+                    ? 'hover:text-emerald-500 dark:hover:text-emerald-400'
+                    : activeTheme === 'senja'
                     ? 'hover:text-amber-500 dark:hover:text-amber-400'
-                    : 'hover:text-emerald-500 dark:hover:text-emerald-400'
+                    : activeTheme === 'lany'
+                    ? 'hover:text-sky-500 dark:hover:text-sky-400'
+                    : 'hover:text-white dark:hover:text-white'
                 } dark:text-slate-400 transition-colors`}
               >
                 {t.hero.ctaContact}
