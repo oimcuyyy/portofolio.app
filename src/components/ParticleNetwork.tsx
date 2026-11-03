@@ -3,12 +3,15 @@ import { useSenja } from '../context/SenjaContext';
 
 export function ParticleNetwork() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const { isSenjaMode } = useSenja();
-  const isSenjaRef = useRef(isSenjaMode);
+  const { isPlaying, activeTheme } = useSenja();
+  const themeRef = useRef<{ isPlaying: boolean; activeTheme: string | null }>({
+    isPlaying,
+    activeTheme,
+  });
 
   useEffect(() => {
-    isSenjaRef.current = isSenjaMode;
-  }, [isSenjaMode]);
+    themeRef.current = { isPlaying, activeTheme };
+  }, [isPlaying, activeTheme]);
 
   useEffect(() => {
     // Respect reduced-motion preferences
@@ -28,7 +31,7 @@ export function ParticleNetwork() {
     let mouse = {
       x: null as number | null,
       y: null as number | null,
-      radius: isMobile ? 90 : 130
+      radius: isMobile ? 90 : 130,
     };
 
     const handleResize = () => {
@@ -59,21 +62,47 @@ export function ParticleNetwork() {
       directionY: number;
       size: number;
       senjaColor: string;
+      lanyColor: string;
+      hindiaColor: string;
 
-      constructor(x: number, y: number, directionX: number, directionY: number, size: number, senjaColor: string) {
+      constructor(
+        x: number,
+        y: number,
+        directionX: number,
+        directionY: number,
+        size: number,
+        senjaColor: string,
+        lanyColor: string,
+        hindiaColor: string
+      ) {
         this.x = x;
         this.y = y;
         this.directionX = directionX;
         this.directionY = directionY;
         this.size = size;
         this.senjaColor = senjaColor;
+        this.lanyColor = lanyColor;
+        this.hindiaColor = hindiaColor;
       }
 
       draw() {
         if (!ctx) return;
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2, false);
-        ctx.fillStyle = isSenjaRef.current ? this.senjaColor : '#10b981';
+
+        const { isPlaying, activeTheme } = themeRef.current;
+        if (!isPlaying) {
+          ctx.fillStyle = '#10b981';
+        } else if (activeTheme === 'senja') {
+          ctx.fillStyle = this.senjaColor;
+        } else if (activeTheme === 'lany') {
+          ctx.fillStyle = this.lanyColor;
+        } else if (activeTheme === 'hindia') {
+          ctx.fillStyle = this.hindiaColor;
+        } else {
+          ctx.fillStyle = '#10b981';
+        }
+
         ctx.fill();
       }
 
@@ -90,9 +119,9 @@ export function ParticleNetwork() {
 
         // Mouse interaction (repel particles)
         if (mouse.x != null && mouse.y != null) {
-          let dx = mouse.x - this.x;
-          let dy = mouse.y - this.y;
-          let distance = Math.sqrt(dx * dx + dy * dy);
+          const dx = mouse.x - this.x;
+          const dy = mouse.y - this.y;
+          const distance = Math.sqrt(dx * dx + dy * dy);
 
           if (distance < mouse.radius + this.size) {
             const forceDirectionX = dx / distance;
@@ -121,15 +150,28 @@ export function ParticleNetwork() {
       if (numberOfParticles > maxParticles) numberOfParticles = maxParticles;
 
       const senjaPalette = ['#fbbf24', '#f97316', '#f43f5e', '#fb7185', '#e879f9'];
+      const lanyPalette = ['#38bdf8', '#818cf8', '#c084fc', '#60a5fa', '#a78bfa'];
+      const hindiaPalette = ['#f43f5e', '#fb7185', '#fda4af', '#f8fafc', '#cbd5e1'];
 
       for (let i = 0; i < numberOfParticles; i++) {
-        let size = (Math.random() * 2) + 1;
-        let x = (Math.random() * ((canvas.width - size * 2) - (size * 2)) + size * 2);
-        let y = (Math.random() * ((canvas.height - size * 2) - (size * 2)) + size * 2);
-        let directionX = (Math.random() * 1.5) - 0.75;
-        let directionY = (Math.random() * 1.5) - 0.75;
-        const senjaColor = senjaPalette[i % senjaPalette.length];
-        particlesArray.push(new Particle(x, y, directionX, directionY, size, senjaColor));
+        const size = Math.random() * 2 + 1;
+        const x = Math.random() * (canvas.width - size * 4) + size * 2;
+        const y = Math.random() * (canvas.height - size * 4) + size * 2;
+        const directionX = Math.random() * 1.5 - 0.75;
+        const directionY = Math.random() * 1.5 - 0.75;
+
+        particlesArray.push(
+          new Particle(
+            x,
+            y,
+            directionX,
+            directionY,
+            size,
+            senjaPalette[i % senjaPalette.length],
+            lanyPalette[i % lanyPalette.length],
+            hindiaPalette[i % hindiaPalette.length]
+          )
+        );
       }
     }
 
@@ -137,7 +179,7 @@ export function ParticleNetwork() {
       if (!ctx) return;
       const len = particlesArray.length;
       ctx.lineWidth = 0.8;
-      const isSenja = isSenjaRef.current;
+      const { isPlaying, activeTheme } = themeRef.current;
 
       for (let a = 0; a < len; a++) {
         const pA = particlesArray[a];
@@ -148,10 +190,20 @@ export function ParticleNetwork() {
           const distSq = dx * dx + dy * dy;
 
           if (distSq < 10000) {
-            const opacity = (1 - (distSq / 10000)) * (isSenja ? 0.45 : 0.35);
-            ctx.strokeStyle = isSenja
-              ? `rgba(251, 146, 60, ${opacity})`
-              : `rgba(16, 185, 129, ${opacity})`;
+            const opacity = (1 - distSq / 10000) * (isPlaying ? 0.45 : 0.35);
+
+            if (!isPlaying) {
+              ctx.strokeStyle = `rgba(16, 185, 129, ${opacity})`;
+            } else if (activeTheme === 'senja') {
+              ctx.strokeStyle = `rgba(251, 146, 60, ${opacity})`;
+            } else if (activeTheme === 'lany') {
+              ctx.strokeStyle = `rgba(56, 189, 248, ${opacity})`;
+            } else if (activeTheme === 'hindia') {
+              ctx.strokeStyle = `rgba(244, 63, 94, ${opacity})`;
+            } else {
+              ctx.strokeStyle = `rgba(16, 185, 129, ${opacity})`;
+            }
+
             ctx.beginPath();
             ctx.moveTo(pA.x, pA.y);
             ctx.lineTo(pB.x, pB.y);
@@ -192,7 +244,7 @@ export function ParticleNetwork() {
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseout', handleMouseOut);
     };
-  }, [isSenjaMode]);
+  }, []);
 
   return (
     <canvas

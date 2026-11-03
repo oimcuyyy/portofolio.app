@@ -9,22 +9,32 @@ import SenjaPlayer from './SenjaPlayer';
 
 const Hero: React.FC = () => {
   const { t } = useLanguage();
-  const { isSenjaMode } = useSenja();
+  const { isPlaying, activeTheme, currentSong, isSenjaMode } = useSenja();
 
   return (
     <section className="relative min-h-[90dvh] flex items-center justify-center pt-24 sm:pt-28 pb-12 sm:pb-16 overflow-hidden">
-      {/* Ambient background glow orbs - Dynamic Sunset transition */}
+      {/* Ambient background glow orbs - Dynamic theme transition */}
       <div
-        className={`absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[340px] sm:w-[540px] h-[340px] sm:h-[540px] rounded-full blur-[100px] sm:blur-[140px] pointer-events-none -z-10 transition-all duration-1000 ${isSenjaMode
+        className={`absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[340px] sm:w-[540px] h-[340px] sm:h-[540px] rounded-full blur-[100px] sm:blur-[140px] pointer-events-none -z-10 transition-all duration-1000 ${
+          !isPlaying
+            ? 'bg-emerald-500/10 dark:bg-emerald-500/15'
+            : activeTheme === 'senja'
             ? 'bg-amber-500/25 dark:bg-amber-500/30'
-            : 'bg-emerald-500/10 dark:bg-emerald-500/15'
-          }`}
+            : activeTheme === 'lany'
+            ? 'bg-sky-500/25 dark:bg-sky-500/30'
+            : 'bg-rose-500/25 dark:bg-rose-500/30'
+        }`}
       />
       <div
-        className={`absolute bottom-10 right-10 w-60 sm:w-80 h-60 sm:h-80 rounded-full blur-[90px] sm:blur-[120px] pointer-events-none -z-10 transition-all duration-1000 ${isSenjaMode
+        className={`absolute bottom-10 right-10 w-60 sm:w-80 h-60 sm:h-80 rounded-full blur-[90px] sm:blur-[120px] pointer-events-none -z-10 transition-all duration-1000 ${
+          !isPlaying
+            ? 'bg-cyan-500/10'
+            : activeTheme === 'senja'
             ? 'bg-rose-500/25 dark:bg-rose-500/30'
-            : 'bg-cyan-500/10'
-          }`}
+            : activeTheme === 'lany'
+            ? 'bg-indigo-500/25 dark:bg-indigo-500/30'
+            : 'bg-red-500/25 dark:bg-red-500/30'
+        }`}
       />
 
       <div className="container mx-auto px-5 sm:px-6 max-w-6xl relative z-10">
@@ -33,28 +43,47 @@ const Hero: React.FC = () => {
           {/* LEFT COLUMN: Editorial Typography & Actions */}
           <div className="lg:col-span-7 flex flex-col items-start text-left" data-aos="fade-up" data-aos-duration="800">
 
-            {/* Live Availability Pill - Dynamic Senja status */}
+            {/* Live Availability Pill - Dynamic theme status */}
             <div
-              className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full border backdrop-blur-md mb-5 sm:mb-6 transition-all duration-700 ${isSenjaMode
+              className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full border backdrop-blur-md mb-5 sm:mb-6 transition-all duration-700 ${
+                !isPlaying
+                  ? 'bg-emerald-500/[0.08] dark:bg-emerald-500/10 border-emerald-500/25 text-emerald-700 dark:text-emerald-400'
+                  : activeTheme === 'senja'
                   ? 'bg-amber-500/15 border-amber-500/35 text-amber-600 dark:text-amber-300'
-                  : 'bg-emerald-500/[0.08] dark:bg-emerald-500/10 border-emerald-500/25 text-emerald-700 dark:text-emerald-400'
-                }`}
+                  : activeTheme === 'lany'
+                  ? 'bg-sky-500/15 border-sky-500/35 text-sky-600 dark:text-sky-300'
+                  : 'bg-rose-500/15 border-rose-500/35 text-rose-600 dark:text-rose-300'
+              }`}
             >
               <span className="relative flex h-2 w-2">
                 <span
-                  className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${isSenjaMode ? 'bg-amber-400' : 'bg-emerald-400'
-                    }`}
+                  className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${
+                    !isPlaying
+                      ? 'bg-emerald-400'
+                      : activeTheme === 'senja'
+                      ? 'bg-amber-400'
+                      : activeTheme === 'lany'
+                      ? 'bg-sky-400'
+                      : 'bg-rose-400'
+                  }`}
                 />
                 <span
-                  className={`relative inline-flex rounded-full h-2 w-2 ${isSenjaMode ? 'bg-amber-500' : 'bg-emerald-500'
-                    }`}
+                  className={`relative inline-flex rounded-full h-2 w-2 ${
+                    !isPlaying
+                      ? 'bg-emerald-500'
+                      : activeTheme === 'senja'
+                      ? 'bg-amber-500'
+                      : activeTheme === 'lany'
+                      ? 'bg-sky-500'
+                      : 'bg-rose-500'
+                  }`}
                 />
               </span>
               <span className="text-[11px] sm:text-xs font-semibold tracking-wide font-mono flex items-center gap-1.5">
-                {isSenjaMode ? (
+                {isPlaying ? (
                   <>
-                    <Sparkles size={11} className="text-amber-400" />
-                    <span>Menikmati Senja • Bersama Raim Laode</span>
+                    <Sparkles size={11} className="text-current" />
+                    <span>{currentSong.themeBadge} • {currentSong.artist}</span>
                   </>
                 ) : (
                   <span>{t.hero.availability}</span>
@@ -66,10 +95,15 @@ const Hero: React.FC = () => {
             <h1 className="text-3xl sm:text-5xl lg:text-[4.25rem] font-extrabold tracking-tight text-slate-900 dark:text-slate-50 leading-[1.12] sm:leading-[1.08] mb-5 sm:mb-6">
               {t.hero.title1}{' '}
               <span
-                className={`text-transparent bg-clip-text transition-all duration-1000 ${isSenjaMode
+                className={`text-transparent bg-clip-text transition-all duration-1000 ${
+                  !isPlaying
+                    ? 'bg-gradient-to-r from-emerald-500 via-teal-400 to-cyan-400'
+                    : activeTheme === 'senja'
                     ? 'bg-gradient-to-r from-amber-400 via-orange-400 to-rose-400'
-                    : 'bg-gradient-to-r from-emerald-500 via-teal-400 to-cyan-400'
-                  }`}
+                    : activeTheme === 'lany'
+                    ? 'bg-gradient-to-r from-sky-400 via-cyan-400 to-indigo-400'
+                    : 'bg-gradient-to-r from-rose-400 via-red-400 to-amber-300'
+                }`}
               >
                 {t.hero.titleHighlight}
               </span>{' '}

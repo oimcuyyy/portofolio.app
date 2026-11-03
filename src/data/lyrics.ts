@@ -1,9 +1,6 @@
-export interface LyricLine {
-  time: number; // in seconds
-  text: string;
-}
-
-export const DUNIA_YANG_NANTI_LYRICS: LyricLine[] = [
+export * from './songs';
+export { SONGS_PLAYLIST as default } from './songs';
+export const DUNIA_YANG_NANTI_LYRICS = [
   { time: 12.8, text: "Waktu bawa kita" },
   { time: 16.6, text: "Ke tempat tak terduga" },
   { time: 20.9, text: "Kau hadir kembali menyapa hidupku" },

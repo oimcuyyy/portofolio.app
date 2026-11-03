@@ -1,20 +1,34 @@
 import React, { createContext, useContext, useState, useEffect, useRef, useMemo } from 'react';
-import { DUNIA_YANG_NANTI_LYRICS } from '../data/lyrics';
+import { SONGS_PLAYLIST, type Song, type ThemeType } from '../data/songs';
 
 interface SenjaContextType {
-  isSenjaMode: boolean;
+  // Playback state
   isPlaying: boolean;
+  isSenjaMode: boolean; // true when music is playing (backwards compatibility)
+  activeTheme: ThemeType | null;
   currentTime: number;
   duration: number;
   volume: number;
+
+  // Playlist & current track
+  songs: Song[];
+  currentSong: Song;
+  currentSongIndex: number;
+
+  // Lyrics
   isLyricsOpen: boolean;
   currentLyricIndex: number;
   currentLyricText: string;
+
+  // Actions
   togglePlay: () => void;
   play: () => void;
   pause: () => void;
   seek: (time: number) => void;
   setVolume: (v: number) => void;
+  selectSong: (index: number) => void;
+  nextSong: () => void;
+  prevSong: () => void;
   toggleLyrics: () => void;
   setIsLyricsOpen: (open: boolean) => void;
 }
@@ -22,28 +36,24 @@ interface SenjaContextType {
 const SenjaContext = createContext<SenjaContextType | undefined>(undefined);
 
 export const SenjaProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [songs] = useState<Song[]>(SONGS_PLAYLIST);
+  const [currentSongIndex, setCurrentSongIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [isSenjaMode, setIsSenjaMode] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(200.55); // ~3m20s song duration
   const [volume, setVolumeState] = useState(0.85);
   const [isLyricsOpen, setIsLyricsOpen] = useState(false);
 
+  const currentSong = songs[currentSongIndex] || songs[0];
+  const [duration, setDuration] = useState(currentSong.duration);
+
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  // Setup native HTML5 audio with zero-latency preloading
+  // Initialize native HTML5 audio element
   useEffect(() => {
     const audio = new Audio();
     audio.preload = 'auto';
     audio.volume = volume;
-
-    // Prioritize AAC m4a with fallback to WebM
-    const canPlayM4A = audio.canPlayType('audio/mp4; codecs="mp4a.40.2"');
-    if (canPlayM4A === 'probably' || canPlayM4A === 'maybe') {
-      audio.src = '/audio/dunia-yang-nanti.m4a';
-    } else {
-      audio.src = '/audio/dunia-yang-nanti.webm';
-    }
+    audio.src = currentSong.audioSrc;
 
     const handleLoadedMetadata = () => {
       if (audio.duration && !isNaN(audio.duration) && isFinite(audio.duration)) {
@@ -56,14 +66,12 @@ export const SenjaProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     };
 
     const handleEnded = () => {
-      setIsPlaying(false);
-      setIsSenjaMode(false);
-      setCurrentTime(0);
+      // Auto-advance to next song on finish
+      setCurrentSongIndex((prev) => (prev + 1) % songs.length);
     };
 
     const handlePlay = () => {
       setIsPlaying(true);
-      setIsSenjaMode(true);
     };
 
     const handlePause = () => {
@@ -90,44 +98,84 @@ export const SenjaProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     };
   }, []);
 
-  // Sync Senja Mode styling to root HTML class
+  // When song index changes, update audio src smoothly
   useEffect(() => {
-    if (isSenjaMode) {
-      document.documentElement.classList.add('senja');
-    } else {
-      document.documentElement.classList.remove('senja');
-    }
-  }, [isSenjaMode]);
+    if (!audioRef.current) return;
+    const audio = audioRef.current;
+    const shouldKeepPlaying = isPlaying;
 
-  // Compute active lyric index based on currentTime
+    audio.src = currentSong.audioSrc;
+    audio.currentTime = 0;
+    setCurrentTime(0);
+    setDuration(currentSong.duration);
+
+    if (shouldKeepPlaying) {
+      const playPromise = audio.play();
+      if (playPromise !== undefined) {
+        playPromise.catch((err) => {
+          console.warn('Playback error on song switch:', err);
+          setIsPlaying(false);
+        });
+      }
+    }
+  }, [currentSongIndex]);
+
+  // Sync active theme class to document root HTML when music is playing
+  const activeTheme: ThemeType | null = isPlaying ? currentSong.themeId : null;
+  const isSenjaMode = isPlaying;
+
+  useEffect(() => {
+    const root = document.documentElement;
+    // Clean up all theme classes
+    root.classList.remove('senja', 'theme-lany', 'theme-hindia');
+
+    if (isPlaying) {
+      if (currentSong.themeId === 'senja') {
+        root.classList.add('senja');
+      } else if (currentSong.themeId === 'lany') {
+        root.classList.add('theme-lany');
+      } else if (currentSong.themeId === 'hindia') {
+        root.classList.add('theme-hindia');
+      }
+    }
+
+    return () => {
+      root.classList.remove('senja', 'theme-lany', 'theme-hindia');
+    };
+  }, [isPlaying, currentSong.themeId]);
+
+  // Compute active lyric index based on currentTime & currentSong lyrics
   const currentLyricIndex = useMemo(() => {
+    const lyrics = currentSong.lyrics;
     let index = -1;
-    for (let i = 0; i < DUNIA_YANG_NANTI_LYRICS.length; i++) {
-      if (currentTime >= DUNIA_YANG_NANTI_LYRICS[i].time) {
+    for (let i = 0; i < lyrics.length; i++) {
+      if (currentTime >= lyrics[i].time) {
         index = i;
       } else {
         break;
       }
     }
     return index;
-  }, [currentTime]);
+  }, [currentTime, currentSong]);
 
   const currentLyricText = useMemo(() => {
-    if (currentLyricIndex >= 0 && currentLyricIndex < DUNIA_YANG_NANTI_LYRICS.length) {
-      return DUNIA_YANG_NANTI_LYRICS[currentLyricIndex].text;
+    const lyrics = currentSong.lyrics;
+    if (currentLyricIndex >= 0 && currentLyricIndex < lyrics.length) {
+      return lyrics[currentLyricIndex].text;
     }
-    return isPlaying ? '♫ Raim Laode — Dunia yang Nanti' : 'Raim Laode — Sentuh untuk memutar lagu & suasana senja';
-  }, [currentLyricIndex, isPlaying]);
+    return isPlaying
+      ? `♫ ${currentSong.artist} — ${currentSong.title}`
+      : `${currentSong.artist} — Sentuh untuk memutar lagu & ubah suasana tema`;
+  }, [currentLyricIndex, isPlaying, currentSong]);
 
-  // Zero-delay playback trigger
+  // Play / Pause / Seek / Volume Controls
   const play = () => {
     if (!audioRef.current) return;
-    setIsSenjaMode(true);
     setIsPlaying(true);
     const playPromise = audioRef.current.play();
     if (playPromise !== undefined) {
       playPromise.catch((err) => {
-        console.warn('Playback interrupted or autoplay restricted:', err);
+        console.warn('Playback interrupted or restricted:', err);
         setIsPlaying(false);
       });
     }
@@ -137,7 +185,6 @@ export const SenjaProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     if (!audioRef.current) return;
     audioRef.current.pause();
     setIsPlaying(false);
-    setIsSenjaMode(false);
   };
 
   const togglePlay = () => {
@@ -146,6 +193,26 @@ export const SenjaProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     } else {
       play();
     }
+  };
+
+  const selectSong = (index: number) => {
+    if (index >= 0 && index < songs.length) {
+      setCurrentSongIndex(index);
+      if (!isPlaying) {
+        setIsPlaying(true);
+        setTimeout(() => {
+          audioRef.current?.play().catch(console.warn);
+        }, 50);
+      }
+    }
+  };
+
+  const nextSong = () => {
+    setCurrentSongIndex((prev) => (prev + 1) % songs.length);
+  };
+
+  const prevSong = () => {
+    setCurrentSongIndex((prev) => (prev - 1 + songs.length) % songs.length);
   };
 
   const seek = (time: number) => {
@@ -173,11 +240,15 @@ export const SenjaProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   return (
     <SenjaContext.Provider
       value={{
-        isSenjaMode,
         isPlaying,
+        isSenjaMode,
+        activeTheme,
         currentTime,
         duration,
         volume,
+        songs,
+        currentSong,
+        currentSongIndex,
         isLyricsOpen,
         currentLyricIndex,
         currentLyricText,
@@ -186,6 +257,9 @@ export const SenjaProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         pause,
         seek,
         setVolume,
+        selectSong,
+        nextSong,
+        prevSong,
         toggleLyrics,
         setIsLyricsOpen,
       }}
