@@ -24,6 +24,7 @@ import Services from './components/Services';
 import Contact from './components/Contact';
 import AdminInbox from './components/AdminInbox';
 import Footer from './components/Footer';
+import LoadingScreen from './components/LoadingScreen';
 
 interface SkillWithDesc extends Skill {
   description?: string;
@@ -36,6 +37,14 @@ function App() {
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
   const [loading, setLoading] = useState(false);
   const [sentSuccess, setSentSuccess] = useState(false);
+  const [isLoadingScreenActive, setIsLoadingScreenActive] = useState(true);
+
+  const handleLoadingComplete = () => {
+    setIsLoadingScreenActive(false);
+    setTimeout(() => {
+      AOS.refresh();
+    }, 150);
+  };
 
   // STATE MODAL DETAIL PROYEK
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
@@ -322,11 +331,16 @@ function App() {
 
   return (
     <div
-      className={`min-h-screen font-sans relative overflow-x-hidden transition-all duration-1000 ${isSenjaMode
+      className={`min-h-screen font-sans relative overflow-x-hidden transition-all duration-1000 ${
+        isLoadingScreenActive ? 'pointer-events-none select-none' : ''
+      } ${
+        isSenjaMode
           ? 'bg-[#100814] text-amber-100 selection:bg-rose-500/30 selection:text-amber-100'
           : 'bg-[#fafbfc] dark:bg-[#05070d] text-slate-800 dark:text-slate-200 selection:bg-emerald-500/30 selection:text-emerald-200'
-        }`}
+      }`}
     >
+      {/* CINEMATIC PRELOADER LOADING SCREEN */}
+      <LoadingScreen onComplete={handleLoadingComplete} />
 
       <CustomCursor />
       <ParticleNetwork />
