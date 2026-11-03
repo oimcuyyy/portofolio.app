@@ -160,7 +160,7 @@ export const SenjaLyricsModal: React.FC = () => {
                   </h3>
                   <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-white/10 text-white/90 font-semibold border border-white/15 flex items-center gap-1 shrink-0">
                     <Sparkles size={10} />
-                    {currentSong.themeBadge}
+                    {isPlaying ? currentSong.themeBadge : `Track 0${currentSongIndex + 1}`}
                   </span>
                 </div>
                 <p className="text-xs text-white/70 truncate mt-0.5">

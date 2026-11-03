@@ -165,7 +165,7 @@ export const SenjaProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
     return isPlaying
       ? `♫ ${currentSong.artist} — ${currentSong.title}`
-      : `${currentSong.artist} — Sentuh untuk memutar lagu & ubah suasana tema`;
+      : currentSong.artist;
   }, [currentLyricIndex, isPlaying, currentSong]);
 
   // Play / Pause / Seek / Volume Controls

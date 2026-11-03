@@ -87,6 +87,14 @@ const SenjaPlayer: React.FC = () => {
     ? 'text-amber-700 dark:text-amber-300'
     : 'text-slate-500 dark:text-slate-400';
 
+  const micIconColor = isLany
+    ? 'text-sky-400'
+    : isHindia
+    ? 'text-rose-400'
+    : isSenja
+    ? 'text-amber-400'
+    : 'text-slate-400 dark:text-slate-500';
+
   return (
     <>
       <div className="w-full mt-6 max-w-xl" data-aos="fade-up" data-aos-delay="100">
@@ -168,7 +176,7 @@ const SenjaPlayer: React.FC = () => {
                       className={`text-[10px] font-mono px-2 py-0.5 rounded-full font-semibold border shrink-0 flex items-center gap-1 transition-colors ${badgeBadgeClass}`}
                     >
                       <Sparkles size={10} />
-                      {isPlaying ? currentSong.themeBadge : currentSong.artist}
+                      {isPlaying ? currentSong.themeBadge : `Track 0${currentSongIndex + 1}`}
                     </span>
                   </div>
 
@@ -244,11 +252,19 @@ const SenjaPlayer: React.FC = () => {
                 <button
                   type="button"
                   onClick={toggleLyrics}
-                  className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-semibold tracking-wide border transition-all duration-300 cursor-pointer active:scale-95 bg-white/80 dark:bg-white/10 border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-200 hover:border-amber-400 hover:text-amber-600 dark:hover:text-amber-300 ml-1"
+                  className={`inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-semibold tracking-wide border transition-all duration-300 cursor-pointer active:scale-95 bg-white/80 dark:bg-white/10 border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-200 ${
+                    isPlaying
+                      ? isLany
+                        ? 'hover:border-sky-400 hover:text-sky-400'
+                        : isHindia
+                        ? 'hover:border-rose-400 hover:text-rose-400'
+                        : 'hover:border-amber-400 hover:text-amber-400'
+                      : 'hover:border-emerald-400 hover:text-emerald-500 dark:hover:text-emerald-400'
+                  } ml-1`}
                   aria-label="Buka Lirik Lagu"
                   title="Lihat Lirik Karaoke"
                 >
-                  <Mic2 size={12} className="text-amber-500" />
+                  <Mic2 size={12} className={micIconColor} />
                   <span className="hidden xs:inline">Lirik</span>
                 </button>
               </div>

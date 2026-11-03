@@ -136,7 +136,9 @@ const Hero: React.FC = () => {
               <a
                 href="/cv-muhammadrochimuloh.pdf"
                 download
-                className="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-white/60 dark:bg-white/[0.05] border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-200 text-sm font-semibold hover:bg-slate-100 dark:hover:bg-white/10 hover:border-amber-500/30 transition-all duration-300 active:scale-[0.98] backdrop-blur-md"
+                className={`inline-flex items-center gap-2 px-5 py-3 rounded-full bg-white/60 dark:bg-white/[0.05] border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-200 text-sm font-semibold hover:bg-slate-100 dark:hover:bg-white/10 ${
+                  isSenjaMode ? 'hover:border-amber-500/40' : 'hover:border-emerald-500/40'
+                } transition-all duration-300 active:scale-[0.98] backdrop-blur-md`}
               >
                 <Download size={15} className={isSenjaMode ? 'text-amber-500' : 'text-emerald-500'} />
                 <span>{t.hero.ctaCv}</span>
@@ -145,7 +147,11 @@ const Hero: React.FC = () => {
               {/* Tertiary Contact Link */}
               <a
                 href="#contact"
-                className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500 hover:text-amber-500 dark:text-slate-400 dark:hover:text-amber-400 transition-colors"
+                className={`px-4 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500 ${
+                  isSenjaMode
+                    ? 'hover:text-amber-500 dark:hover:text-amber-400'
+                    : 'hover:text-emerald-500 dark:hover:text-emerald-400'
+                } dark:text-slate-400 transition-colors`}
               >
                 {t.hero.ctaContact}
               </a>
