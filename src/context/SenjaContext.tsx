@@ -22,6 +22,8 @@ interface SenjaContextType {
 
   // Actions
   togglePlay: () => void;
+  togglePlayTrack: (index: number) => void;
+  openLyricsForTrack: (index: number) => void;
   play: () => void;
   pause: () => void;
   seek: (time: number) => void;
@@ -104,18 +106,20 @@ export const SenjaProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const audio = audioRef.current;
     const shouldKeepPlaying = isPlaying;
 
-    audio.src = currentSong.audioSrc;
-    audio.currentTime = 0;
-    setCurrentTime(0);
-    setDuration(currentSong.duration);
+    if (!audio.src.endsWith(currentSong.audioSrc)) {
+      audio.src = currentSong.audioSrc;
+      audio.currentTime = 0;
+      setCurrentTime(0);
+      setDuration(currentSong.duration);
 
-    if (shouldKeepPlaying) {
-      const playPromise = audio.play();
-      if (playPromise !== undefined) {
-        playPromise.catch((err) => {
-          console.warn('Playback error on song switch:', err);
-          setIsPlaying(false);
-        });
+      if (shouldKeepPlaying) {
+        const playPromise = audio.play();
+        if (playPromise !== undefined) {
+          playPromise.catch((err) => {
+            console.warn('Playback error on song switch:', err);
+            setIsPlaying(false);
+          });
+        }
       }
     }
   }, [currentSongIndex]);
@@ -195,6 +199,46 @@ export const SenjaProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
   };
 
+  const togglePlayTrack = (index: number) => {
+    if (index < 0 || index >= songs.length) return;
+    if (index === currentSongIndex) {
+      togglePlay();
+      return;
+    }
+
+    const targetSong = songs[index];
+    setCurrentSongIndex(index);
+    setCurrentTime(0);
+    setDuration(targetSong.duration);
+    setIsPlaying(true);
+
+    if (audioRef.current) {
+      audioRef.current.src = targetSong.audioSrc;
+      audioRef.current.currentTime = 0;
+      const playPromise = audioRef.current.play();
+      if (playPromise !== undefined) {
+        playPromise.catch((err) => {
+          console.warn('Playback error on track switch:', err);
+          setIsPlaying(false);
+        });
+      }
+    }
+  };
+
+  const openLyricsForTrack = (index: number) => {
+    if (index < 0 || index >= songs.length) return;
+    if (index !== currentSongIndex) {
+      setCurrentSongIndex(index);
+      if (audioRef.current) {
+        audioRef.current.src = songs[index].audioSrc;
+        audioRef.current.currentTime = 0;
+        setCurrentTime(0);
+        setDuration(songs[index].duration);
+      }
+    }
+    setIsLyricsOpen(true);
+  };
+
   const selectSong = (index: number) => {
     if (index >= 0 && index < songs.length) {
       setCurrentSongIndex(index);
@@ -253,6 +297,8 @@ export const SenjaProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         currentLyricIndex,
         currentLyricText,
         togglePlay,
+        togglePlayTrack,
+        openLyricsForTrack,
         play,
         pause,
         seek,
