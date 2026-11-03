@@ -468,7 +468,9 @@ html.theme-hindia .card-tech,
 html.theme-hindia .project-card,
 html.theme-hindia img:not(.vinyl-disc img) {
   filter: grayscale(100%) contrast(105%);
-  transition: filter 0.8s ease;
+  will-change: filter;
+  transform: translateZ(0);
+  transition: filter 0.6s ease;
 }
 
 @layer base {

@@ -1,9 +1,9 @@
-import { useRef, useEffect } from 'react';
-import { useSenja } from '../context/SenjaContext';
+import React, { useRef, useEffect } from 'react';
+import { useSenjaPlayback } from '../context/SenjaContext';
 
-export function ParticleNetwork() {
+export const ParticleNetwork = React.memo(function ParticleNetwork() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const { isPlaying, activeTheme } = useSenja();
+  const { isPlaying, activeTheme } = useSenjaPlayback();
   const themeRef = useRef<{ isPlaying: boolean; activeTheme: string | null }>({
     isPlaying,
     activeTheme,
@@ -26,7 +26,7 @@ export function ParticleNetwork() {
 
     let particlesArray: Particle[] = [];
     const isMobile = window.innerWidth < 768;
-    const maxParticles = isMobile ? 28 : 55;
+    const maxParticles = isMobile ? 20 : 36;
 
     let mouse = {
       x: null as number | null,
@@ -252,4 +252,4 @@ export function ParticleNetwork() {
       className="fixed inset-0 z-0 pointer-events-none opacity-40 mix-blend-screen"
     />
   );
-}
+});

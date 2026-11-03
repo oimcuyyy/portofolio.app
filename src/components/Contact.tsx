@@ -201,4 +201,4 @@ const Contact: React.FC<ContactProps> = ({
   );
 };
 
-export default Contact;
+export default React.memo(Contact);

@@ -14,7 +14,7 @@ import {
 } from './lib/waf';
 import { CustomCursor } from './components/Interactive';
 import { ParticleNetwork } from './components/ParticleNetwork';
-import { useSenja } from './context/SenjaContext';
+import { useSenjaPlayback } from './context/SenjaContext';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import TechStack from './components/TechStack';
@@ -31,7 +31,7 @@ interface SkillWithDesc extends Skill {
 }
 
 function App() {
-  const { isPlaying, activeTheme } = useSenja();
+  const { isPlaying, activeTheme } = useSenjaPlayback();
   const [projects, setProjects] = useState<Project[]>([]);
   const [skills, setSkills] = useState<SkillWithDesc[]>([]);
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
@@ -332,7 +332,7 @@ function App() {
 
   return (
     <div
-      className={`min-h-screen font-sans relative overflow-x-hidden transition-all duration-1000 ${
+      className={`min-h-screen font-sans relative overflow-x-hidden transition-colors duration-700 ${
         isLoadingScreenActive ? 'pointer-events-none select-none' : ''
       } ${
         !isPlaying
@@ -350,7 +350,7 @@ function App() {
       <CustomCursor />
       <ParticleNetwork />
       <div
-        className="fixed inset-0 pointer-events-none z-0 transition-opacity duration-1000 opacity-20 dark:opacity-15"
+        className="fixed inset-0 pointer-events-none z-0 transition-opacity duration-700 opacity-20 dark:opacity-15"
         style={{
           backgroundImage: !isPlaying
             ? 'radial-gradient(rgba(16, 185, 129, 0.25) 1px, transparent 1px)'
@@ -363,7 +363,7 @@ function App() {
         }}
       />
       <div
-        className={`fixed inset-0 pointer-events-none z-0 transition-all duration-1000 ${
+        className={`fixed inset-0 pointer-events-none z-0 transition-colors duration-700 ${
           !isPlaying
             ? 'bg-gradient-to-b from-transparent via-slate-50/50 dark:via-transparent to-slate-100/80 dark:to-black/40'
             : activeTheme === 'senja'
@@ -374,9 +374,9 @@ function App() {
         }`}
       />
 
-      {/* GLOW BACKGROUND EFFECT */}
+      {/* GLOW BACKGROUND EFFECT - HARDWARE ACCELERATED */}
       <div
-        className={`absolute top-[-5%] left-1/2 -translate-x-1/2 w-[600px] sm:w-[900px] h-[450px] blur-[140px] pointer-events-none rounded-full transition-all duration-1000 ${
+        className={`absolute top-[-5%] left-1/2 -translate-x-1/2 w-[600px] sm:w-[840px] h-[400px] blur-[90px] sm:blur-[110px] pointer-events-none rounded-full transform-gpu will-change-transform will-change-opacity transition-all duration-700 ${
           !isPlaying
             ? 'bg-gradient-to-tr from-emerald-600/15 via-teal-500/10 to-cyan-500/10 dark:from-emerald-500/20 dark:via-teal-500/15 dark:to-cyan-500/15'
             : activeTheme === 'senja'

@@ -418,6 +418,6 @@ const TechStack: React.FC<TechStackProps> = ({ skills }) => {
   );
 };
 
-export default TechStack;
+export default React.memo(TechStack);
 
 

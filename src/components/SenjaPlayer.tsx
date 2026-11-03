@@ -1,22 +1,53 @@
 import React from 'react';
 import { Play, Pause, Mic2, Sparkles, Headphones } from 'lucide-react';
-import { useSenja } from '../context/SenjaContext';
+import { useSenjaPlayback, useSenjaTime } from '../context/SenjaContext';
 import { SenjaLyricsModal } from './SenjaLyricsModal';
+
+// Isolated subcomponent for live lyrics (only this line updates on time tick, not the whole card list)
+const LiveLyricLine: React.FC<{
+  isPlaying: boolean;
+  lyricColor: string;
+  fallbackArtist: string;
+}> = React.memo(({ isPlaying, lyricColor, fallbackArtist }) => {
+  const { currentLyricText } = useSenjaTime();
+  return (
+    <p
+      className={`text-xs truncate mt-0.5 transition-all duration-300 ${
+        isPlaying
+          ? `${lyricColor} font-medium animate-fade-in`
+          : 'text-slate-500 dark:text-slate-400'
+      }`}
+      title={isPlaying ? currentLyricText : fallbackArtist}
+    >
+      {isPlaying ? currentLyricText : fallbackArtist}
+    </p>
+  );
+});
+
+// Isolated subcomponent for live mini progress bar
+const LiveProgressBar: React.FC<{
+  progressBarClass: string;
+}> = React.memo(({ progressBarClass }) => {
+  const { progressPercent } = useSenjaTime();
+  return (
+    <div className="w-full max-w-[200px] h-1 rounded-full bg-slate-200 dark:bg-white/10 mt-1.5 overflow-hidden">
+      <div
+        className={`h-full bg-gradient-to-r ${progressBarClass} rounded-full transition-all duration-150`}
+        style={{ width: `${progressPercent}%` }}
+      />
+    </div>
+  );
+});
 
 export const SenjaPlayer: React.FC = () => {
   const {
     isPlaying,
     activeTheme,
-    currentTime,
-    duration,
     currentSongIndex,
-    currentLyricText,
     songs,
     togglePlayTrack,
     openLyricsForTrack,
-  } = useSenja();
-
-  const progressPercent = duration > 0 ? (currentTime / duration) * 100 : 0;
+  } = useSenjaPlayback();
 
   return (
     <>
@@ -234,26 +265,16 @@ export const SenjaPlayer: React.FC = () => {
                         </span>
                       </div>
 
-                      {/* Subtitle / Live Lyric line */}
-                      <p
-                        className={`text-xs truncate mt-0.5 transition-all duration-300 ${
-                          isThisPlaying
-                            ? `${lyricColor} font-medium animate-fade-in`
-                            : 'text-slate-500 dark:text-slate-400'
-                        }`}
-                        title={isThisPlaying ? currentLyricText : song.artist}
-                      >
-                        {isThisPlaying ? currentLyricText : song.artist}
-                      </p>
+                      {/* Subtitle / Live Lyric line - isolated render */}
+                      <LiveLyricLine
+                        isPlaying={isThisPlaying}
+                        lyricColor={lyricColor}
+                        fallbackArtist={song.artist}
+                      />
 
-                      {/* Mini Progress Scrubber when this song is playing */}
+                      {/* Mini Progress Scrubber when this song is playing - isolated render */}
                       {isThisPlaying && (
-                        <div className="w-full max-w-[200px] h-1 rounded-full bg-slate-200 dark:bg-white/10 mt-1.5 overflow-hidden">
-                          <div
-                            className={`h-full bg-gradient-to-r ${progressBarClass} rounded-full transition-all duration-150`}
-                            style={{ width: `${progressPercent}%` }}
-                          />
-                        </div>
+                        <LiveProgressBar progressBarClass={progressBarClass} />
                       )}
                     </div>
                   </div>
@@ -316,4 +337,4 @@ export const SenjaPlayer: React.FC = () => {
   );
 };
 
-export default SenjaPlayer;
+export default React.memo(SenjaPlayer);

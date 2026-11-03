@@ -4,18 +4,18 @@ import { motion } from 'framer-motion';
 import profilePhotoWebp from '../assets/profile.webp';
 import profilePhoto from '../assets/profile.jpg';
 import { useLanguage } from '../context/LanguageContext';
-import { useSenja } from '../context/SenjaContext';
+import { useSenjaPlayback } from '../context/SenjaContext';
 import SenjaPlayer from './SenjaPlayer';
 
 const Hero: React.FC = () => {
   const { t } = useLanguage();
-  const { isPlaying, activeTheme, currentSong } = useSenja();
+  const { isPlaying, activeTheme, currentSong } = useSenjaPlayback();
 
   return (
     <section className="relative min-h-[90dvh] flex items-center justify-center pt-24 sm:pt-28 pb-12 sm:pb-16 overflow-hidden">
-      {/* Ambient background glow orbs - Dynamic theme transition */}
+      {/* Ambient background glow orbs - Dynamic theme transition with GPU acceleration */}
       <div
-        className={`absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[340px] sm:w-[540px] h-[340px] sm:h-[540px] rounded-full blur-[100px] sm:blur-[140px] pointer-events-none -z-10 transition-all duration-1000 ${
+        className={`absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[340px] sm:w-[500px] h-[340px] sm:h-[500px] rounded-full blur-[80px] sm:blur-[100px] pointer-events-none -z-10 transform-gpu will-change-transform will-change-opacity transition-all duration-700 ${
           !isPlaying
             ? 'bg-emerald-500/10 dark:bg-emerald-500/15'
             : activeTheme === 'senja'
@@ -26,7 +26,7 @@ const Hero: React.FC = () => {
         }`}
       />
       <div
-        className={`absolute bottom-10 right-10 w-60 sm:w-80 h-60 sm:h-80 rounded-full blur-[90px] sm:blur-[120px] pointer-events-none -z-10 transition-all duration-1000 ${
+        className={`absolute bottom-10 right-10 w-60 sm:w-72 h-60 sm:h-72 rounded-full blur-[70px] sm:blur-[90px] pointer-events-none -z-10 transform-gpu will-change-transform will-change-opacity transition-all duration-700 ${
           !isPlaying
             ? 'bg-cyan-500/10'
             : activeTheme === 'senja'
@@ -283,4 +283,4 @@ const Hero: React.FC = () => {
   );
 };
 
-export default Hero;
+export default React.memo(Hero);

@@ -1,12 +1,11 @@
-import React, { createContext, useContext, useState, useEffect, useRef, useMemo } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { SONGS_PLAYLIST, type Song, type ThemeType } from '../data/songs';
 
-interface SenjaContextType {
-  // Playback state
+export interface SenjaPlaybackContextType {
+  // Low-frequency playback state (does NOT re-render on audio time ticks)
   isPlaying: boolean;
-  isSenjaMode: boolean; // true when music is playing (backwards compatibility)
+  isSenjaMode: boolean; // backwards compatibility
   activeTheme: ThemeType | null;
-  currentTime: number;
   duration: number;
   volume: number;
 
@@ -15,12 +14,10 @@ interface SenjaContextType {
   currentSong: Song;
   currentSongIndex: number;
 
-  // Lyrics
+  // Lyrics modal visibility
   isLyricsOpen: boolean;
-  currentLyricIndex: number;
-  currentLyricText: string;
 
-  // Actions
+  // Stable Actions
   togglePlay: () => void;
   togglePlayTrack: (index: number) => void;
   openLyricsForTrack: (index: number) => void;
@@ -35,7 +32,18 @@ interface SenjaContextType {
   setIsLyricsOpen: (open: boolean) => void;
 }
 
-const SenjaContext = createContext<SenjaContextType | undefined>(undefined);
+export interface SenjaTimeContextType {
+  // High-frequency playback state (updates ~4-5 times/sec only for consumers that need live progress/lyrics)
+  currentTime: number;
+  currentLyricIndex: number;
+  currentLyricText: string;
+  progressPercent: number;
+}
+
+export type SenjaContextType = SenjaPlaybackContextType & SenjaTimeContextType;
+
+const SenjaPlaybackContext = createContext<SenjaPlaybackContextType | undefined>(undefined);
+const SenjaTimeContext = createContext<SenjaTimeContextType | undefined>(undefined);
 
 export const SenjaProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [songs] = useState<Song[]>(SONGS_PLAYLIST);
@@ -68,8 +76,8 @@ export const SenjaProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     };
 
     const handleEnded = () => {
-      // Auto-advance to next song on finish
-      setCurrentSongIndex((prev) => (prev + 1) % songs.length);
+      // Auto-advance cleanly to next track
+      handleNextSong();
     };
 
     const handlePlay = () => {
@@ -99,30 +107,6 @@ export const SenjaProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       audioRef.current = null;
     };
   }, []);
-
-  // When song index changes, update audio src smoothly
-  useEffect(() => {
-    if (!audioRef.current) return;
-    const audio = audioRef.current;
-    const shouldKeepPlaying = isPlaying;
-
-    if (!audio.src.endsWith(currentSong.audioSrc)) {
-      audio.src = currentSong.audioSrc;
-      audio.currentTime = 0;
-      setCurrentTime(0);
-      setDuration(currentSong.duration);
-
-      if (shouldKeepPlaying) {
-        const playPromise = audio.play();
-        if (playPromise !== undefined) {
-          playPromise.catch((err) => {
-            console.warn('Playback error on song switch:', err);
-            setIsPlaying(false);
-          });
-        }
-      }
-    }
-  }, [currentSongIndex]);
 
   // Sync active theme class to document root HTML when music is playing
   const activeTheme: ThemeType | null = isPlaying ? currentSong.themeId : null;
@@ -173,93 +157,91 @@ export const SenjaProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   }, [currentLyricIndex, isPlaying, currentSong]);
 
   // Play / Pause / Seek / Volume Controls
-  const play = () => {
+  const play = useCallback(() => {
     if (!audioRef.current) return;
     setIsPlaying(true);
-    const playPromise = audioRef.current.play();
-    if (playPromise !== undefined) {
-      playPromise.catch((err) => {
-        console.warn('Playback interrupted or restricted:', err);
-        setIsPlaying(false);
-      });
-    }
-  };
+    audioRef.current.play().catch((err) => {
+      console.warn('Playback interrupted or restricted:', err);
+      setIsPlaying(false);
+    });
+  }, []);
 
-  const pause = () => {
+  const pause = useCallback(() => {
     if (!audioRef.current) return;
     audioRef.current.pause();
     setIsPlaying(false);
-  };
+  }, []);
 
-  const togglePlay = () => {
-    if (isPlaying) {
-      pause();
-    } else {
+  const togglePlay = useCallback(() => {
+    if (!audioRef.current) return;
+    if (audioRef.current.paused) {
       play();
+    } else {
+      pause();
     }
-  };
+  }, [play, pause]);
 
-  const togglePlayTrack = (index: number) => {
+  // Unified single-source track change to prevent race conditions or double audio buffer resets
+  const changeTrack = useCallback((index: number, autoPlay: boolean = true) => {
     if (index < 0 || index >= songs.length) return;
-    if (index === currentSongIndex) {
-      togglePlay();
-      return;
-    }
-
     const targetSong = songs[index];
     setCurrentSongIndex(index);
     setCurrentTime(0);
     setDuration(targetSong.duration);
-    setIsPlaying(true);
 
     if (audioRef.current) {
+      // Set new audio source cleanly
       audioRef.current.src = targetSong.audioSrc;
       audioRef.current.currentTime = 0;
-      const playPromise = audioRef.current.play();
-      if (playPromise !== undefined) {
-        playPromise.catch((err) => {
+
+      if (autoPlay) {
+        setIsPlaying(true);
+        audioRef.current.play().catch((err) => {
           console.warn('Playback error on track switch:', err);
           setIsPlaying(false);
         });
       }
     }
-  };
+  }, [songs]);
 
-  const openLyricsForTrack = (index: number) => {
+  const togglePlayTrack = useCallback((index: number) => {
+    if (index < 0 || index >= songs.length) return;
+    if (index === currentSongIndex) {
+      togglePlay();
+      return;
+    }
+    changeTrack(index, true);
+  }, [currentSongIndex, togglePlay, changeTrack]);
+
+  const openLyricsForTrack = useCallback((index: number) => {
     if (index < 0 || index >= songs.length) return;
     if (index !== currentSongIndex) {
-      setCurrentSongIndex(index);
-      if (audioRef.current) {
-        audioRef.current.src = songs[index].audioSrc;
-        audioRef.current.currentTime = 0;
-        setCurrentTime(0);
-        setDuration(songs[index].duration);
-      }
+      changeTrack(index, false);
     }
     setIsLyricsOpen(true);
-  };
+  }, [currentSongIndex, changeTrack]);
 
-  const selectSong = (index: number) => {
-    if (index >= 0 && index < songs.length) {
-      setCurrentSongIndex(index);
-      if (!isPlaying) {
-        setIsPlaying(true);
-        setTimeout(() => {
-          audioRef.current?.play().catch(console.warn);
-        }, 50);
-      }
-    }
-  };
+  const selectSong = useCallback((index: number) => {
+    changeTrack(index, true);
+  }, [changeTrack]);
 
-  const nextSong = () => {
-    setCurrentSongIndex((prev) => (prev + 1) % songs.length);
-  };
+  const handleNextSong = useCallback(() => {
+    setCurrentSongIndex((prev) => {
+      const nextIndex = (prev + 1) % songs.length;
+      changeTrack(nextIndex, isPlaying);
+      return nextIndex;
+    });
+  }, [songs.length, changeTrack, isPlaying]);
 
-  const prevSong = () => {
-    setCurrentSongIndex((prev) => (prev - 1 + songs.length) % songs.length);
-  };
+  const handlePrevSong = useCallback(() => {
+    setCurrentSongIndex((prev) => {
+      const prevIndex = (prev - 1 + songs.length) % songs.length;
+      changeTrack(prevIndex, isPlaying);
+      return prevIndex;
+    });
+  }, [songs.length, changeTrack, isPlaying]);
 
-  const seek = (time: number) => {
+  const seek = useCallback((time: number) => {
     if (!audioRef.current) return;
     const clamped = Math.max(0, Math.min(time, duration));
     audioRef.current.currentTime = clamped;
@@ -267,58 +249,108 @@ export const SenjaProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     if (!isPlaying) {
       play();
     }
-  };
+  }, [duration, isPlaying, play]);
 
-  const setVolume = (v: number) => {
+  const setVolume = useCallback((v: number) => {
     const clamped = Math.max(0, Math.min(v, 1));
     setVolumeState(clamped);
     if (audioRef.current) {
       audioRef.current.volume = clamped;
     }
-  };
+  }, []);
 
-  const toggleLyrics = () => {
+  const toggleLyrics = useCallback(() => {
     setIsLyricsOpen((prev) => !prev);
-  };
+  }, []);
+
+  // Memoize low-frequency playback value (ZERO re-renders on audio time ticks)
+  const playbackValue = useMemo<SenjaPlaybackContextType>(() => ({
+    isPlaying,
+    isSenjaMode,
+    activeTheme,
+    duration,
+    volume,
+    songs,
+    currentSong,
+    currentSongIndex,
+    isLyricsOpen,
+    togglePlay,
+    togglePlayTrack,
+    openLyricsForTrack,
+    play,
+    pause,
+    seek,
+    setVolume,
+    selectSong,
+    nextSong: handleNextSong,
+    prevSong: handlePrevSong,
+    toggleLyrics,
+    setIsLyricsOpen,
+  }), [
+    isPlaying,
+    isSenjaMode,
+    activeTheme,
+    duration,
+    volume,
+    songs,
+    currentSong,
+    currentSongIndex,
+    isLyricsOpen,
+    togglePlay,
+    togglePlayTrack,
+    openLyricsForTrack,
+    play,
+    pause,
+    seek,
+    setVolume,
+    selectSong,
+    handleNextSong,
+    handlePrevSong,
+    toggleLyrics,
+  ]);
+
+  // Memoize high-frequency time value (only updates consumers that display progress/lyrics)
+  const progressPercent = duration > 0 ? (currentTime / duration) * 100 : 0;
+  const timeValue = useMemo<SenjaTimeContextType>(() => ({
+    currentTime,
+    currentLyricIndex,
+    currentLyricText,
+    progressPercent,
+  }), [currentTime, currentLyricIndex, currentLyricText, progressPercent]);
 
   return (
-    <SenjaContext.Provider
-      value={{
-        isPlaying,
-        isSenjaMode,
-        activeTheme,
-        currentTime,
-        duration,
-        volume,
-        songs,
-        currentSong,
-        currentSongIndex,
-        isLyricsOpen,
-        currentLyricIndex,
-        currentLyricText,
-        togglePlay,
-        togglePlayTrack,
-        openLyricsForTrack,
-        play,
-        pause,
-        seek,
-        setVolume,
-        selectSong,
-        nextSong,
-        prevSong,
-        toggleLyrics,
-        setIsLyricsOpen,
-      }}
-    >
-      {children}
-    </SenjaContext.Provider>
+    <SenjaPlaybackContext.Provider value={playbackValue}>
+      <SenjaTimeContext.Provider value={timeValue}>
+        {children}
+      </SenjaTimeContext.Provider>
+    </SenjaPlaybackContext.Provider>
   );
 };
 
-export const useSenja = (): SenjaContextType => {
-  const context = useContext(SenjaContext);
+// Specialized hook for components needing play state & themes without time ticks
+export const useSenjaPlayback = (): SenjaPlaybackContextType => {
+  const context = useContext(SenjaPlaybackContext);
   if (!context) {
-    throw new Error('useSenja must be used within a SenjaProvider');
+    throw new Error('useSenjaPlayback must be used within a SenjaProvider');
   }
   return context;
+};
+
+// Specialized hook for components needing live currentTime & lyrics
+export const useSenjaTime = (): SenjaTimeContextType => {
+  const context = useContext(SenjaTimeContext);
+  if (!context) {
+    throw new Error('useSenjaTime must be used within a SenjaProvider');
+  }
+  return context;
+};
+
+// Full combined hook for backward compatibility
+export const useSenja = (): SenjaContextType => {
+  const playback = useSenjaPlayback();
+  const time = useSenjaTime();
+  return {
+    ...playback,
+    ...time,
+  };
 };

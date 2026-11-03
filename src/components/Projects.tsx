@@ -188,4 +188,4 @@ const Projects: React.FC<ProjectsProps> = ({
   );
 };
 
-export default Projects;
+export default React.memo(Projects);
