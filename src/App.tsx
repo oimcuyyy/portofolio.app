@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 import { supabase } from './lib/supabase';
@@ -39,12 +39,13 @@ function App() {
   const [sentSuccess, setSentSuccess] = useState(false);
   const [isLoadingScreenActive, setIsLoadingScreenActive] = useState(true);
 
-  const handleLoadingComplete = () => {
+  const handleLoadingComplete = useCallback(() => {
     setIsLoadingScreenActive(false);
+    document.body.style.overflow = '';
     setTimeout(() => {
       AOS.refresh();
     }, 150);
-  };
+  }, []);
 
   // STATE MODAL DETAIL PROYEK
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
@@ -344,7 +345,7 @@ function App() {
       }`}
     >
       {/* CINEMATIC PRELOADER LOADING SCREEN */}
-      <LoadingScreen onComplete={handleLoadingComplete} />
+      {isLoadingScreenActive && <LoadingScreen onComplete={handleLoadingComplete} />}
 
       <CustomCursor />
       <ParticleNetwork />

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, type Variants } from 'framer-motion';
 
 interface LoadingScreenProps {
@@ -8,9 +8,14 @@ interface LoadingScreenProps {
 export const LoadingScreen: React.FC<LoadingScreenProps> = ({ onComplete }) => {
   const [isFinished, setIsFinished] = useState(false);
   const [lineLoaded, setLineLoaded] = useState(false);
+  const onCompleteRef = useRef(onComplete);
 
   useEffect(() => {
-    // Lock body scroll during initial loading
+    onCompleteRef.current = onComplete;
+  }, [onComplete]);
+
+  useEffect(() => {
+    // Lock body scroll during initial loading strictly once on mount
     document.body.style.overflow = 'hidden';
 
     // Trigger progress line animation
@@ -22,7 +27,7 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({ onComplete }) => {
     const exitTimer = setTimeout(() => {
       setIsFinished(true);
       document.body.style.overflow = '';
-      if (onComplete) onComplete();
+      if (onCompleteRef.current) onCompleteRef.current();
     }, 1850); // 1.85s duration: buttery smooth, not rushed, not tedious
 
     // Allow user to click or press any key to skip immediately
@@ -34,7 +39,7 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({ onComplete }) => {
       clearTimeout(exitTimer);
       setIsFinished(true);
       document.body.style.overflow = '';
-      if (onComplete) onComplete();
+      if (onCompleteRef.current) onCompleteRef.current();
     };
 
     window.addEventListener('keydown', handleSkip);
@@ -45,7 +50,7 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({ onComplete }) => {
       window.removeEventListener('keydown', handleSkip);
       document.body.style.overflow = '';
     };
-  }, [onComplete]);
+  }, []);
 
   // Letters of rochim.dev for staggered kinetic entrance
   const brandName = "rochim.dev";
@@ -96,7 +101,7 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({ onComplete }) => {
           onClick={() => {
             setIsFinished(true);
             document.body.style.overflow = '';
-            if (onComplete) onComplete();
+            if (onCompleteRef.current) onCompleteRef.current();
           }}
           className="fixed inset-0 z-[99999] bg-[#030712] text-white flex flex-col items-center justify-center select-none overflow-hidden cursor-pointer"
         >
