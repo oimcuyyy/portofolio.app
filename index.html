@@ -103,9 +103,28 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   </head>
-  <body class="bg-[#05070d] text-slate-100 antialiased selection:bg-emerald-500/30 selection:text-emerald-200">
-    <!-- Googlebot & Crawler Semantic Pre-rendered Content. React hydrates and cleanly replaces this container. -->
+  <body class="bg-[#030712] text-slate-100 antialiased selection:bg-emerald-500/30 selection:text-emerald-200">
+    <!-- React Root Container with Instant Zero-FOUC Preloader -->
     <div id="root">
+      <div id="initial-loader" style="position:fixed;inset:0;background:#030712;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#ffffff;z-index:99999;font-family:'JetBrains Mono',monospace,sans-serif;user-select:none;overflow:hidden;">
+        <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:400px;height:400px;border-radius:50%;background:rgba(16,185,129,0.12);filter:blur(110px);pointer-events:none;"></div>
+        <div style="position:relative;z-index:10;display:flex;flex-direction:column;align-items:center;">
+          <h1 style="font-size:clamp(2.75rem,7vw,4.5rem);font-weight:800;letter-spacing:-0.03em;margin:0;display:flex;align-items:center;">
+            <span>rochim</span><span style="color:#34d399;text-shadow:0 0 25px rgba(52,211,153,0.55);">.dev</span>
+            <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#34d399;margin-left:10px;box-shadow:0 0 12px #34d399;"></span>
+          </h1>
+          <div style="width:240px;height:2px;background:rgba(255,255,255,0.1);border-radius:9999px;margin-top:24px;overflow:hidden;position:relative;">
+            <div style="width:30%;height:100%;background:linear-gradient(90deg,#10b981,#5eead4,#22d3ee);border-radius:9999px;box-shadow:0 0 12px rgba(52,211,153,0.9);"></div>
+          </div>
+          <span style="font-size:11px;letter-spacing:0.18em;color:#64748b;text-transform:uppercase;margin-top:16px;">
+            [ portfolio • 2026 ]
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Semantic fallback for search engines / no-JS crawlers -->
+    <noscript>
       <header style="padding: 24px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1);">
         <nav>
           <a href="#about" style="color: #10b981; margin: 0 12px; text-decoration: none;">Tentang</a>
@@ -171,12 +190,6 @@
       <footer style="text-align: center; padding: 40px 20px; border-top: 1px solid rgba(255,255,255,0.1); color: #64748b;">
         <p>&copy; 2026 Muhammad Rochimuloh. All rights reserved.</p>
       </footer>
-    </div>
-
-    <noscript>
-      <div style="background: #0f172a; color: #f8fafc; padding: 20px; text-align: center;">
-        Website ini dirancang dengan JavaScript modern. Konten lengkap portfolio Muhammad Rochimuloh tersedia di atas.
-      </div>
     </noscript>
 
     <script type="module" src="/src/main.tsx"></script>
