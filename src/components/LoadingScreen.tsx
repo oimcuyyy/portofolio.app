@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence, type Variants } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface LoadingScreenProps {
   onComplete?: () => void;
@@ -7,7 +7,7 @@ interface LoadingScreenProps {
 
 export const LoadingScreen: React.FC<LoadingScreenProps> = ({ onComplete }) => {
   const [isFinished, setIsFinished] = useState(false);
-  const [lineLoaded, setLineLoaded] = useState(false);
+  const [progress, setProgress] = useState(0);
   const onCompleteRef = useRef(onComplete);
 
   useEffect(() => {
@@ -18,161 +18,125 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({ onComplete }) => {
     // Lock body scroll during initial loading strictly once on mount
     document.body.style.overflow = 'hidden';
 
-    // Trigger progress line animation
-    const lineTimer = setTimeout(() => {
-      setLineLoaded(true);
-    }, 100);
+    const startTime = performance.now();
+    const duration = 1700; // 1.7s total progress fill duration
+    let animFrameId: number;
+    let finishTimer: ReturnType<typeof setTimeout>;
 
-    // Finish loading and trigger exit transition
-    const exitTimer = setTimeout(() => {
-      setIsFinished(true);
-      document.body.style.overflow = '';
-      if (onCompleteRef.current) onCompleteRef.current();
-    }, 1850); // 1.85s duration: buttery smooth, not rushed, not tedious
+    const tick = (now: number) => {
+      const elapsed = now - startTime;
+      const raw = Math.min(elapsed / duration, 1);
+      // Smooth cubic-bezier curve (starts responsive, eases gently towards 100%)
+      const eased = Math.round((1 - Math.pow(1 - raw, 2.6)) * 100);
+      setProgress(eased);
+
+      if (raw < 1) {
+        animFrameId = requestAnimationFrame(tick);
+      } else {
+        setProgress(100);
+        // Short pause once 100% is reached so the full visual is appreciated
+        finishTimer = setTimeout(() => {
+          setIsFinished(true);
+        }, 150);
+      }
+    };
+
+    animFrameId = requestAnimationFrame(tick);
 
     // Allow user to click or press any key to skip immediately
     const handleSkip = (e?: KeyboardEvent | MouseEvent) => {
       if (e && 'key' in e && e.key !== ' ' && e.key !== 'Enter' && e.key !== 'Escape') {
         return;
       }
-      clearTimeout(lineTimer);
-      clearTimeout(exitTimer);
+      cancelAnimationFrame(animFrameId);
+      clearTimeout(finishTimer);
+      setProgress(100);
       setIsFinished(true);
-      document.body.style.overflow = '';
-      if (onCompleteRef.current) onCompleteRef.current();
     };
 
     window.addEventListener('keydown', handleSkip);
 
     return () => {
-      clearTimeout(lineTimer);
-      clearTimeout(exitTimer);
+      cancelAnimationFrame(animFrameId);
+      clearTimeout(finishTimer);
       window.removeEventListener('keydown', handleSkip);
       document.body.style.overflow = '';
     };
   }, []);
 
-  // Letters of rochim.dev for staggered kinetic entrance
-  const brandName = "rochim.dev";
-  const letters = Array.from(brandName);
-
-  const containerVariants: Variants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.045,
-        delayChildren: 0.12,
-      },
-    },
-  };
-
-  const letterVariants: Variants = {
-    hidden: {
-      opacity: 0,
-      y: 32,
-      filter: 'blur(8px)',
-      scale: 0.92,
-    },
-    visible: {
-      opacity: 1,
-      y: 0,
-      filter: 'blur(0px)',
-      scale: 1,
-      transition: {
-        duration: 0.55,
-        ease: [0.16, 1, 0.3, 1] as const,
-      },
-    },
-  };
-
   return (
-    <AnimatePresence>
+    <AnimatePresence
+      onExitComplete={() => {
+        document.body.style.overflow = '';
+        if (onCompleteRef.current) onCompleteRef.current();
+      }}
+    >
       {!isFinished && (
         <motion.div
-          key="preloader"
-          initial={{ opacity: 1 }}
+          key="cinematic-waterfill-loader"
+          initial={{ opacity: 1, scale: 1 }}
           exit={{
             opacity: 0,
-            scale: 1.04,
-            filter: 'blur(16px)',
-            transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] as const },
+            scale: 3.2,
+            filter: 'blur(20px)',
+            transition: {
+              duration: 0.8,
+              ease: [0.7, 0, 0.2, 1] as const, // Aggressive forward camera zoom into portfolio
+            },
           }}
-          onClick={() => {
-            setIsFinished(true);
-            document.body.style.overflow = '';
-            if (onCompleteRef.current) onCompleteRef.current();
-          }}
-          className="fixed inset-0 z-[99999] bg-[#030712] text-white flex flex-col items-center justify-center select-none overflow-hidden cursor-pointer"
+          onClick={() => setIsFinished(true)}
+          className="fixed inset-0 z-[99999] bg-[#030712] text-white flex flex-col items-center justify-center select-none overflow-hidden cursor-pointer px-4 sm:px-6"
         >
           {/* Ambient center emerald glow orb */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[340px] sm:w-[540px] h-[340px] sm:h-[540px] rounded-full bg-emerald-500/12 blur-[130px] pointer-events-none" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[380px] sm:w-[600px] h-[380px] sm:h-[600px] rounded-full bg-emerald-500/[0.08] blur-[140px] pointer-events-none" />
 
           {/* Micro Grid Background Pattern */}
           <div
-            className="absolute inset-0 opacity-[0.03] pointer-events-none"
+            className="absolute inset-0 opacity-[0.035] pointer-events-none"
             style={{
               backgroundImage: 'radial-gradient(rgba(255, 255, 255, 0.4) 1px, transparent 1px)',
               backgroundSize: '24px 24px',
             }}
           />
 
-          {/* MAIN HERO CENTERPIECE: rochim.dev */}
-          <div className="relative z-10 flex flex-col items-center">
+          {/* MASSIVE TYPOGRAPHY WITH WATER/PERCENTAGE FILL */}
+          <div className="relative w-full max-w-7xl flex items-center justify-center">
             
-            {/* Staggered Animated Letters of rochim.dev */}
-            <motion.h1
-              variants={containerVariants}
-              initial="hidden"
-              animate="visible"
-              className="text-5xl sm:text-7xl md:text-8xl font-extrabold font-mono tracking-tight flex items-center"
+            {/* 1. Base Unfilled Layer (Dark Slate Background Silhouette) */}
+            <h1
+              className="select-none text-center font-black uppercase leading-none tracking-[-0.08em] sm:tracking-[-0.09em] text-[#182335] text-[17vw] sm:text-[14vw] md:text-[12.5vw]"
+              style={{
+                fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+              }}
             >
-              {letters.map((char, index) => {
-                const isDevPart = index >= 6; // ".dev" starts at index 6
-                return (
-                  <motion.span
-                    key={index}
-                    variants={letterVariants}
-                    className={`inline-block transition-colors duration-300 ${
-                      isDevPart
-                        ? 'text-emerald-400 drop-shadow-[0_0_25px_rgba(52,211,153,0.55)]'
-                        : 'text-white drop-shadow-[0_4px_16px_rgba(255,255,255,0.15)]'
-                    }`}
-                  >
-                    {char}
-                  </motion.span>
-                );
-              })}
+              ROCHIM.DEV
+            </h1>
 
-              {/* Pulsating emerald terminal dot */}
-              <motion.span
-                initial={{ opacity: 0, scale: 0 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.75, duration: 0.3 }}
-                className="inline-block w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 rounded-full bg-emerald-400 ml-2.5 shadow-[0_0_12px_#34d399] animate-pulse"
-              />
-            </motion.h1>
-
-            {/* Glowing Hairline Progress Line under rochim.dev */}
-            <div className="w-full max-w-[220px] sm:max-w-[320px] h-[2px] bg-white/10 rounded-full mt-6 overflow-hidden relative shadow-inner">
-              <motion.div
-                className="h-full bg-gradient-to-r from-emerald-500 via-teal-300 to-cyan-400 rounded-full shadow-[0_0_12px_rgba(52,211,153,0.9)]"
-                initial={{ width: '0%' }}
-                animate={{ width: lineLoaded ? '100%' : '0%' }}
-                transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] as const, delay: 0.1 }}
-              />
+            {/* 2. Top Filled Layer (Revealed from bottom to top based on progress %) */}
+            <div
+              className="absolute inset-x-0 bottom-0 overflow-hidden pointer-events-none transition-[height] duration-75 ease-out"
+              style={{ height: `${progress}%` }}
+            >
+              <h1
+                className="absolute bottom-0 left-0 w-full select-none text-center font-black uppercase leading-none tracking-[-0.08em] sm:tracking-[-0.09em] text-white text-[17vw] sm:text-[14vw] md:text-[12.5vw]"
+                style={{
+                  fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                }}
+              >
+                ROCHIM<span className="text-emerald-400 drop-shadow-[0_0_35px_rgba(52,211,153,0.7)]">.DEV</span>
+              </h1>
             </div>
 
-            {/* Subtle Minimalist Tagline */}
-            <motion.span
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.85, duration: 0.5 }}
-              className="text-[11px] font-mono tracking-widest text-slate-500 uppercase mt-4"
-            >
-              [ portfolio • 2026 ]
-            </motion.span>
           </div>
+
+          {/* BOTTOM PERCENTAGE & STATUS */}
+          <div className="absolute bottom-8 sm:bottom-12 left-1/2 -translate-x-1/2 flex items-center gap-2.5">
+            <p className="text-xs sm:text-sm font-mono font-bold uppercase tracking-[0.25em] text-emerald-400/90 whitespace-nowrap">
+              LOADING... {progress}%
+            </p>
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_#34d399]" />
+          </div>
+
         </motion.div>
       )}
     </AnimatePresence>
