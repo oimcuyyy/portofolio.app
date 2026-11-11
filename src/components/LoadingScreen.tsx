@@ -87,8 +87,8 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({ onComplete }) => {
           onClick={() => setIsFinished(true)}
           className="fixed inset-0 z-[99999] bg-[#030712] text-white flex flex-col items-center justify-center select-none overflow-hidden cursor-pointer px-4 sm:px-6"
         >
-          {/* Ambient center emerald glow orb */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[380px] sm:w-[600px] h-[380px] sm:h-[600px] rounded-full bg-emerald-500/[0.08] blur-[140px] pointer-events-none" />
+          {/* Subtle Neutral Ambient Aura (Zero Green Bleed) */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] sm:w-[600px] h-[400px] sm:h-[600px] rounded-full bg-white/[0.02] blur-[140px] pointer-events-none" />
 
           {/* Micro Grid Background Pattern */}
           <div
@@ -102,9 +102,9 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({ onComplete }) => {
           {/* MASSIVE TYPOGRAPHY WITH WATER/PERCENTAGE FILL */}
           <div className="relative w-full max-w-7xl flex items-center justify-center">
             
-            {/* 1. Base Unfilled Layer (Dark Slate Background Silhouette) */}
+            {/* 1. Base Unfilled Layer (Clean Dark Neutral Silhouette) */}
             <h1
-              className="select-none text-center font-black uppercase leading-none tracking-[-0.08em] sm:tracking-[-0.09em] text-[#182335] text-[17vw] sm:text-[14vw] md:text-[12.5vw]"
+              className="select-none text-center font-black uppercase leading-none tracking-[-0.08em] sm:tracking-[-0.09em] text-[#222734] text-[17vw] sm:text-[14vw] md:text-[12.5vw]"
               style={{
                 fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
               }}
@@ -112,7 +112,7 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({ onComplete }) => {
               ROCHIM.DEV
             </h1>
 
-            {/* 2. Top Filled Layer (Revealed from bottom to top based on progress %) */}
+            {/* 2. Top Filled Layer (Pure Solid White Fill - Clean Editorial Monolith) */}
             <div
               className="absolute inset-x-0 bottom-0 overflow-hidden pointer-events-none transition-[height] duration-75 ease-out"
               style={{ height: `${progress}%` }}
@@ -123,18 +123,18 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({ onComplete }) => {
                   fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
                 }}
               >
-                ROCHIM<span className="text-emerald-400 drop-shadow-[0_0_35px_rgba(52,211,153,0.7)]">.DEV</span>
+                ROCHIM.DEV
               </h1>
             </div>
 
           </div>
 
-          {/* BOTTOM PERCENTAGE & STATUS */}
+          {/* BOTTOM PERCENTAGE & STATUS - Clean Neutral Monospace */}
           <div className="absolute bottom-8 sm:bottom-12 left-1/2 -translate-x-1/2 flex items-center gap-2.5">
-            <p className="text-xs sm:text-sm font-mono font-bold uppercase tracking-[0.25em] text-emerald-400/90 whitespace-nowrap">
+            <p className="text-xs sm:text-sm font-mono font-medium uppercase tracking-[0.25em] text-slate-400 whitespace-nowrap">
               LOADING... {progress}%
             </p>
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_#34d399]" />
+            <span className="w-1.5 h-1.5 rounded-full bg-slate-300 animate-pulse shadow-[0_0_6px_rgba(255,255,255,0.6)]" />
           </div>
 
         </motion.div>
