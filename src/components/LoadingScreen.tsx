@@ -102,17 +102,17 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({ onComplete }) => {
           {/* MASSIVE TYPOGRAPHY WITH WATER/PERCENTAGE FILL */}
           <div className="relative w-full max-w-7xl flex items-center justify-center">
             
-            {/* 1. Base Unfilled Layer (Clean Dark Neutral Silhouette) */}
+            {/* 1. Base Unfilled Layer (Clean Dark Neutral Silhouette with Subtle Emerald Base on .DEV) */}
             <h1
               className="select-none text-center font-black uppercase leading-none tracking-[-0.08em] sm:tracking-[-0.09em] text-[#222734] text-[17vw] sm:text-[14vw] md:text-[12.5vw]"
               style={{
                 fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
               }}
             >
-              ROCHIM.DEV
+              ROCHIM<span className="text-[#132a22]">.DEV</span>
             </h1>
 
-            {/* 2. Top Filled Layer (Pure Solid White Fill - Clean Editorial Monolith) */}
+            {/* 2. Top Filled Layer (Sharp Crisp White ROCHIM + Clean Razor-Sharp Emerald .DEV) */}
             <div
               className="absolute inset-x-0 bottom-0 overflow-hidden pointer-events-none transition-[height] duration-75 ease-out"
               style={{ height: `${progress}%` }}
@@ -123,18 +123,18 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({ onComplete }) => {
                   fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
                 }}
               >
-                ROCHIM.DEV
+                ROCHIM<span className="text-emerald-400">.DEV</span>
               </h1>
             </div>
 
           </div>
 
-          {/* BOTTOM PERCENTAGE & STATUS - Clean Neutral Monospace */}
+          {/* BOTTOM PERCENTAGE & STATUS - Clean Monospace with Matching Emerald Accent */}
           <div className="absolute bottom-8 sm:bottom-12 left-1/2 -translate-x-1/2 flex items-center gap-2.5">
             <p className="text-xs sm:text-sm font-mono font-medium uppercase tracking-[0.25em] text-slate-400 whitespace-nowrap">
               LOADING... {progress}%
             </p>
-            <span className="w-1.5 h-1.5 rounded-full bg-slate-300 animate-pulse shadow-[0_0_6px_rgba(255,255,255,0.6)]" />
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_#34d399]" />
           </div>
 
         </motion.div>
