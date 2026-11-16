@@ -19,25 +19,31 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({ onComplete }) => {
     document.body.style.overflow = 'hidden';
 
     const startTime = performance.now();
-    const duration = 1700; // 1.7s total progress fill duration
+    const duration = 1600; // 1.6s duration: snappy, responsive, no dragged-out wait
     let animFrameId: number;
     let finishTimer: ReturnType<typeof setTimeout>;
+    let lastProgress = -1;
 
     const tick = (now: number) => {
       const elapsed = now - startTime;
       const raw = Math.min(elapsed / duration, 1);
-      // Smooth cubic-bezier curve (starts responsive, eases gently towards 100%)
+      // Smooth cubic-bezier curve (starts energetic, smoothly lands at 100%)
       const eased = Math.round((1 - Math.pow(1 - raw, 2.6)) * 100);
-      setProgress(eased);
+
+      // Only trigger React state update if integer percentage changed (prevents lag on 120Hz/144Hz displays)
+      if (eased !== lastProgress) {
+        lastProgress = eased;
+        setProgress(eased);
+      }
 
       if (raw < 1) {
         animFrameId = requestAnimationFrame(tick);
       } else {
         setProgress(100);
-        // Short pause once 100% is reached so the full visual is appreciated
+        // Short 160ms pause at 100% so the fully filled text is appreciated before forward zoom
         finishTimer = setTimeout(() => {
           setIsFinished(true);
-        }, 150);
+        }, 160);
       }
     };
 
@@ -64,6 +70,10 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({ onComplete }) => {
     };
   }, []);
 
+  // Compute smooth waterfill gradients without dual-element clipping boxes
+  const whiteGradient = `linear-gradient(to top, #ffffff ${progress}%, #222734 calc(${progress}% + 0.25%))`;
+  const emeraldGradient = `linear-gradient(to top, #34d399 ${progress}%, #132a22 calc(${progress}% + 0.25%))`;
+
   return (
     <AnimatePresence
       onExitComplete={() => {
@@ -78,17 +88,17 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({ onComplete }) => {
           exit={{
             opacity: 0,
             scale: 3.2,
-            filter: 'blur(20px)',
+            filter: 'blur(16px)',
             transition: {
-              duration: 0.8,
-              ease: [0.7, 0, 0.2, 1] as const, // Aggressive forward camera zoom into portfolio
+              duration: 0.75,
+              ease: [0.7, 0, 0.2, 1] as const, // Cinematic forward camera zoom into portfolio
             },
           }}
           onClick={() => setIsFinished(true)}
-          className="fixed inset-0 z-[99999] bg-[#030712] text-white flex flex-col items-center justify-center select-none overflow-hidden cursor-pointer px-4 sm:px-6"
+          className="fixed inset-0 z-[99999] bg-[#030712] text-white flex flex-col items-center justify-center select-none overflow-hidden cursor-pointer px-4 sm:px-6 transform-gpu will-change-transform will-change-opacity"
         >
-          {/* Subtle Neutral Ambient Aura (Zero Green Bleed) */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] sm:w-[600px] h-[400px] sm:h-[600px] rounded-full bg-white/[0.02] blur-[140px] pointer-events-none" />
+          {/* Subtle Ambient Aura (Hardware-accelerated) */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] sm:w-[600px] h-[400px] sm:h-[600px] rounded-full bg-white/[0.015] blur-[120px] pointer-events-none transform-gpu" />
 
           {/* Micro Grid Background Pattern */}
           <div
@@ -99,37 +109,40 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({ onComplete }) => {
             }}
           />
 
-          {/* MASSIVE TYPOGRAPHY WITH WATER/PERCENTAGE FILL */}
-          <div className="relative w-full max-w-7xl flex items-center justify-center">
-            
-            {/* 1. Base Unfilled Layer (Clean Dark Neutral Silhouette with Subtle Emerald Base on .DEV) */}
+          {/* MONOLITHIC WATERFILL TYPOGRAPHY (Single-element background-clip to prevent any misalignment or letter clipping) */}
+          <div className="relative flex items-center justify-center text-center px-4">
             <h1
-              className="select-none text-center font-black uppercase leading-none tracking-[-0.08em] sm:tracking-[-0.09em] text-[#222734] text-[17vw] sm:text-[14vw] md:text-[12.5vw]"
+              className="select-none text-center font-black uppercase leading-none tracking-[-0.08em] sm:tracking-[-0.09em] whitespace-nowrap"
               style={{
                 fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                fontSize: 'clamp(2.5rem, 9.2vw, 8rem)',
               }}
             >
-              ROCHIM<span className="text-[#132a22]">.DEV</span>
-            </h1>
-
-            {/* 2. Top Filled Layer (Sharp Crisp White ROCHIM + Clean Razor-Sharp Emerald .DEV) */}
-            <div
-              className="absolute inset-x-0 bottom-0 overflow-hidden pointer-events-none transition-[height] duration-75 ease-out"
-              style={{ height: `${progress}%` }}
-            >
-              <h1
-                className="absolute bottom-0 left-0 w-full select-none text-center font-black uppercase leading-none tracking-[-0.08em] sm:tracking-[-0.09em] text-white text-[17vw] sm:text-[14vw] md:text-[12.5vw]"
+              {/* ROCHIM: Fills from #222734 to crisp #ffffff */}
+              <span
                 style={{
-                  fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                  background: whiteGradient,
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
                 }}
               >
-                ROCHIM<span className="text-emerald-400">.DEV</span>
-              </h1>
-            </div>
+                ROCHIM
+              </span>
 
+              {/* .DEV: Fills from #132a22 to clean emerald #34d399 without clipping any corner of 'V' */}
+              <span
+                style={{
+                  background: emeraldGradient,
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                }}
+              >
+                .DEV
+              </span>
+            </h1>
           </div>
 
-          {/* BOTTOM PERCENTAGE & STATUS - Clean Monospace with Matching Emerald Accent */}
+          {/* BOTTOM PERCENTAGE & STATUS */}
           <div className="absolute bottom-8 sm:bottom-12 left-1/2 -translate-x-1/2 flex items-center gap-2.5">
             <p className="text-xs sm:text-sm font-mono font-medium uppercase tracking-[0.25em] text-slate-400 whitespace-nowrap">
               LOADING... {progress}%
