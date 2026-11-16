@@ -93,6 +93,8 @@ export const ParticleNetwork = React.memo(function ParticleNetwork() {
         const { isPlaying, activeTheme } = themeRef.current;
         if (!isPlaying) {
           ctx.fillStyle = '#10b981';
+        } else if (activeTheme === 'candanada') {
+          ctx.fillStyle = '#34d399';
         } else if (activeTheme === 'senja') {
           ctx.fillStyle = this.senjaColor;
         } else if (activeTheme === 'lany') {
@@ -194,6 +196,8 @@ export const ParticleNetwork = React.memo(function ParticleNetwork() {
 
             if (!isPlaying) {
               ctx.strokeStyle = `rgba(16, 185, 129, ${opacity})`;
+            } else if (activeTheme === 'candanada') {
+              ctx.strokeStyle = `rgba(52, 211, 153, ${opacity * 1.1})`;
             } else if (activeTheme === 'senja') {
               ctx.strokeStyle = `rgba(251, 146, 60, ${opacity})`;
             } else if (activeTheme === 'lany') {

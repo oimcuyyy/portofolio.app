@@ -337,6 +337,8 @@ function App() {
       } ${
         !isPlaying
           ? 'bg-[#fafbfc] dark:bg-[#05070d] text-slate-800 dark:text-slate-200 selection:bg-emerald-500/30 selection:text-emerald-200'
+          : activeTheme === 'candanada'
+          ? 'bg-[#030907] text-emerald-100 selection:bg-emerald-500/30 selection:text-emerald-200'
           : activeTheme === 'senja'
           ? 'bg-[#100814] text-amber-100 selection:bg-rose-500/30 selection:text-amber-100'
           : activeTheme === 'lany'
@@ -354,6 +356,8 @@ function App() {
         style={{
           backgroundImage: !isPlaying
             ? 'radial-gradient(rgba(16, 185, 129, 0.25) 1px, transparent 1px)'
+            : activeTheme === 'candanada'
+            ? 'radial-gradient(rgba(16, 185, 129, 0.45) 1px, transparent 1px)'
             : activeTheme === 'senja'
             ? 'radial-gradient(rgba(245, 158, 11, 0.4) 1px, transparent 1px)'
             : activeTheme === 'lany'
@@ -366,6 +370,8 @@ function App() {
         className={`fixed inset-0 pointer-events-none z-0 transition-colors duration-700 ${
           !isPlaying
             ? 'bg-gradient-to-b from-transparent via-slate-50/50 dark:via-transparent to-slate-100/80 dark:to-black/40'
+            : activeTheme === 'candanada'
+            ? 'bg-gradient-to-b from-emerald-950/30 via-transparent to-teal-950/40'
             : activeTheme === 'senja'
             ? 'bg-gradient-to-b from-amber-950/25 via-transparent to-purple-950/40'
             : activeTheme === 'lany'
@@ -379,6 +385,8 @@ function App() {
         className={`absolute top-[-5%] left-1/2 -translate-x-1/2 w-[600px] sm:w-[840px] h-[400px] blur-[90px] sm:blur-[110px] pointer-events-none rounded-full transform-gpu will-change-transform will-change-opacity transition-all duration-700 ${
           !isPlaying
             ? 'bg-gradient-to-tr from-emerald-600/15 via-teal-500/10 to-cyan-500/10 dark:from-emerald-500/20 dark:via-teal-500/15 dark:to-cyan-500/15'
+            : activeTheme === 'candanada'
+            ? 'bg-gradient-to-tr from-emerald-500/35 via-teal-500/25 to-cyan-500/25'
             : activeTheme === 'senja'
             ? 'bg-gradient-to-tr from-amber-600/35 via-rose-500/25 to-purple-600/25'
             : activeTheme === 'lany'

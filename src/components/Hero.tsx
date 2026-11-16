@@ -18,6 +18,8 @@ const Hero: React.FC = () => {
         className={`absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[340px] sm:w-[500px] h-[340px] sm:h-[500px] rounded-full blur-[80px] sm:blur-[100px] pointer-events-none -z-10 transform-gpu will-change-transform will-change-opacity transition-all duration-700 ${
           !isPlaying
             ? 'bg-emerald-500/10 dark:bg-emerald-500/15'
+            : activeTheme === 'candanada'
+            ? 'bg-emerald-500/30 dark:bg-emerald-500/35'
             : activeTheme === 'senja'
             ? 'bg-amber-500/25 dark:bg-amber-500/30'
             : activeTheme === 'lany'
@@ -29,6 +31,8 @@ const Hero: React.FC = () => {
         className={`absolute bottom-10 right-10 w-60 sm:w-72 h-60 sm:h-72 rounded-full blur-[70px] sm:blur-[90px] pointer-events-none -z-10 transform-gpu will-change-transform will-change-opacity transition-all duration-700 ${
           !isPlaying
             ? 'bg-cyan-500/10'
+            : activeTheme === 'candanada'
+            ? 'bg-teal-500/30 dark:bg-teal-500/35'
             : activeTheme === 'senja'
             ? 'bg-rose-500/25 dark:bg-rose-500/30'
             : activeTheme === 'lany'
@@ -48,6 +52,8 @@ const Hero: React.FC = () => {
               className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full border backdrop-blur-md mb-5 sm:mb-6 transition-all duration-700 ${
                 !isPlaying
                   ? 'bg-emerald-500/[0.08] dark:bg-emerald-500/10 border-emerald-500/25 text-emerald-700 dark:text-emerald-400'
+                  : activeTheme === 'candanada'
+                  ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-700 dark:text-emerald-300'
                   : activeTheme === 'senja'
                   ? 'bg-amber-500/15 border-amber-500/35 text-amber-600 dark:text-amber-300'
                   : activeTheme === 'lany'
@@ -60,6 +66,8 @@ const Hero: React.FC = () => {
                   className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${
                     !isPlaying
                       ? 'bg-emerald-400'
+                      : activeTheme === 'candanada'
+                      ? 'bg-emerald-400 shadow-[0_0_8px_#34d399]'
                       : activeTheme === 'senja'
                       ? 'bg-amber-400'
                       : activeTheme === 'lany'
@@ -70,6 +78,8 @@ const Hero: React.FC = () => {
                 <span
                   className={`relative inline-flex rounded-full h-2 w-2 ${
                     !isPlaying
+                      ? 'bg-emerald-500'
+                      : activeTheme === 'candanada'
                       ? 'bg-emerald-500'
                       : activeTheme === 'senja'
                       ? 'bg-amber-500'
@@ -98,6 +108,8 @@ const Hero: React.FC = () => {
                 className={`text-transparent bg-clip-text transition-all duration-1000 ${
                   !isPlaying
                     ? 'bg-gradient-to-r from-emerald-500 via-teal-400 to-cyan-400'
+                    : activeTheme === 'candanada'
+                    ? 'bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400'
                     : activeTheme === 'senja'
                     ? 'bg-gradient-to-r from-amber-400 via-orange-400 to-rose-400'
                     : activeTheme === 'lany'
@@ -124,6 +136,8 @@ const Hero: React.FC = () => {
                 className={`group relative inline-flex items-center gap-3 pl-6 pr-2.5 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 shadow-xl active:scale-[0.98] ${
                   !isPlaying
                     ? 'bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-950 hover:bg-emerald-600 dark:hover:bg-white shadow-slate-900/10 dark:shadow-[0_0_35px_rgba(16,185,129,0.18)]'
+                    : activeTheme === 'candanada'
+                    ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white hover:from-emerald-400 hover:to-teal-500 shadow-emerald-500/30'
                     : activeTheme === 'senja'
                     ? 'bg-amber-500 text-slate-950 hover:bg-amber-400 shadow-amber-500/20'
                     : activeTheme === 'lany'
@@ -144,6 +158,8 @@ const Hero: React.FC = () => {
                 className={`inline-flex items-center gap-2 px-5 py-3 rounded-full bg-white/60 dark:bg-white/[0.05] border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-200 text-sm font-semibold hover:bg-slate-100 dark:hover:bg-white/10 ${
                   !isPlaying
                     ? 'hover:border-emerald-500/40'
+                    : activeTheme === 'candanada'
+                    ? 'hover:border-emerald-500/50 hover:text-emerald-400'
                     : activeTheme === 'senja'
                     ? 'hover:border-amber-500/40'
                     : activeTheme === 'lany'
@@ -156,6 +172,8 @@ const Hero: React.FC = () => {
                   className={
                     !isPlaying
                       ? 'text-emerald-500'
+                      : activeTheme === 'candanada'
+                      ? 'text-emerald-400'
                       : activeTheme === 'senja'
                       ? 'text-amber-500'
                       : activeTheme === 'lany'
@@ -172,6 +190,8 @@ const Hero: React.FC = () => {
                 className={`px-4 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500 ${
                   !isPlaying
                     ? 'hover:text-emerald-500 dark:hover:text-emerald-400'
+                    : activeTheme === 'candanada'
+                    ? 'hover:text-emerald-400 dark:hover:text-emerald-300'
                     : activeTheme === 'senja'
                     ? 'hover:text-amber-500 dark:hover:text-amber-400'
                     : activeTheme === 'lany'

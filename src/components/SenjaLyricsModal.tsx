@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Play, Pause, Volume2, VolumeX, Music, SkipBack, SkipForward, Sparkles } from 'lucide-react';
+import { FaSpotify } from 'react-icons/fa';
 import { useSenja } from '../context/SenjaContext';
 
 export const SenjaLyricsModal: React.FC = () => {
@@ -80,34 +81,45 @@ export const SenjaLyricsModal: React.FC = () => {
   const progressPercent = duration > 0 ? (currentTime / duration) * 100 : 0;
 
   // Dynamic theme accent styling
+  const isCandanada = currentSong.themeId === 'candanada';
   const isLany = currentSong.themeId === 'lany';
   const isHindia = currentSong.themeId === 'hindia';
 
-  const modalBackdropClass = isLany
+  const modalBackdropClass = isCandanada
+    ? 'from-[#031510] via-[#020b08] to-[#010504]'
+    : isLany
     ? 'from-[#0a1128] via-[#050b1a] to-[#02050e]'
     : isHindia
     ? 'from-[#18181b] via-[#09090b] to-[#000000]'
     : 'from-[#1f0e1a] via-[#120716] to-[#07030a]';
 
-  const glowGradient = isLany
+  const glowGradient = isCandanada
+    ? 'from-emerald-500/25 via-teal-500/15 to-transparent'
+    : isLany
     ? 'from-sky-500/20 via-indigo-500/15 to-transparent'
     : isHindia
     ? 'from-white/15 via-zinc-400/10 to-transparent'
     : 'from-amber-500/20 via-rose-500/15 to-transparent';
 
-  const activeTextColor = isLany
+  const activeTextColor = isCandanada
+    ? 'text-emerald-100 drop-shadow-[0_4px_24px_rgba(16,185,129,0.5)]'
+    : isLany
     ? 'text-sky-100 drop-shadow-[0_4px_24px_rgba(56,189,248,0.45)]'
     : isHindia
     ? 'text-white drop-shadow-[0_4px_24px_rgba(255,255,255,0.6)]'
     : 'text-amber-100 drop-shadow-[0_4px_24px_rgba(245,158,11,0.45)]';
 
-  const progressBarGradient = isLany
+  const progressBarGradient = isCandanada
+    ? 'from-emerald-400 via-teal-400 to-cyan-400'
+    : isLany
     ? 'from-sky-400 via-indigo-400 to-purple-400'
     : isHindia
     ? 'from-white via-zinc-200 to-zinc-400'
     : 'from-amber-400 via-orange-400 to-rose-500';
 
-  const playBtnGradient = isLany
+  const playBtnGradient = isCandanada
+    ? 'from-emerald-500 to-teal-600 text-white shadow-emerald-500/40 hover:from-emerald-400 hover:to-teal-500'
+    : isLany
     ? 'from-sky-500 to-indigo-600 shadow-sky-500/30'
     : isHindia
     ? 'from-white to-zinc-200 text-black shadow-[0_0_20px_rgba(255,255,255,0.3)]'
@@ -169,14 +181,29 @@ export const SenjaLyricsModal: React.FC = () => {
               </div>
             </div>
 
-            <button
-              onClick={toggleLyrics}
-              className="p-2.5 rounded-full hover:bg-white/10 text-white/70 hover:text-white transition-all cursor-pointer shrink-0 active:scale-95"
-              aria-label="Tutup Lirik"
-              title="Tutup (Esc)"
-            >
-              <X size={22} />
-            </button>
+            <div className="flex items-center gap-1.5 shrink-0">
+              {currentSong.spotifyUrl && (
+                <a
+                  href={currentSong.spotifyUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-2 rounded-full hover:bg-white/10 text-[#1db954] hover:text-[#1ed760] transition-all cursor-pointer active:scale-95"
+                  aria-label={`Buka ${currentSong.title} di Spotify`}
+                  title="Dengarkan di Spotify"
+                >
+                  <FaSpotify size={20} />
+                </a>
+              )}
+
+              <button
+                onClick={toggleLyrics}
+                className="p-2.5 rounded-full hover:bg-white/10 text-white/70 hover:text-white transition-all cursor-pointer shrink-0 active:scale-95"
+                aria-label="Tutup Lirik"
+                title="Tutup (Esc)"
+              >
+                <X size={22} />
+              </button>
+            </div>
           </div>
 
           {/* Quick Track Switcher Pills */}

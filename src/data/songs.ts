@@ -3,7 +3,7 @@ export interface LyricLine {
   text: string;
 }
 
-export type ThemeType = 'senja' | 'lany' | 'hindia';
+export type ThemeType = 'candanada' | 'senja' | 'lany' | 'hindia';
 
 export interface Song {
   id: string;
@@ -11,6 +11,7 @@ export interface Song {
   artist: string;
   audioSrc: string;
   coverSrc: string;
+  spotifyUrl?: string;
   duration: number; // in seconds
   themeId: ThemeType;
   themeBadge: string;
@@ -22,6 +23,46 @@ export interface Song {
 }
 
 export const SONGS_PLAYLIST: Song[] = [
+  {
+    id: 'candanada-rasuk-raga',
+    title: 'Rasuk Raga',
+    artist: 'Candanada',
+    audioSrc: '/audio/candanada-rasuk-raga.m4a',
+    coverSrc: '/audio/candanada-rasuk-raga-cover.jpg',
+    spotifyUrl: 'https://open.spotify.com/track/1Z3AGqYrk9Zsg5riJVHzTy?si=cb6c2f0eff184ac8',
+    duration: 322.9,
+    themeId: 'candanada',
+    themeBadge: 'Rasuk Raga',
+    themeTitle: 'Rasuk Raga — Candanada',
+    themeColor: '#10b981',
+    themeGradient: 'from-emerald-500 via-teal-500 to-cyan-500',
+    particles: ['#10b981', '#34d399', '#14b8a6', '#059669', '#6ee7b7'],
+    lyrics: [
+      { time: 60.8, text: "Kuberjalan lewati gelap." },
+      { time: 72.6, text: "Langkah kaki tak terlihat." },
+      { time: 96.6, text: "Merasuk raga, melebur rasa." },
+      { time: 108.4, text: "Ruang hampa, beribu rasa." },
+      { time: 137.2, text: "Insan yang riang, singgah semesta." },
+      { time: 143.0, text: "Belenggu dalam jiwa, berhalu dalam ruang." },
+      { time: 149.2, text: "Insan yang riang, singgah semesta." },
+      { time: 154.8, text: "Meluapkan cerita, kembali bergelora." },
+      { time: 168.4, text: "Merasuk raga, melebur rasa." },
+      { time: 180.2, text: "Ruang hampa, beribu rasa." },
+      { time: 192.6, text: "Risau malam, belenggu jiwa." },
+      { time: 204.6, text: "Pekik lantang, bernada riang." },
+      { time: 230.2, text: "Insan yang riang, singgah semesta." },
+      { time: 236.0, text: "Belenggu dalam jiwa, berhalu dalam ruang." },
+      { time: 242.0, text: "Insan yang riang, singgah semesta." },
+      { time: 247.6, text: "Meluapkan cerita, kembali bergelora." },
+      { time: 259.6, text: "Belenggu dalam jiwa, berhalu dalam ruang." },
+      { time: 265.8, text: "Insan yang riang, singgah semesta." },
+      { time: 271.4, text: "Meluapkan cerita, kembali bergelora." },
+      { time: 277.8, text: "Insan yang riang, singgah semesta." },
+      { time: 283.4, text: "Belenggu dalam jiwa, berhalu dalam ruang." },
+      { time: 289.8, text: "Insan yang riang, singgah semesta." },
+      { time: 295.2, text: "Meluapkan cerita, kembali bergelora." },
+    ],
+  },
   {
     id: 'dunia-yang-nanti',
     title: 'Dunia yang Nanti',

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Play, Pause, Mic2, Sparkles, Headphones } from 'lucide-react';
+import { FaSpotify } from 'react-icons/fa';
 import { useSenjaPlayback, useSenjaTime } from '../context/SenjaContext';
 import { SenjaLyricsModal } from './SenjaLyricsModal';
 
@@ -60,7 +61,9 @@ export const SenjaPlayer: React.FC = () => {
               size={14}
               className={`transition-colors duration-300 ${
                 isPlaying
-                  ? activeTheme === 'lany'
+                  ? activeTheme === 'candanada'
+                    ? 'text-emerald-400'
+                    : activeTheme === 'lany'
                     ? 'text-sky-400'
                     : activeTheme === 'hindia'
                     ? 'text-white'
@@ -80,7 +83,9 @@ export const SenjaPlayer: React.FC = () => {
             <span className="text-[11px] font-mono flex items-center gap-1.5 text-slate-500 dark:text-slate-400">
               <span
                 className={`w-1.5 h-1.5 rounded-full animate-ping ${
-                  activeTheme === 'lany'
+                  activeTheme === 'candanada'
+                    ? 'bg-emerald-400 shadow-[0_0_8px_#34d399]'
+                    : activeTheme === 'lany'
                     ? 'bg-sky-400'
                     : activeTheme === 'hindia'
                     ? 'bg-white shadow-[0_0_6px_#ffffff]'
@@ -101,12 +106,15 @@ export const SenjaPlayer: React.FC = () => {
             const isThisPlaying = isThisTrackActive && isPlaying;
 
             // Theme-specific visual styling for the active song
+            const isCandanada = isThisPlaying && song.themeId === 'candanada';
             const isLany = isThisPlaying && song.themeId === 'lany';
             const isHindia = isThisPlaying && song.themeId === 'hindia';
             const isSenja = isThisPlaying && song.themeId === 'senja';
 
             // Card container styling
-            const cardBgClass = isLany
+            const cardBgClass = isCandanada
+              ? 'bg-gradient-to-r from-emerald-950/60 via-teal-950/50 to-slate-950/70 border-emerald-500/50 shadow-[0_0_35px_rgba(16,185,129,0.28)] ring-1 ring-emerald-500/30'
+              : isLany
               ? 'bg-gradient-to-r from-sky-950/50 via-indigo-950/40 to-purple-950/50 border-sky-500/40 shadow-[0_0_30px_rgba(56,189,248,0.22)] ring-1 ring-sky-500/25'
               : isHindia
               ? 'bg-gradient-to-r from-zinc-900/80 via-neutral-900/70 to-black/90 border-white/40 shadow-[0_0_35px_rgba(255,255,255,0.2)] ring-1 ring-white/30'
@@ -115,7 +123,9 @@ export const SenjaPlayer: React.FC = () => {
               : 'bg-white/70 dark:bg-white/[0.04] border-slate-200 dark:border-white/10 hover:border-emerald-500/30 hover:bg-white/85 dark:hover:bg-white/[0.06] shadow-sm';
 
             // Ambient background glow behind active song
-            const ambientGlow = isLany
+            const ambientGlow = isCandanada
+              ? 'bg-gradient-to-r from-emerald-500/25 via-teal-500/25 to-cyan-500/20'
+              : isLany
               ? 'bg-gradient-to-r from-sky-500/20 via-indigo-500/20 to-purple-500/20'
               : isHindia
               ? 'bg-gradient-to-r from-white/15 via-zinc-400/10 to-transparent'
@@ -124,7 +134,9 @@ export const SenjaPlayer: React.FC = () => {
               : 'bg-transparent';
 
             // Vinyl border and glow
-            const vinylBorder = isLany
+            const vinylBorder = isCandanada
+              ? 'border-emerald-400/80 shadow-[0_0_20px_rgba(16,185,129,0.6)]'
+              : isLany
               ? 'border-sky-400/60 shadow-[0_0_16px_rgba(56,189,248,0.5)]'
               : isHindia
               ? 'border-white/80 shadow-[0_0_20px_rgba(255,255,255,0.5)]'
@@ -133,14 +145,18 @@ export const SenjaPlayer: React.FC = () => {
               : 'border-slate-300 dark:border-white/15 group-hover/card:border-slate-400 dark:group-hover/card:border-white/30';
 
             // Pulse indicator dot color
-            const pulseDotColor = isLany
+            const pulseDotColor = isCandanada
+              ? 'bg-emerald-400 shadow-[0_0_8px_#34d399]'
+              : isLany
               ? 'bg-sky-400'
               : isHindia
               ? 'bg-white shadow-[0_0_8px_#ffffff]'
               : 'bg-amber-400';
 
             // Badge styling
-            const badgeClass = isLany
+            const badgeClass = isCandanada
+              ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40'
+              : isLany
               ? 'bg-sky-500/15 text-sky-600 dark:text-sky-300 border-sky-500/30'
               : isHindia
               ? 'bg-white/15 text-white border-white/30'
@@ -149,7 +165,9 @@ export const SenjaPlayer: React.FC = () => {
               : 'bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-white/10';
 
             // Play button gradient
-            const playBtnClass = isLany
+            const playBtnClass = isCandanada
+              ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-emerald-500/40 hover:from-emerald-400 hover:to-teal-500'
+              : isLany
               ? 'bg-gradient-to-r from-sky-500 to-indigo-600 text-white shadow-sky-500/30'
               : isHindia
               ? 'bg-white text-black hover:bg-zinc-200 shadow-[0_0_20px_rgba(255,255,255,0.3)]'
@@ -158,21 +176,27 @@ export const SenjaPlayer: React.FC = () => {
               : 'bg-slate-900 dark:bg-white text-white dark:text-slate-950 hover:bg-emerald-600 dark:hover:bg-emerald-400 hover:text-white dark:hover:text-slate-950';
 
             // Live lyric text color
-            const lyricColor = isLany
+            const lyricColor = isCandanada
+              ? 'text-emerald-400 font-semibold drop-shadow-[0_2px_10px_rgba(16,185,129,0.4)]'
+              : isLany
               ? 'text-sky-700 dark:text-sky-300'
               : isHindia
               ? 'text-white drop-shadow-[0_2px_8px_rgba(255,255,255,0.5)]'
               : 'text-amber-700 dark:text-amber-300';
 
             // Mini progress bar gradient
-            const progressBarClass = isLany
+            const progressBarClass = isCandanada
+              ? 'from-emerald-400 via-teal-400 to-cyan-400'
+              : isLany
               ? 'from-sky-400 via-indigo-400 to-purple-400'
               : isHindia
               ? 'from-white via-zinc-200 to-zinc-400'
               : 'from-amber-400 via-orange-400 to-rose-500';
 
             // Mic icon color
-            const micColor = isLany
+            const micColor = isCandanada
+              ? 'text-emerald-400'
+              : isLany
               ? 'text-sky-400'
               : isHindia
               ? 'text-white'
@@ -308,7 +332,9 @@ export const SenjaPlayer: React.FC = () => {
                       onClick={() => openLyricsForTrack(idx)}
                       className={`inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-semibold tracking-wide border transition-all duration-300 cursor-pointer active:scale-95 bg-white/80 dark:bg-white/10 border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-200 ${
                         isThisPlaying
-                          ? isLany
+                          ? isCandanada
+                            ? 'hover:border-emerald-400 hover:text-emerald-400'
+                            : isLany
                             ? 'hover:border-sky-400 hover:text-sky-400'
                             : isHindia
                             ? 'hover:border-rose-400 hover:text-rose-400'
@@ -321,6 +347,20 @@ export const SenjaPlayer: React.FC = () => {
                       <Mic2 size={12} className={micColor} />
                       <span className="hidden xs:inline">Lirik</span>
                     </button>
+
+                    {/* Spotify External Link Button (if available) */}
+                    {song.spotifyUrl && (
+                      <a
+                        href={song.spotifyUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center justify-center p-2 rounded-full border transition-all duration-300 cursor-pointer active:scale-95 bg-white/80 dark:bg-white/10 border-slate-200 dark:border-white/10 text-slate-500 hover:border-[#1db954] hover:text-[#1db954] hover:bg-[#1db954]/10"
+                        aria-label={`Buka ${song.title} di Spotify`}
+                        title="Dengarkan di Spotify"
+                      >
+                        <FaSpotify size={13} />
+                      </a>
+                    )}
 
                   </div>
 

@@ -115,10 +115,12 @@ export const SenjaProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   useEffect(() => {
     const root = document.documentElement;
     // Clean up all theme classes
-    root.classList.remove('senja', 'theme-lany', 'theme-hindia');
+    root.classList.remove('senja', 'theme-lany', 'theme-hindia', 'theme-candanada');
 
     if (isPlaying) {
-      if (currentSong.themeId === 'senja') {
+      if (currentSong.themeId === 'candanada') {
+        root.classList.add('theme-candanada');
+      } else if (currentSong.themeId === 'senja') {
         root.classList.add('senja');
       } else if (currentSong.themeId === 'lany') {
         root.classList.add('theme-lany');
@@ -128,7 +130,7 @@ export const SenjaProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
 
     return () => {
-      root.classList.remove('senja', 'theme-lany', 'theme-hindia');
+      root.classList.remove('senja', 'theme-lany', 'theme-hindia', 'theme-candanada');
     };
   }, [isPlaying, currentSong.themeId]);
 
