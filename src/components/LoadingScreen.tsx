@@ -70,10 +70,6 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({ onComplete }) => {
     };
   }, []);
 
-  // Compute smooth waterfill gradients without dual-element clipping boxes
-  const whiteGradient = `linear-gradient(to top, #ffffff ${progress}%, #222734 calc(${progress}% + 0.25%))`;
-  const emeraldGradient = `linear-gradient(to top, #34d399 ${progress}%, #132a22 calc(${progress}% + 0.25%))`;
-
   return (
     <AnimatePresence
       onExitComplete={() => {
@@ -109,39 +105,37 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({ onComplete }) => {
             }}
           />
 
-          {/* MONOLITHIC WATERFILL TYPOGRAPHY (Single-element background-clip to prevent any misalignment or letter clipping) */}
-          <div className="relative flex items-center justify-center text-center px-4">
+          {/* WATERFILL TYPOGRAPHY (GPU-Accelerated Dual Layer clip-path - 100% cross-browser, zero rectangular block glitch) */}
+          <div className="relative inline-block select-none text-center px-4">
+            {/* 1. Base Layer (Dark Silhouette: #222734 for ROCHIM, #132a22 for .DEV) */}
             <h1
-              className="select-none text-center font-black uppercase leading-none tracking-[-0.08em] sm:tracking-[-0.09em] whitespace-nowrap"
+              className="select-none text-center font-black uppercase leading-none tracking-[-0.08em] sm:tracking-[-0.09em] whitespace-nowrap text-[#222734]"
               style={{
                 fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
                 fontSize: 'clamp(2.5rem, 9.2vw, 8rem)',
               }}
             >
-              {/* ROCHIM: Fills from #222734 to crisp #ffffff */}
-              <span
-                style={{
-                  background: whiteGradient,
-                  WebkitBackgroundClip: 'text',
-                  backgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                }}
-              >
-                ROCHIM
-              </span>
-
-              {/* .DEV: Fills from #132a22 to clean emerald #34d399 without clipping any corner of 'V' */}
-              <span
-                style={{
-                  background: emeraldGradient,
-                  WebkitBackgroundClip: 'text',
-                  backgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                }}
-              >
-                .DEV
-              </span>
+              ROCHIM<span className="text-[#132a22]">.DEV</span>
             </h1>
+
+            {/* 2. Top Filled Layer (Pure White #ffffff + Vibrant Emerald #34d399, vertically clipped with GPU clip-path inset) */}
+            <div
+              className="absolute inset-0 pointer-events-none flex items-center justify-center overflow-hidden"
+              style={{
+                clipPath: `inset(${100 - progress}% 0 0 0)`,
+                WebkitClipPath: `inset(${100 - progress}% 0 0 0)`,
+              }}
+            >
+              <h1
+                className="select-none text-center font-black uppercase leading-none tracking-[-0.08em] sm:tracking-[-0.09em] whitespace-nowrap text-white"
+                style={{
+                  fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                  fontSize: 'clamp(2.5rem, 9.2vw, 8rem)',
+                }}
+              >
+                ROCHIM<span className="text-emerald-400">.DEV</span>
+              </h1>
+            </div>
           </div>
 
           {/* BOTTOM PERCENTAGE & STATUS */}
