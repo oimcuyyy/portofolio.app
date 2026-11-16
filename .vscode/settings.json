@@ -1,7 +1,11 @@
 {
   "css.lint.unknownAtRules": "ignore",
+  "css.lint.vendorPrefix": "ignore",
+  "css.lint.unknownProperties": "ignore",
   "files.associations": {
-    "*.css": "tailwindcss"
+    "*.css": "tailwindcss",
+    "index.html": "html",
+    "*.html": "html"
   },
   "editor.quickSuggestions": {
     "strings": "on"
