@@ -64,6 +64,7 @@ export const ParticleNetwork = React.memo(function ParticleNetwork() {
       senjaColor: string;
       lanyColor: string;
       hindiaColor: string;
+      masakecilColor: string;
 
       constructor(
         x: number,
@@ -73,7 +74,8 @@ export const ParticleNetwork = React.memo(function ParticleNetwork() {
         size: number,
         senjaColor: string,
         lanyColor: string,
-        hindiaColor: string
+        hindiaColor: string,
+        masakecilColor: string
       ) {
         this.x = x;
         this.y = y;
@@ -83,6 +85,7 @@ export const ParticleNetwork = React.memo(function ParticleNetwork() {
         this.senjaColor = senjaColor;
         this.lanyColor = lanyColor;
         this.hindiaColor = hindiaColor;
+        this.masakecilColor = masakecilColor;
       }
 
       draw() {
@@ -95,6 +98,8 @@ export const ParticleNetwork = React.memo(function ParticleNetwork() {
           ctx.fillStyle = '#10b981';
         } else if (activeTheme === 'candanada') {
           ctx.fillStyle = '#34d399';
+        } else if (activeTheme === 'masakecil') {
+          ctx.fillStyle = this.masakecilColor;
         } else if (activeTheme === 'senja') {
           ctx.fillStyle = this.senjaColor;
         } else if (activeTheme === 'lany') {
@@ -154,6 +159,7 @@ export const ParticleNetwork = React.memo(function ParticleNetwork() {
       const senjaPalette = ['#fbbf24', '#f97316', '#f43f5e', '#fb7185', '#e879f9'];
       const lanyPalette = ['#38bdf8', '#818cf8', '#c084fc', '#60a5fa', '#a78bfa'];
       const hindiaPalette = ['#ffffff', '#f4f4f5', '#e4e4e7', '#a1a1aa', '#71717a'];
+      const masakecilPalette = ['#d97706', '#f59e0b', '#fbbf24', '#b45309', '#78350f'];
 
       for (let i = 0; i < numberOfParticles; i++) {
         const size = Math.random() * 2 + 1;
@@ -171,7 +177,8 @@ export const ParticleNetwork = React.memo(function ParticleNetwork() {
             size,
             senjaPalette[i % senjaPalette.length],
             lanyPalette[i % lanyPalette.length],
-            hindiaPalette[i % hindiaPalette.length]
+            hindiaPalette[i % hindiaPalette.length],
+            masakecilPalette[i % masakecilPalette.length]
           )
         );
       }
@@ -198,6 +205,8 @@ export const ParticleNetwork = React.memo(function ParticleNetwork() {
               ctx.strokeStyle = `rgba(16, 185, 129, ${opacity})`;
             } else if (activeTheme === 'candanada') {
               ctx.strokeStyle = `rgba(52, 211, 153, ${opacity * 1.1})`;
+            } else if (activeTheme === 'masakecil') {
+              ctx.strokeStyle = `rgba(217, 119, 6, ${opacity * 1.1})`;
             } else if (activeTheme === 'senja') {
               ctx.strokeStyle = `rgba(251, 146, 60, ${opacity})`;
             } else if (activeTheme === 'lany') {

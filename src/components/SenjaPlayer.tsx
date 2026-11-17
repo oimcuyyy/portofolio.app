@@ -63,6 +63,8 @@ export const SenjaPlayer: React.FC = () => {
                 isPlaying
                   ? activeTheme === 'candanada'
                     ? 'text-emerald-400'
+                    : activeTheme === 'masakecil'
+                    ? 'text-amber-400'
                     : activeTheme === 'lany'
                     ? 'text-sky-400'
                     : activeTheme === 'hindia'
@@ -85,6 +87,8 @@ export const SenjaPlayer: React.FC = () => {
                 className={`w-1.5 h-1.5 rounded-full animate-ping ${
                   activeTheme === 'candanada'
                     ? 'bg-emerald-400 shadow-[0_0_8px_#34d399]'
+                    : activeTheme === 'masakecil'
+                    ? 'bg-amber-400 shadow-[0_0_8px_#f59e0b]'
                     : activeTheme === 'lany'
                     ? 'bg-sky-400'
                     : activeTheme === 'hindia'
@@ -107,6 +111,7 @@ export const SenjaPlayer: React.FC = () => {
 
             // Theme-specific visual styling for the active song
             const isCandanada = isThisPlaying && song.themeId === 'candanada';
+            const isMasaKecil = isThisPlaying && song.themeId === 'masakecil';
             const isLany = isThisPlaying && song.themeId === 'lany';
             const isHindia = isThisPlaying && song.themeId === 'hindia';
             const isSenja = isThisPlaying && song.themeId === 'senja';
@@ -114,6 +119,8 @@ export const SenjaPlayer: React.FC = () => {
             // Card container styling
             const cardBgClass = isCandanada
               ? 'bg-gradient-to-r from-emerald-950/60 via-teal-950/50 to-slate-950/70 border-emerald-500/50 shadow-[0_0_35px_rgba(16,185,129,0.28)] ring-1 ring-emerald-500/30'
+              : isMasaKecil
+              ? 'bg-gradient-to-r from-amber-950/60 via-stone-950/50 to-slate-950/70 border-amber-500/50 shadow-[0_0_35px_rgba(217,119,6,0.28)] ring-1 ring-amber-500/30'
               : isLany
               ? 'bg-gradient-to-r from-sky-950/50 via-indigo-950/40 to-purple-950/50 border-sky-500/40 shadow-[0_0_30px_rgba(56,189,248,0.22)] ring-1 ring-sky-500/25'
               : isHindia
@@ -125,6 +132,8 @@ export const SenjaPlayer: React.FC = () => {
             // Ambient background glow behind active song
             const ambientGlow = isCandanada
               ? 'bg-gradient-to-r from-emerald-500/25 via-teal-500/25 to-cyan-500/20'
+              : isMasaKecil
+              ? 'bg-gradient-to-r from-amber-600/25 via-yellow-600/25 to-orange-600/20'
               : isLany
               ? 'bg-gradient-to-r from-sky-500/20 via-indigo-500/20 to-purple-500/20'
               : isHindia
@@ -136,6 +145,8 @@ export const SenjaPlayer: React.FC = () => {
             // Vinyl border and glow
             const vinylBorder = isCandanada
               ? 'border-emerald-400/80 shadow-[0_0_20px_rgba(16,185,129,0.6)]'
+              : isMasaKecil
+              ? 'border-amber-400/80 shadow-[0_0_20px_rgba(217,119,6,0.6)]'
               : isLany
               ? 'border-sky-400/60 shadow-[0_0_16px_rgba(56,189,248,0.5)]'
               : isHindia
@@ -147,6 +158,8 @@ export const SenjaPlayer: React.FC = () => {
             // Pulse indicator dot color
             const pulseDotColor = isCandanada
               ? 'bg-emerald-400 shadow-[0_0_8px_#34d399]'
+              : isMasaKecil
+              ? 'bg-amber-400 shadow-[0_0_8px_#f59e0b]'
               : isLany
               ? 'bg-sky-400'
               : isHindia
@@ -156,6 +169,8 @@ export const SenjaPlayer: React.FC = () => {
             // Badge styling
             const badgeClass = isCandanada
               ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40'
+              : isMasaKecil
+              ? 'bg-amber-500/20 text-amber-400 border-amber-500/40'
               : isLany
               ? 'bg-sky-500/15 text-sky-600 dark:text-sky-300 border-sky-500/30'
               : isHindia
@@ -167,6 +182,8 @@ export const SenjaPlayer: React.FC = () => {
             // Play button gradient
             const playBtnClass = isCandanada
               ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-emerald-500/40 hover:from-emerald-400 hover:to-teal-500'
+              : isMasaKecil
+              ? 'bg-gradient-to-r from-amber-600 to-yellow-600 text-white shadow-amber-500/40 hover:from-amber-500 hover:to-yellow-500'
               : isLany
               ? 'bg-gradient-to-r from-sky-500 to-indigo-600 text-white shadow-sky-500/30'
               : isHindia
@@ -178,6 +195,8 @@ export const SenjaPlayer: React.FC = () => {
             // Live lyric text color
             const lyricColor = isCandanada
               ? 'text-emerald-400 font-semibold drop-shadow-[0_2px_10px_rgba(16,185,129,0.4)]'
+              : isMasaKecil
+              ? 'text-amber-400 font-semibold drop-shadow-[0_2px_10px_rgba(217,119,6,0.4)]'
               : isLany
               ? 'text-sky-700 dark:text-sky-300'
               : isHindia
@@ -187,6 +206,8 @@ export const SenjaPlayer: React.FC = () => {
             // Mini progress bar gradient
             const progressBarClass = isCandanada
               ? 'from-emerald-400 via-teal-400 to-cyan-400'
+              : isMasaKecil
+              ? 'from-amber-500 via-yellow-500 to-orange-500'
               : isLany
               ? 'from-sky-400 via-indigo-400 to-purple-400'
               : isHindia
@@ -196,6 +217,8 @@ export const SenjaPlayer: React.FC = () => {
             // Mic icon color
             const micColor = isCandanada
               ? 'text-emerald-400'
+              : isMasaKecil
+              ? 'text-amber-400'
               : isLany
               ? 'text-sky-400'
               : isHindia
@@ -334,6 +357,8 @@ export const SenjaPlayer: React.FC = () => {
                         isThisPlaying
                           ? isCandanada
                             ? 'hover:border-emerald-400 hover:text-emerald-400'
+                            : isMasaKecil
+                            ? 'hover:border-amber-400 hover:text-amber-400'
                             : isLany
                             ? 'hover:border-sky-400 hover:text-sky-400'
                             : isHindia

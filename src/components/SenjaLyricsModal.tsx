@@ -82,11 +82,14 @@ export const SenjaLyricsModal: React.FC = () => {
 
   // Dynamic theme accent styling
   const isCandanada = currentSong.themeId === 'candanada';
+  const isMasaKecil = currentSong.themeId === 'masakecil';
   const isLany = currentSong.themeId === 'lany';
   const isHindia = currentSong.themeId === 'hindia';
 
   const modalBackdropClass = isCandanada
     ? 'from-[#031510] via-[#020b08] to-[#010504]'
+    : isMasaKecil
+    ? 'from-[#1a100b] via-[#0d0705] to-[#050201]'
     : isLany
     ? 'from-[#0a1128] via-[#050b1a] to-[#02050e]'
     : isHindia
@@ -95,6 +98,8 @@ export const SenjaLyricsModal: React.FC = () => {
 
   const glowGradient = isCandanada
     ? 'from-emerald-500/25 via-teal-500/15 to-transparent'
+    : isMasaKecil
+    ? 'from-amber-600/25 via-yellow-600/15 to-transparent'
     : isLany
     ? 'from-sky-500/20 via-indigo-500/15 to-transparent'
     : isHindia
@@ -103,6 +108,8 @@ export const SenjaLyricsModal: React.FC = () => {
 
   const activeTextColor = isCandanada
     ? 'text-emerald-100 drop-shadow-[0_4px_24px_rgba(16,185,129,0.5)]'
+    : isMasaKecil
+    ? 'text-amber-100 drop-shadow-[0_4px_24px_rgba(217,119,6,0.5)]'
     : isLany
     ? 'text-sky-100 drop-shadow-[0_4px_24px_rgba(56,189,248,0.45)]'
     : isHindia
@@ -111,6 +118,8 @@ export const SenjaLyricsModal: React.FC = () => {
 
   const progressBarGradient = isCandanada
     ? 'from-emerald-400 via-teal-400 to-cyan-400'
+    : isMasaKecil
+    ? 'from-amber-500 via-yellow-500 to-orange-500'
     : isLany
     ? 'from-sky-400 via-indigo-400 to-purple-400'
     : isHindia
@@ -119,6 +128,8 @@ export const SenjaLyricsModal: React.FC = () => {
 
   const playBtnGradient = isCandanada
     ? 'from-emerald-500 to-teal-600 text-white shadow-emerald-500/40 hover:from-emerald-400 hover:to-teal-500'
+    : isMasaKecil
+    ? 'from-amber-600 to-yellow-600 text-white shadow-amber-500/40 hover:from-amber-500 hover:to-yellow-500'
     : isLany
     ? 'from-sky-500 to-indigo-600 shadow-sky-500/30'
     : isHindia

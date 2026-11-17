@@ -115,11 +115,13 @@ export const SenjaProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   useEffect(() => {
     const root = document.documentElement;
     // Clean up all theme classes
-    root.classList.remove('senja', 'theme-lany', 'theme-hindia', 'theme-candanada');
+    root.classList.remove('senja', 'theme-lany', 'theme-hindia', 'theme-candanada', 'theme-masakecil');
 
     if (isPlaying) {
       if (currentSong.themeId === 'candanada') {
         root.classList.add('theme-candanada');
+      } else if (currentSong.themeId === 'masakecil') {
+        root.classList.add('theme-masakecil');
       } else if (currentSong.themeId === 'senja') {
         root.classList.add('senja');
       } else if (currentSong.themeId === 'lany') {
@@ -130,7 +132,7 @@ export const SenjaProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
 
     return () => {
-      root.classList.remove('senja', 'theme-lany', 'theme-hindia', 'theme-candanada');
+      root.classList.remove('senja', 'theme-lany', 'theme-hindia', 'theme-candanada', 'theme-masakecil');
     };
   }, [isPlaying, currentSong.themeId]);
 
@@ -213,7 +215,7 @@ export const SenjaProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       return;
     }
     changeTrack(index, true);
-  }, [currentSongIndex, togglePlay, changeTrack]);
+  }, [currentSongIndex, togglePlay, changeTrack, songs.length]);
 
   const openLyricsForTrack = useCallback((index: number) => {
     if (index < 0 || index >= songs.length) return;
@@ -221,7 +223,7 @@ export const SenjaProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       changeTrack(index, false);
     }
     setIsLyricsOpen(true);
-  }, [currentSongIndex, changeTrack]);
+  }, [currentSongIndex, changeTrack, songs.length]);
 
   const selectSong = useCallback((index: number) => {
     changeTrack(index, true);

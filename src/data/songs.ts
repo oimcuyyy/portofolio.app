@@ -3,7 +3,7 @@ export interface LyricLine {
   text: string;
 }
 
-export type ThemeType = 'candanada' | 'senja' | 'lany' | 'hindia';
+export type ThemeType = 'candanada' | 'senja' | 'lany' | 'hindia' | 'masakecil';
 
 export interface Song {
   id: string;
@@ -69,6 +69,7 @@ export const SONGS_PLAYLIST: Song[] = [
     artist: 'Raim Laode',
     audioSrc: '/audio/dunia-yang-nanti.m4a',
     coverSrc: '/audio/dunia-yang-nanti-cover.webp',
+    spotifyUrl: 'https://open.spotify.com/track/1sVQuuvFDKu6vklPVeiUXT?si=af2d1adde50b4836',
     duration: 200.55,
     themeId: 'senja',
     themeBadge: 'Mode Senja',
@@ -107,6 +108,7 @@ export const SONGS_PLAYLIST: Song[] = [
     artist: 'LANY',
     audioSrc: '/audio/lany-you.m4a',
     coverSrc: '/audio/lany-you-cover.webp',
+    spotifyUrl: 'https://open.spotify.com/track/2VMhO32IsyhshnUoKhjCBE?si=71c4f7a4b21d40a9',
     duration: 273.95,
     themeId: 'lany',
     themeBadge: 'Dreamy Sky Mode',
@@ -165,6 +167,7 @@ export const SONGS_PLAYLIST: Song[] = [
     artist: 'Hindia',
     audioSrc: '/audio/hindia-everything-u-are.m4a',
     coverSrc: '/audio/hindia-everything-u-are-cover.webp',
+    spotifyUrl: 'https://open.spotify.com/track/5WOSNVChcadlsCRiqXE45K?si=7bd5e78fd6d94236',
     duration: 236.33,
     themeId: 'hindia',
     themeBadge: 'Hitam Putih',
@@ -228,6 +231,50 @@ export const SONGS_PLAYLIST: Song[] = [
       { time: 219.9, text: "With everything you are" },
       { time: 225.9, text: "Fully as I am" },
       { time: 228.9, text: "With everything you are" },
+    ],
+  },
+  {
+    id: 'candanada-masa-kecil',
+    title: 'Masa Kecil',
+    artist: 'Candanada',
+    audioSrc: '/audio/candanada-masa-kecil.m4a',
+    coverSrc: '/audio/candanada-masa-kecil-cover.webp',
+    spotifyUrl: 'https://open.spotify.com/track/1f8pRrptv5OZ7TzUY6BdG9?si=51a838fa5a0f485d',
+    duration: 335.89,
+    themeId: 'masakecil',
+    themeBadge: 'Masa Kecil',
+    themeTitle: 'Masa Kecil — Candanada',
+    themeColor: '#d97706',
+    themeGradient: 'from-amber-600 via-yellow-600 to-orange-600',
+    particles: ['#d97706', '#f59e0b', '#fbbf24', '#b45309', '#78350f'],
+    lyrics: [
+      { time: 70.0, text: "Jikalau fajar turun hujan" },
+      { time: 74.0, text: "Kuberlari menuju lapang" },
+      { time: 78.0, text: "Kusapa sahabat" },
+      { time: 82.0, text: "Sambil bersorak 'hai ya, hai ya'" },
+      { time: 102.5, text: "Di saat tubuh mulai basah" },
+      { time: 106.5, text: "Jiwa riang, hati senang" },
+      { time: 110.5, text: "Kupeluk sahabat" },
+      { time: 114.5, text: "Sambil bersorak 'hai ya, hai ya'" },
+      { time: 138.5, text: "Masa kecil yang indah" },
+      { time: 146.0, text: "Takkan pernah kulupa" },
+      { time: 153.5, text: "Bermain dan berbagi" },
+      { time: 161.5, text: "Waktu milik bersama" },
+      { time: 185.0, text: "Kini terik telah menyerah" },
+      { time: 189.5, text: "Kupetik setangkai buah bagi sahabat" },
+      { time: 197.0, text: "Sambil bersorak 'hai ya, hai ya'" },
+      { time: 221.5, text: "Masa kecil yang indah" },
+      { time: 229.0, text: "Takkan pernah kulupa" },
+      { time: 236.5, text: "Bermain dan berbagi" },
+      { time: 244.5, text: "Waktu milik bersama" },
+      { time: 252.5, text: "Masa kecil yang indah" },
+      { time: 260.5, text: "Takkan pernah kulupa" },
+      { time: 268.0, text: "Bermain dan berbagi" },
+      { time: 276.0, text: "Waktu milik bersama" },
+      { time: 302.0, text: "Di saat senja 'kan tiba" },
+      { time: 306.0, text: "Kurebahkan raga ini" },
+      { time: 310.0, text: "Puisi sahabat" },
+      { time: 314.0, text: "Sahabat masa depanku" },
     ],
   },
 ];
