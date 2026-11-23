@@ -86,9 +86,11 @@ export function CustomCursor() {
 export function SpotlightCard({
   children,
   className = '',
+  style,
 }: {
   children: React.ReactNode;
   className?: string;
+  style?: React.CSSProperties;
 }) {
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
@@ -103,6 +105,7 @@ export function SpotlightCard({
     <div
       className={`group relative rounded-[2rem] border border-white/[0.08] dark:border-white/[0.08] bg-white/[0.03] dark:bg-[#080d1a]/60 backdrop-blur-xl transition-all duration-500 hover:border-emerald-500/30 overflow-hidden ${className}`}
       onMouseMove={handleMouseMove}
+      style={style}
     >
       {/* Dynamic Cursor Spotlight Gradient */}
       <motion.div
