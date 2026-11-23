@@ -711,7 +711,7 @@ const TechStack: React.FC<TechStackProps> = ({ skills }) => {
           transition={{ duration: 0.22, ease: [0.23, 1, 0.32, 1] }}
           className="divide-y divide-slate-200/60 dark:divide-white/[0.07] border-y border-slate-200/60 dark:border-white/[0.07]"
         >
-          {filteredSkills.map((skill, index) => {
+          {filteredSkills.map((skill) => {
             const brand = getTechBrand(skill.name, skill.category);
             const pips = getProficiencyPips(skill.level || 'Advanced');
 
