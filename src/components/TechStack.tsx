@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { motion, AnimatePresence, useScroll, useTransform, type Variants } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import AOS from 'aos';
 import {
   Sparkles,
   CheckCircle2,
@@ -555,52 +556,18 @@ const getProficiencyPips = (level: string) => {
   return 1;
 };
 
-// Motion animation variants optimized for 60-120fps mobile performance (gsap-performance + emil-design-eng)
-const streamContainerVariants: Variants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.03,
-      delayChildren: 0.01,
-    },
-  },
-  exit: {
-    opacity: 0,
-    transition: { duration: 0.1, ease: 'easeOut' },
-  },
-};
-
-const streamItemVariants: Variants = {
-  hidden: { opacity: 0, y: 26, scale: 0.98 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    scale: 1,
-    transition: {
-      type: 'spring',
-      stiffness: 300,
-      damping: 24,
-      mass: 0.5,
-    },
-  },
-};
-
 const TechStack: React.FC<TechStackProps> = ({ skills }) => {
   const { t } = useLanguage();
   const [activeCategory, setActiveCategory] = useState('All');
   const [selectedSkill, setSelectedSkill] = useState<SkillWithDesc | null>(null);
 
-  // Scroll animation hooks (lightweight 1:1 hardware scroll binding without rAF spring lag)
-  const sectionRef = useRef<HTMLElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ['start end', 'end start'],
-  });
-
-  // Parallax subtle ambient mesh glow behind skills (desktop only, zero-cost radial texture without expensive blur filters)
-  const orbY1 = useTransform(scrollYProgress, [0, 1], [-40, 40]);
-  const orbY2 = useTransform(scrollYProgress, [0, 1], [30, -30]);
+  // Refresh AOS on category change so newly filtered items animate in with hardware CSS transitions
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      AOS.refresh();
+    }, 60);
+    return () => clearTimeout(timer);
+  }, [activeCategory]);
 
   // Sync ESC key & body scroll lock when modal is open
   useEffect(() => {
@@ -673,25 +640,20 @@ const TechStack: React.FC<TechStackProps> = ({ skills }) => {
   return (
     <section
       id="skills"
-      ref={sectionRef}
       className="w-full max-w-full md:max-w-5xl mx-auto px-4 sm:px-6 pt-28 sm:pt-36 pb-20 sm:pb-28 relative z-10 scroll-mt-28 sm:scroll-mt-36 overflow-hidden box-border"
     >
-      {/* Scroll-Driven Parallax Ambient Mesh Glow Orbs (Desktop Only, High-Performance Radial Gradient, No Blur Filter) */}
-      <motion.div
-        style={{ y: orbY1 }}
-        className="hidden md:block absolute -top-16 -left-20 w-72 h-72 rounded-full bg-[radial-gradient(circle,_rgba(16,185,129,0.1)_0%,_transparent_70%)] pointer-events-none -z-10 transform-gpu"
+      {/* Ambient Mesh Glow Orbs (Desktop Only, High-Performance Pure CSS Radial Gradient, Zero JS Scroll Overhead) */}
+      <div
+        className="hidden md:block absolute -top-16 -left-20 w-72 h-72 rounded-full bg-[radial-gradient(circle,_rgba(16,185,129,0.08)_0%,_transparent_70%)] pointer-events-none -z-10"
       />
-      <motion.div
-        style={{ y: orbY2 }}
-        className="hidden md:block absolute top-1/2 -right-24 w-80 h-80 rounded-full bg-[radial-gradient(circle,_rgba(6,182,212,0.1)_0%,_transparent_70%)] pointer-events-none -z-10 transform-gpu"
+      <div
+        className="hidden md:block absolute top-1/2 -right-24 w-80 h-80 rounded-full bg-[radial-gradient(circle,_rgba(6,182,212,0.08)_0%,_transparent_70%)] pointer-events-none -z-10"
       />
       
-      {/* SECTION HEADER WITH SCROLL REVEAL */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, amount: 0.15 }}
-        transition={{ duration: 0.45, ease: [0.23, 1, 0.32, 1] }}
+      {/* SECTION HEADER WITH HARDWARE-ACCELERATED AOS SCROLL REVEAL */}
+      <div
+        data-aos="fade-up"
+        data-aos-duration="600"
         className="w-full max-w-full overflow-hidden mb-6 sm:mb-8"
       >
         <div className="w-full max-w-2xl mb-6 sm:mb-8">
@@ -709,20 +671,17 @@ const TechStack: React.FC<TechStackProps> = ({ skills }) => {
           </p>
         </div>
 
-        {/* INTERACTIVE SCROLL EXPLORATION PROGRESS BEAM (1:1 Hardware Scroll Sync) */}
+        {/* STREAM CAPABILITIES STATUS BEAM (LIGHTWEIGHT CSS GRADIENT, ZERO JS SCROLL OVERHEAD) */}
         <div className="w-full mb-5 sm:mb-6">
           <div className="flex items-center justify-between text-[11px] font-mono text-slate-400 dark:text-slate-500 mb-1.5">
             <span className="flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              Scroll Exploration Beam
+              Capabilities Stream
             </span>
-            <span className="text-emerald-600 dark:text-emerald-400 font-semibold">{filteredSkills.length} Tech Active</span>
+            <span className="text-emerald-600 dark:text-emerald-400 font-semibold">{filteredSkills.length} dari {allSkills.length} Aktif</span>
           </div>
           <div className="w-full h-1 bg-slate-200/80 dark:bg-white/[0.06] rounded-full overflow-hidden relative">
-            <motion.div
-              style={{ scaleX: scrollYProgress, transformOrigin: 'left' }}
-              className="h-full w-full bg-gradient-to-r from-emerald-500 via-teal-400 to-cyan-400 rounded-full shadow-[0_0_8px_rgba(16,185,129,0.4)] transform-gpu"
-            />
+            <div className="h-full w-full bg-gradient-to-r from-emerald-500 via-teal-400 to-cyan-400 rounded-full opacity-80" />
           </div>
         </div>
 
@@ -781,126 +740,114 @@ const TechStack: React.FC<TechStackProps> = ({ skills }) => {
             <span>{filteredSkills.length} dari {allSkills.length} Teknologi Aktif</span>
           </div>
         </div>
-      </motion.div>
+      </div>
 
-      {/* SLEEK INTERACTIVE STREAM (60FPS HARDWARE ACCELERATED STREAM) */}
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={activeCategory}
-          variants={streamContainerVariants}
-          initial="hidden"
-          animate="visible"
-          exit="exit"
-          className="w-full max-w-full overflow-hidden divide-y divide-slate-200/60 dark:divide-white/[0.07] border-y border-slate-200/60 dark:border-white/[0.07]"
-        >
-          {filteredSkills.map((skill) => {
-            const brand = getTechBrand(skill.name, skill.category);
-            const pips = getProficiencyPips(skill.level || 'Advanced');
+      {/* 120FPS HARDWARE-ACCELERATED STREAM VIA NATIVE AOS & GPU TRANSFORMS */}
+      <div className="w-full max-w-full overflow-hidden divide-y divide-slate-200/60 dark:divide-white/[0.07] border-y border-slate-200/60 dark:border-white/[0.07]">
+        {filteredSkills.map((skill, index) => {
+          const brand = getTechBrand(skill.name, skill.category);
+          const pips = getProficiencyPips(skill.level || 'Advanced');
 
-            return (
-              <motion.div
-                key={skill.id || skill.name}
-                variants={streamItemVariants}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true, amount: 0.12, margin: '0px 0px -20px 0px' }}
-                whileTap={{ scale: 0.985 }}
-                onClick={() => setSelectedSkill(skill)}
-                role="button"
-                tabIndex={0}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    setSelectedSkill(skill);
-                  }
-                }}
-                className="group relative py-4 sm:py-5 px-3 sm:px-5 flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4 cursor-pointer rounded-2xl transition-all duration-200 md:hover:translate-x-1 hover:bg-slate-100/70 dark:hover:bg-white/[0.03] select-none w-full max-w-full overflow-hidden box-border transform-gpu will-change-transform"
-              >
-                {/* Subtle Ambient Radial Highlight on Hover */}
-                <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none bg-gradient-to-r from-emerald-500/[0.04] via-emerald-500/[0.01] to-transparent" />
+          return (
+            <div
+              key={skill.id || skill.name}
+              data-aos="fade-up"
+              data-aos-delay={(index % 4) * 60}
+              data-aos-duration="500"
+              data-aos-easing="ease-out-cubic"
+              onClick={() => setSelectedSkill(skill)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  setSelectedSkill(skill);
+                }
+              }}
+              className="group relative py-4 sm:py-5 px-3 sm:px-5 flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4 cursor-pointer rounded-2xl transition-all duration-200 md:hover:translate-x-1 hover:bg-slate-100/70 dark:hover:bg-white/[0.03] active:scale-[0.985] select-none w-full max-w-full overflow-hidden box-border transform-gpu"
+            >
+              {/* Subtle Ambient Radial Highlight on Hover */}
+              <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none bg-gradient-to-r from-emerald-500/[0.04] via-emerald-500/[0.01] to-transparent" />
 
-                {/* Left: Brand Icon + Title + Tags */}
-                <div className="flex items-start gap-3 sm:gap-4 w-full md:flex-1 min-w-0 max-w-full relative z-10">
-                  {/* Brand Icon Squircle with spring tilt/scale */}
-                  <div
-                    className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl ${brand.bgClass} border ${brand.borderClass} flex items-center justify-center shrink-0 shadow-sm transition-transform duration-300 ease-out group-hover:scale-110 group-hover:rotate-2`}
-                  >
-                    {brand.primaryIcon}
-                  </div>
-
-                  {/* Title, Discipline & Capability Tags */}
-                  <div className="flex-1 min-w-0 max-w-full">
-                    <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 mb-1">
-                      <h3 className="text-sm sm:text-base md:text-lg font-bold text-slate-900 dark:text-white tracking-tight group-hover:text-emerald-500 dark:group-hover:text-emerald-400 transition-colors">
-                        {skill.name}
-                      </h3>
-                      <span className="text-[9.5px] sm:text-[10px] font-mono uppercase tracking-wider text-slate-500 dark:text-slate-400 px-2 py-0.5 rounded-full bg-slate-200/60 dark:bg-white/[0.06] border border-slate-300/40 dark:border-white/[0.08]">
-                        {skill.category}
-                      </span>
-                    </div>
-
-                    <p className="text-xs sm:text-[13px] text-slate-600 dark:text-slate-400 line-clamp-2 max-w-2xl mb-2 leading-relaxed">
-                      {skill.description}
-                    </p>
-
-                    {/* Capability Tags */}
-                    {skill.tags && skill.tags.length > 0 && (
-                      <div className="flex flex-wrap gap-1 sm:gap-1.5">
-                        {skill.tags.slice(0, 3).map((tag) => (
-                          <span
-                            key={tag}
-                            className="text-[10px] sm:text-[10.5px] font-mono px-1.5 sm:px-2 py-0.5 rounded-md bg-white dark:bg-white/[0.04] text-slate-600 dark:text-slate-300 border border-slate-200/70 dark:border-white/[0.06] transition-colors group-hover:border-slate-300 dark:group-hover:border-white/10"
-                          >
-                            {tag}
-                          </span>
-                        ))}
-                        {skill.tags.length > 3 && (
-                          <span className="text-[10px] font-mono px-1.5 py-0.5 text-slate-400 dark:text-slate-500 self-center">
-                            +{skill.tags.length - 3} more
-                          </span>
-                        )}
-                      </div>
-                    )}
-                  </div>
+              {/* Left: Brand Icon + Title + Tags */}
+              <div className="flex items-start gap-3 sm:gap-4 w-full md:flex-1 min-w-0 max-w-full relative z-10">
+                {/* Brand Icon Squircle with spring tilt/scale */}
+                <div
+                  className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl ${brand.bgClass} border ${brand.borderClass} flex items-center justify-center shrink-0 shadow-sm transition-transform duration-300 ease-out group-hover:scale-110 group-hover:rotate-2`}
+                >
+                  {brand.primaryIcon}
                 </div>
 
-                {/* Right / Bottom on Mobile: Mastery Pips + Clickable Interactive Pill */}
-                <div className="flex items-center justify-between md:justify-end gap-3 sm:gap-4 w-full md:w-auto shrink-0 pt-2.5 md:pt-0 border-t md:border-t-0 border-slate-100 dark:border-white/[0.04] relative z-10">
-                  {/* Mastery Pips with Lightweight GPU CSS Transitions */}
-                  <div className="flex items-center gap-1.5 sm:gap-2 font-mono text-xs shrink-0">
-                    <div className="flex items-center gap-1" title={`${skill.level} (${pips}/4)`}>
-                      {[1, 2, 3, 4].map((pip) => (
-                        <span
-                          key={pip}
-                          className={`w-1.5 h-3 rounded-full transition-all duration-200 ease-out transform-gpu ${
-                            pip <= pips
-                              ? 'bg-emerald-500 dark:bg-emerald-400 shadow-[0_0_6px_rgba(16,185,129,0.35)] scale-100'
-                              : 'bg-slate-200 dark:bg-white/10 opacity-35 scale-90'
-                          }`}
-                        />
-                      ))}
-                    </div>
-                    <span className="text-[10.5px] sm:text-[11px] text-slate-500 dark:text-slate-400">
-                      {skill.level}
+                {/* Title, Discipline & Capability Tags */}
+                <div className="flex-1 min-w-0 max-w-full">
+                  <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 mb-1">
+                    <h3 className="text-sm sm:text-base md:text-lg font-bold text-slate-900 dark:text-white tracking-tight group-hover:text-emerald-500 dark:group-hover:text-emerald-400 transition-colors">
+                      {skill.name}
+                    </h3>
+                    <span className="text-[9.5px] sm:text-[10px] font-mono uppercase tracking-wider text-slate-500 dark:text-slate-400 px-2 py-0.5 rounded-full bg-slate-200/60 dark:bg-white/[0.06] border border-slate-300/40 dark:border-white/[0.08]">
+                      {skill.category}
                     </span>
                   </div>
 
-                  {/* Tactile Button with YouTube badge & arrow */}
-                  <motion.div
-                    whileHover={{ scale: 1.03 }}
-                    whileTap={{ scale: 0.96 }}
-                    className="inline-flex items-center gap-1.5 sm:gap-2 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-[11px] sm:text-xs font-semibold text-slate-700 dark:text-slate-200 bg-white dark:bg-white/[0.05] border border-slate-200/80 dark:border-white/[0.08] shadow-sm group-hover:border-emerald-500/40 group-hover:bg-emerald-500/10 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-all duration-200 shrink-0"
-                  >
-                    <FaYoutube className="text-red-500 shrink-0 transition-transform duration-300 group-hover:scale-115" size={13} />
-                    <span>Catatan & Video</span>
-                    <ArrowRight size={13} className="transition-transform duration-300 group-hover:translate-x-1" />
-                  </motion.div>
+                  <p className="text-xs sm:text-[13px] text-slate-600 dark:text-slate-400 line-clamp-2 max-w-2xl mb-2 leading-relaxed">
+                    {skill.description}
+                  </p>
+
+                  {/* Capability Tags */}
+                  {skill.tags && skill.tags.length > 0 && (
+                    <div className="flex flex-wrap gap-1 sm:gap-1.5">
+                      {skill.tags.slice(0, 3).map((tag) => (
+                        <span
+                          key={tag}
+                          className="text-[10px] sm:text-[10.5px] font-mono px-1.5 sm:px-2 py-0.5 rounded-md bg-white dark:bg-white/[0.04] text-slate-600 dark:text-slate-300 border border-slate-200/70 dark:border-white/[0.06] transition-colors group-hover:border-slate-300 dark:group-hover:border-white/10"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                      {skill.tags.length > 3 && (
+                        <span className="text-[10px] font-mono px-1.5 py-0.5 text-slate-400 dark:text-slate-500 self-center">
+                          +{skill.tags.length - 3} more
+                        </span>
+                      )}
+                    </div>
+                  )}
                 </div>
-              </motion.div>
-            );
-          })}
-        </motion.div>
-      </AnimatePresence>
+              </div>
+
+              {/* Right / Bottom on Mobile: Mastery Pips + Clickable Interactive Pill */}
+              <div className="flex items-center justify-between md:justify-end gap-3 sm:gap-4 w-full md:w-auto shrink-0 pt-2.5 md:pt-0 border-t md:border-t-0 border-slate-100 dark:border-white/[0.04] relative z-10">
+                {/* Mastery Pips with Lightweight GPU CSS Transitions */}
+                <div className="flex items-center gap-1.5 sm:gap-2 font-mono text-xs shrink-0">
+                  <div className="flex items-center gap-1" title={`${skill.level} (${pips}/4)`}>
+                    {[1, 2, 3, 4].map((pip) => (
+                      <span
+                        key={pip}
+                        className={`w-1.5 h-3 rounded-full transition-all duration-200 ease-out transform-gpu ${
+                          pip <= pips
+                            ? 'bg-emerald-500 dark:bg-emerald-400 shadow-[0_0_6px_rgba(16,185,129,0.35)] scale-100'
+                            : 'bg-slate-200 dark:bg-white/10 opacity-35 scale-90'
+                        }`}
+                      />
+                    ))}
+                  </div>
+                  <span className="text-[10.5px] sm:text-[11px] text-slate-500 dark:text-slate-400">
+                    {skill.level}
+                  </span>
+                </div>
+
+                {/* Tactile Button with YouTube badge & arrow */}
+                <div
+                  className="inline-flex items-center gap-1.5 sm:gap-2 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-[11px] sm:text-xs font-semibold text-slate-700 dark:text-slate-200 bg-white dark:bg-white/[0.05] border border-slate-200/80 dark:border-white/[0.08] shadow-sm group-hover:border-emerald-500/40 group-hover:bg-emerald-500/10 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-all duration-200 shrink-0"
+                >
+                  <FaYoutube className="text-red-500 shrink-0 transition-transform duration-300 group-hover:scale-115" size={13} />
+                  <span>Catatan & Video</span>
+                  <ArrowRight size={13} className="transition-transform duration-300 group-hover:translate-x-1" />
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
 
       {/* INTERACTIVE SKILL DETAIL & YOUTUBE LEARNING MODAL (PORTAL) */}
       {createPortal(
