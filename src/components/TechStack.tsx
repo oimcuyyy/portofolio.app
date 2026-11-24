@@ -572,14 +572,15 @@ const streamContainerVariants: Variants = {
 };
 
 const streamItemVariants: Variants = {
-  hidden: { opacity: 0, y: 10 },
+  hidden: { opacity: 0, y: 26, scale: 0.98 },
   visible: {
     opacity: 1,
     y: 0,
+    scale: 1,
     transition: {
       type: 'spring',
-      stiffness: 340,
-      damping: 26,
+      stiffness: 300,
+      damping: 24,
       mass: 0.5,
     },
   },
@@ -800,6 +801,9 @@ const TechStack: React.FC<TechStackProps> = ({ skills }) => {
               <motion.div
                 key={skill.id || skill.name}
                 variants={streamItemVariants}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, amount: 0.12, margin: '0px 0px -20px 0px' }}
                 whileTap={{ scale: 0.985 }}
                 onClick={() => setSelectedSkill(skill)}
                 role="button"
