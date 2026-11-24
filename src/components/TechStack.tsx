@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { motion, AnimatePresence, type Variants } from 'framer-motion';
+import { motion, AnimatePresence, useScroll, useTransform, useSpring, type Variants } from 'framer-motion';
 import {
   Sparkles,
   CheckCircle2,
@@ -591,6 +591,25 @@ const TechStack: React.FC<TechStackProps> = ({ skills }) => {
   const [activeCategory, setActiveCategory] = useState('All');
   const [selectedSkill, setSelectedSkill] = useState<SkillWithDesc | null>(null);
 
+  // Scroll animation hooks (framer-motion + emil-design-eng)
+  const sectionRef = useRef<HTMLElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ['start end', 'end start'],
+  });
+
+  // Smooth physics spring for scroll progress beam
+  const progressScaleX = useSpring(scrollYProgress, {
+    stiffness: 280,
+    damping: 28,
+    restDelta: 0.001,
+  });
+
+  // Parallax subtle ambient mesh glow behind skills
+  const orbY1 = useTransform(scrollYProgress, [0, 1], [-80, 80]);
+  const orbY2 = useTransform(scrollYProgress, [0, 1], [60, -60]);
+  const orbOpacity = useTransform(scrollYProgress, [0, 0.25, 0.75, 1], [0.15, 0.5, 0.5, 0.1]);
+
   // Sync ESC key & body scroll lock when modal is open
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -660,10 +679,29 @@ const TechStack: React.FC<TechStackProps> = ({ skills }) => {
   };
 
   return (
-    <section id="skills" className="w-full max-w-full md:max-w-5xl mx-auto px-4 sm:px-6 pt-28 sm:pt-36 pb-20 sm:pb-28 relative z-10 scroll-mt-28 sm:scroll-mt-36 overflow-hidden box-border">
+    <section
+      id="skills"
+      ref={sectionRef}
+      className="w-full max-w-full md:max-w-5xl mx-auto px-4 sm:px-6 pt-28 sm:pt-36 pb-20 sm:pb-28 relative z-10 scroll-mt-28 sm:scroll-mt-36 overflow-hidden box-border"
+    >
+      {/* Scroll-Driven Parallax Ambient Mesh Glow Orbs */}
+      <motion.div
+        style={{ y: orbY1, opacity: orbOpacity }}
+        className="absolute -top-16 -left-20 w-80 h-80 rounded-full bg-emerald-500/10 blur-[100px] pointer-events-none -z-10"
+      />
+      <motion.div
+        style={{ y: orbY2, opacity: orbOpacity }}
+        className="absolute top-1/2 -right-24 w-96 h-96 rounded-full bg-cyan-500/10 blur-[120px] pointer-events-none -z-10"
+      />
       
-      {/* SECTION HEADER */}
-      <div className="w-full max-w-full overflow-hidden mb-8 sm:mb-12" data-aos="fade-up">
+      {/* SECTION HEADER WITH SCROLL REVEAL */}
+      <motion.div
+        initial={{ opacity: 0, y: 24 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.2 }}
+        transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
+        className="w-full max-w-full overflow-hidden mb-6 sm:mb-8"
+      >
         <div className="w-full max-w-2xl mb-6 sm:mb-8">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-mono text-[11px] sm:text-xs uppercase tracking-wider mb-3">
             <Sparkles size={12} className="animate-spin-slow shrink-0" />
@@ -677,6 +715,23 @@ const TechStack: React.FC<TechStackProps> = ({ skills }) => {
           <p className="text-xs sm:text-base text-slate-600 dark:text-slate-400 mt-2.5 sm:mt-3.5 leading-relaxed">
             Klik skill mana saja untuk melihat catatan materi yang saya pelajari dan rekomendasi video YouTube tempat saya belajar.
           </p>
+        </div>
+
+        {/* INTERACTIVE SCROLL EXPLORATION PROGRESS BEAM */}
+        <div className="w-full mb-5 sm:mb-6">
+          <div className="flex items-center justify-between text-[11px] font-mono text-slate-400 dark:text-slate-500 mb-1.5">
+            <span className="flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              Scroll Exploration Beam
+            </span>
+            <span className="text-emerald-600 dark:text-emerald-400 font-semibold">{filteredSkills.length} Tech Active</span>
+          </div>
+          <div className="w-full h-1 bg-slate-200/80 dark:bg-white/[0.06] rounded-full overflow-hidden relative">
+            <motion.div
+              style={{ scaleX: progressScaleX, transformOrigin: 'left' }}
+              className="h-full w-full bg-gradient-to-r from-emerald-500 via-teal-400 to-cyan-400 rounded-full shadow-[0_0_12px_rgba(16,185,129,0.5)]"
+            />
+          </div>
         </div>
 
         {/* SLEEK SINGLE-LINE CATEGORY NAVBAR (MOBILE SCROLL-FRIENDLY, TIDAK BLOWOUT) */}
@@ -734,7 +789,7 @@ const TechStack: React.FC<TechStackProps> = ({ skills }) => {
             <span>{filteredSkills.length} dari {allSkills.length} Teknologi Aktif</span>
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {/* SLEEK INTERACTIVE STREAM (RESPONSIF UNTUK SEMUA UKURAN LAYAR HP DENGAN STAGGER MOTION) */}
       <AnimatePresence mode="wait">
@@ -754,6 +809,9 @@ const TechStack: React.FC<TechStackProps> = ({ skills }) => {
               <motion.div
                 key={skill.id || skill.name}
                 variants={streamItemVariants}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, amount: 0.15, margin: "-15px" }}
                 whileHover={{ x: 4 }}
                 whileTap={{ scale: 0.985 }}
                 transition={{ type: 'spring', stiffness: 480, damping: 32 }}
@@ -824,11 +882,12 @@ const TechStack: React.FC<TechStackProps> = ({ skills }) => {
                       {[1, 2, 3, 4].map((pip) => (
                         <motion.span
                           key={pip}
-                          initial={false}
-                          animate={{
+                          initial={{ scale: 0.8, opacity: 0.2 }}
+                          whileInView={{
                             scale: pip <= pips ? [1, 1.25, 1] : 1,
                             opacity: pip <= pips ? 1 : 0.35,
                           }}
+                          viewport={{ once: true }}
                           transition={{
                             delay: pip * 0.05,
                             duration: 0.35,
