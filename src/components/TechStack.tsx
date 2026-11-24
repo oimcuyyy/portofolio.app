@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { motion, AnimatePresence, useScroll, useTransform, useSpring, type Variants } from 'framer-motion';
+import { motion, AnimatePresence, useScroll, useTransform, type Variants } from 'framer-motion';
 import {
   Sparkles,
   CheckCircle2,
@@ -555,33 +555,32 @@ const getProficiencyPips = (level: string) => {
   return 1;
 };
 
-// Motion animation variants with spring physics (emil-design-eng + motion standard)
+// Motion animation variants optimized for 60-120fps mobile performance (gsap-performance + emil-design-eng)
 const streamContainerVariants: Variants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.045,
-      delayChildren: 0.02,
+      staggerChildren: 0.03,
+      delayChildren: 0.01,
     },
   },
   exit: {
     opacity: 0,
-    transition: { duration: 0.15, ease: 'easeOut' },
+    transition: { duration: 0.1, ease: 'easeOut' },
   },
 };
 
 const streamItemVariants: Variants = {
-  hidden: { opacity: 0, y: 14, scale: 0.985 },
+  hidden: { opacity: 0, y: 10 },
   visible: {
     opacity: 1,
     y: 0,
-    scale: 1,
     transition: {
       type: 'spring',
-      stiffness: 420,
-      damping: 30,
-      mass: 0.8,
+      stiffness: 340,
+      damping: 26,
+      mass: 0.5,
     },
   },
 };
@@ -591,24 +590,16 @@ const TechStack: React.FC<TechStackProps> = ({ skills }) => {
   const [activeCategory, setActiveCategory] = useState('All');
   const [selectedSkill, setSelectedSkill] = useState<SkillWithDesc | null>(null);
 
-  // Scroll animation hooks (framer-motion + emil-design-eng)
+  // Scroll animation hooks (lightweight 1:1 hardware scroll binding without rAF spring lag)
   const sectionRef = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({
     target: sectionRef,
     offset: ['start end', 'end start'],
   });
 
-  // Smooth physics spring for scroll progress beam
-  const progressScaleX = useSpring(scrollYProgress, {
-    stiffness: 280,
-    damping: 28,
-    restDelta: 0.001,
-  });
-
-  // Parallax subtle ambient mesh glow behind skills
-  const orbY1 = useTransform(scrollYProgress, [0, 1], [-80, 80]);
-  const orbY2 = useTransform(scrollYProgress, [0, 1], [60, -60]);
-  const orbOpacity = useTransform(scrollYProgress, [0, 0.25, 0.75, 1], [0.15, 0.5, 0.5, 0.1]);
+  // Parallax subtle ambient mesh glow behind skills (desktop only, zero-cost radial texture without expensive blur filters)
+  const orbY1 = useTransform(scrollYProgress, [0, 1], [-40, 40]);
+  const orbY2 = useTransform(scrollYProgress, [0, 1], [30, -30]);
 
   // Sync ESC key & body scroll lock when modal is open
   useEffect(() => {
@@ -684,22 +675,22 @@ const TechStack: React.FC<TechStackProps> = ({ skills }) => {
       ref={sectionRef}
       className="w-full max-w-full md:max-w-5xl mx-auto px-4 sm:px-6 pt-28 sm:pt-36 pb-20 sm:pb-28 relative z-10 scroll-mt-28 sm:scroll-mt-36 overflow-hidden box-border"
     >
-      {/* Scroll-Driven Parallax Ambient Mesh Glow Orbs */}
+      {/* Scroll-Driven Parallax Ambient Mesh Glow Orbs (Desktop Only, High-Performance Radial Gradient, No Blur Filter) */}
       <motion.div
-        style={{ y: orbY1, opacity: orbOpacity }}
-        className="absolute -top-16 -left-20 w-80 h-80 rounded-full bg-emerald-500/10 blur-[100px] pointer-events-none -z-10"
+        style={{ y: orbY1 }}
+        className="hidden md:block absolute -top-16 -left-20 w-72 h-72 rounded-full bg-[radial-gradient(circle,_rgba(16,185,129,0.1)_0%,_transparent_70%)] pointer-events-none -z-10 transform-gpu"
       />
       <motion.div
-        style={{ y: orbY2, opacity: orbOpacity }}
-        className="absolute top-1/2 -right-24 w-96 h-96 rounded-full bg-cyan-500/10 blur-[120px] pointer-events-none -z-10"
+        style={{ y: orbY2 }}
+        className="hidden md:block absolute top-1/2 -right-24 w-80 h-80 rounded-full bg-[radial-gradient(circle,_rgba(6,182,212,0.1)_0%,_transparent_70%)] pointer-events-none -z-10 transform-gpu"
       />
       
       {/* SECTION HEADER WITH SCROLL REVEAL */}
       <motion.div
-        initial={{ opacity: 0, y: 24 }}
+        initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, amount: 0.2 }}
-        transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
+        viewport={{ once: true, amount: 0.15 }}
+        transition={{ duration: 0.45, ease: [0.23, 1, 0.32, 1] }}
         className="w-full max-w-full overflow-hidden mb-6 sm:mb-8"
       >
         <div className="w-full max-w-2xl mb-6 sm:mb-8">
@@ -717,7 +708,7 @@ const TechStack: React.FC<TechStackProps> = ({ skills }) => {
           </p>
         </div>
 
-        {/* INTERACTIVE SCROLL EXPLORATION PROGRESS BEAM */}
+        {/* INTERACTIVE SCROLL EXPLORATION PROGRESS BEAM (1:1 Hardware Scroll Sync) */}
         <div className="w-full mb-5 sm:mb-6">
           <div className="flex items-center justify-between text-[11px] font-mono text-slate-400 dark:text-slate-500 mb-1.5">
             <span className="flex items-center gap-1.5">
@@ -728,8 +719,8 @@ const TechStack: React.FC<TechStackProps> = ({ skills }) => {
           </div>
           <div className="w-full h-1 bg-slate-200/80 dark:bg-white/[0.06] rounded-full overflow-hidden relative">
             <motion.div
-              style={{ scaleX: progressScaleX, transformOrigin: 'left' }}
-              className="h-full w-full bg-gradient-to-r from-emerald-500 via-teal-400 to-cyan-400 rounded-full shadow-[0_0_12px_rgba(16,185,129,0.5)]"
+              style={{ scaleX: scrollYProgress, transformOrigin: 'left' }}
+              className="h-full w-full bg-gradient-to-r from-emerald-500 via-teal-400 to-cyan-400 rounded-full shadow-[0_0_8px_rgba(16,185,129,0.4)] transform-gpu"
             />
           </div>
         </div>
@@ -791,7 +782,7 @@ const TechStack: React.FC<TechStackProps> = ({ skills }) => {
         </div>
       </motion.div>
 
-      {/* SLEEK INTERACTIVE STREAM (RESPONSIF UNTUK SEMUA UKURAN LAYAR HP DENGAN STAGGER MOTION) */}
+      {/* SLEEK INTERACTIVE STREAM (60FPS HARDWARE ACCELERATED STREAM) */}
       <AnimatePresence mode="wait">
         <motion.div
           key={activeCategory}
@@ -809,12 +800,7 @@ const TechStack: React.FC<TechStackProps> = ({ skills }) => {
               <motion.div
                 key={skill.id || skill.name}
                 variants={streamItemVariants}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true, amount: 0.15, margin: "-15px" }}
-                whileHover={{ x: 4 }}
                 whileTap={{ scale: 0.985 }}
-                transition={{ type: 'spring', stiffness: 480, damping: 32 }}
                 onClick={() => setSelectedSkill(skill)}
                 role="button"
                 tabIndex={0}
@@ -824,7 +810,7 @@ const TechStack: React.FC<TechStackProps> = ({ skills }) => {
                     setSelectedSkill(skill);
                   }
                 }}
-                className="group relative py-4 sm:py-5 px-3 sm:px-5 flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4 cursor-pointer rounded-2xl transition-colors duration-200 hover:bg-slate-100/70 dark:hover:bg-white/[0.03] select-none w-full max-w-full overflow-hidden box-border"
+                className="group relative py-4 sm:py-5 px-3 sm:px-5 flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4 cursor-pointer rounded-2xl transition-all duration-200 md:hover:translate-x-1 hover:bg-slate-100/70 dark:hover:bg-white/[0.03] select-none w-full max-w-full overflow-hidden box-border transform-gpu will-change-transform"
               >
                 {/* Subtle Ambient Radial Highlight on Hover */}
                 <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none bg-gradient-to-r from-emerald-500/[0.04] via-emerald-500/[0.01] to-transparent" />
@@ -876,27 +862,16 @@ const TechStack: React.FC<TechStackProps> = ({ skills }) => {
 
                 {/* Right / Bottom on Mobile: Mastery Pips + Clickable Interactive Pill */}
                 <div className="flex items-center justify-between md:justify-end gap-3 sm:gap-4 w-full md:w-auto shrink-0 pt-2.5 md:pt-0 border-t md:border-t-0 border-slate-100 dark:border-white/[0.04] relative z-10">
-                  {/* Mastery Pips with Animated Pop */}
+                  {/* Mastery Pips with Lightweight GPU CSS Transitions */}
                   <div className="flex items-center gap-1.5 sm:gap-2 font-mono text-xs shrink-0">
                     <div className="flex items-center gap-1" title={`${skill.level} (${pips}/4)`}>
                       {[1, 2, 3, 4].map((pip) => (
-                        <motion.span
+                        <span
                           key={pip}
-                          initial={{ scale: 0.8, opacity: 0.2 }}
-                          whileInView={{
-                            scale: pip <= pips ? [1, 1.25, 1] : 1,
-                            opacity: pip <= pips ? 1 : 0.35,
-                          }}
-                          viewport={{ once: true }}
-                          transition={{
-                            delay: pip * 0.05,
-                            duration: 0.35,
-                            ease: 'easeOut',
-                          }}
-                          className={`w-1.5 h-3 rounded-full transition-colors ${
+                          className={`w-1.5 h-3 rounded-full transition-all duration-200 ease-out transform-gpu ${
                             pip <= pips
-                              ? 'bg-emerald-500 dark:bg-emerald-400 shadow-[0_0_8px_rgba(16,185,129,0.35)]'
-                              : 'bg-slate-200 dark:bg-white/10'
+                              ? 'bg-emerald-500 dark:bg-emerald-400 shadow-[0_0_6px_rgba(16,185,129,0.35)] scale-100'
+                              : 'bg-slate-200 dark:bg-white/10 opacity-35 scale-90'
                           }`}
                         />
                       ))}
