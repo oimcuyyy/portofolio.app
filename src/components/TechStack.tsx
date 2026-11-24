@@ -629,11 +629,11 @@ const TechStack: React.FC<TechStackProps> = ({ skills }) => {
   };
 
   return (
-    <section id="skills" className="pt-24 sm:pt-32 pb-20 sm:pb-28 px-4 sm:px-6 max-w-5xl mx-auto relative z-10 scroll-mt-24 sm:scroll-mt-32 overflow-hidden">
+    <section id="skills" className="w-full max-w-full md:max-w-5xl mx-auto px-4 sm:px-6 pt-28 sm:pt-36 pb-20 sm:pb-28 relative z-10 scroll-mt-28 sm:scroll-mt-36 overflow-hidden box-border">
       
       {/* SECTION HEADER */}
-      <div className="mb-8 sm:mb-12" data-aos="fade-up">
-        <div className="max-w-2xl mb-6 sm:mb-8">
+      <div className="w-full max-w-full overflow-hidden mb-8 sm:mb-12" data-aos="fade-up">
+        <div className="w-full max-w-2xl mb-6 sm:mb-8">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-mono text-[11px] sm:text-xs uppercase tracking-wider mb-3">
             <Sparkles size={12} className="animate-spin-slow shrink-0" />
             <span className="truncate max-w-[190px] sm:max-w-none">{t.skills.badge}</span>
@@ -649,9 +649,9 @@ const TechStack: React.FC<TechStackProps> = ({ skills }) => {
         </div>
 
         {/* SLEEK SINGLE-LINE CATEGORY NAVBAR (MOBILE SCROLL-FRIENDLY, TIDAK BLOWOUT) */}
-        <div className="w-full min-w-0 pb-3 border-b border-slate-200/60 dark:border-white/[0.07] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="w-full max-w-full min-w-0 pb-3 border-b border-slate-200/60 dark:border-white/[0.07] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           {/* Scrollable Tabs Wrapper */}
-          <div className="w-full sm:w-auto min-w-0 overflow-x-auto no-scrollbar scroll-smooth">
+          <div className="w-full max-w-full sm:w-auto min-w-0 overflow-x-auto no-scrollbar scroll-smooth touch-pan-x">
             <div className="inline-flex items-center gap-1.5 p-1 sm:p-1.5 rounded-2xl bg-slate-100/90 dark:bg-white/[0.04] border border-slate-200/80 dark:border-white/[0.08] backdrop-blur-xl">
               {categories.map((cat) => {
                 const isActive = activeCategory === cat;
@@ -661,7 +661,7 @@ const TechStack: React.FC<TechStackProps> = ({ skills }) => {
                   <button
                     key={cat}
                     onClick={() => setActiveCategory(cat)}
-                    className={`relative px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl text-xs font-semibold cursor-pointer transition-colors duration-200 select-none whitespace-nowrap flex items-center gap-1.5 sm:gap-2 shrink-0 ${
+                    className={`relative px-3.5 sm:px-4 py-2 sm:py-2 min-h-[44px] sm:min-h-0 rounded-xl text-xs font-semibold cursor-pointer transition-colors duration-200 select-none whitespace-nowrap flex items-center gap-1.5 sm:gap-2 shrink-0 touch-manipulation ${
                       isActive
                         ? 'text-white dark:text-slate-950 font-bold'
                         : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
@@ -711,7 +711,7 @@ const TechStack: React.FC<TechStackProps> = ({ skills }) => {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -6 }}
           transition={{ duration: 0.22, ease: [0.23, 1, 0.32, 1] }}
-          className="divide-y divide-slate-200/60 dark:divide-white/[0.07] border-y border-slate-200/60 dark:border-white/[0.07]"
+          className="w-full max-w-full overflow-hidden divide-y divide-slate-200/60 dark:divide-white/[0.07] border-y border-slate-200/60 dark:border-white/[0.07]"
         >
           {filteredSkills.map((skill) => {
             const brand = getTechBrand(skill.name, skill.category);
@@ -729,10 +729,10 @@ const TechStack: React.FC<TechStackProps> = ({ skills }) => {
                     setSelectedSkill(skill);
                   }
                 }}
-                className="group py-4 sm:py-5 px-2.5 sm:px-5 flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4 cursor-pointer rounded-2xl transition-all duration-200 hover:bg-slate-100/70 dark:hover:bg-white/[0.03] active:scale-[0.99] select-none"
+                className="group py-4 sm:py-5 px-3 sm:px-5 flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4 cursor-pointer rounded-2xl transition-all duration-200 hover:bg-slate-100/70 dark:hover:bg-white/[0.03] active:scale-[0.99] select-none w-full max-w-full overflow-hidden box-border"
               >
                 {/* Left: Brand Icon + Title + Tags */}
-                <div className="flex items-start gap-3 sm:gap-4 flex-1 min-w-0">
+                <div className="flex items-start gap-3 sm:gap-4 w-full md:flex-1 min-w-0 max-w-full">
                   {/* Brand Icon Squircle */}
                   <div
                     className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl ${brand.bgClass} border ${brand.borderClass} flex items-center justify-center shrink-0 shadow-sm transition-transform duration-300 group-hover:scale-105`}
@@ -741,7 +741,7 @@ const TechStack: React.FC<TechStackProps> = ({ skills }) => {
                   </div>
 
                   {/* Title, Discipline & Capability Tags */}
-                  <div className="flex-1 min-w-0">
+                  <div className="flex-1 min-w-0 max-w-full">
                     <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 mb-1">
                       <h3 className="text-sm sm:text-base md:text-lg font-bold text-slate-900 dark:text-white tracking-tight group-hover:text-emerald-500 dark:group-hover:text-emerald-400 transition-colors">
                         {skill.name}
@@ -777,9 +777,9 @@ const TechStack: React.FC<TechStackProps> = ({ skills }) => {
                 </div>
 
                 {/* Right / Bottom on Mobile: Mastery Pips + Clickable Interactive Pill */}
-                <div className="flex items-center justify-between md:justify-end gap-3 sm:gap-4 shrink-0 pt-2.5 md:pt-0 border-t md:border-t-0 border-slate-100 dark:border-white/[0.04]">
+                <div className="flex items-center justify-between md:justify-end gap-3 sm:gap-4 w-full md:w-auto shrink-0 pt-2.5 md:pt-0 border-t md:border-t-0 border-slate-100 dark:border-white/[0.04]">
                   {/* Mastery Pips */}
-                  <div className="flex items-center gap-1.5 sm:gap-2 font-mono text-xs">
+                  <div className="flex items-center gap-1.5 sm:gap-2 font-mono text-xs shrink-0">
                     <div className="flex items-center gap-1" title={`${skill.level} (${pips}/4)`}>
                       {[1, 2, 3, 4].map((pip) => (
                         <span
@@ -798,7 +798,7 @@ const TechStack: React.FC<TechStackProps> = ({ skills }) => {
                   </div>
 
                   {/* Tactile Button with YouTube badge & arrow */}
-                  <div className="inline-flex items-center gap-1.5 sm:gap-2 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-[11px] sm:text-xs font-semibold text-slate-700 dark:text-slate-200 bg-white dark:bg-white/[0.05] border border-slate-200/80 dark:border-white/[0.08] shadow-sm group-hover:border-emerald-500/40 group-hover:bg-emerald-500/10 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-all duration-200">
+                  <div className="inline-flex items-center gap-1.5 sm:gap-2 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-[11px] sm:text-xs font-semibold text-slate-700 dark:text-slate-200 bg-white dark:bg-white/[0.05] border border-slate-200/80 dark:border-white/[0.08] shadow-sm group-hover:border-emerald-500/40 group-hover:bg-emerald-500/10 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-all duration-200 shrink-0">
                     <FaYoutube className="text-red-500 shrink-0" size={13} />
                     <span>Catatan & Video</span>
                     <ArrowRight size={13} className="transition-transform group-hover:translate-x-0.5" />
@@ -872,7 +872,7 @@ const TechStack: React.FC<TechStackProps> = ({ skills }) => {
                     {/* Close Button with ESC Keyboard Indicator */}
                     <button
                       onClick={() => setSelectedSkill(null)}
-                      className="p-2 sm:p-2.5 rounded-xl text-slate-400 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-white/[0.06] hover:bg-slate-200 dark:hover:bg-white/[0.1] transition-colors cursor-pointer shrink-0 min-h-[40px] min-w-[40px] flex items-center justify-center"
+                      className="p-2.5 rounded-xl text-slate-400 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-white/[0.06] hover:bg-slate-200 dark:hover:bg-white/[0.1] transition-colors cursor-pointer shrink-0 min-h-[44px] min-w-[44px] flex items-center justify-center touch-manipulation"
                       title="Tutup (ESC)"
                       aria-label="Tutup modal"
                     >
@@ -975,7 +975,7 @@ const TechStack: React.FC<TechStackProps> = ({ skills }) => {
                     <span className="font-mono text-[11px]">Tekan <kbd className="px-1.5 py-0.5 rounded bg-slate-200 dark:bg-white/10 text-slate-700 dark:text-slate-300">ESC</kbd> untuk kembali</span>
                     <button
                       onClick={() => setSelectedSkill(null)}
-                      className="px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-white/10 transition-colors cursor-pointer min-h-[36px]"
+                      className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-white/10 transition-colors cursor-pointer min-h-[44px] flex items-center justify-center touch-manipulation"
                     >
                       Tutup
                     </button>

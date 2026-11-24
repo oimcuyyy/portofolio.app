@@ -24,6 +24,7 @@ const Navbar: React.FC = () => {
   const [isDarkMode, setIsDarkMode] = useState(true);
   const [activeSection, setActiveSection] = useState('about');
   const [scrolled, setScrolled] = useState(false);
+  const [isNavVisible, setIsNavVisible] = useState(true);
 
   const navLinks = [
     { name: t.nav.about, href: '#about', icon: User, number: '01', id: 'about' },
@@ -44,9 +45,20 @@ const Navbar: React.FC = () => {
       document.documentElement.classList.add('dark');
     }
 
+    let lastScrollY = window.scrollY;
+
     // Scroll listener for sticky indicator and active section
     const handleScroll = () => {
-      setScrolled(window.scrollY > 30);
+      const currentScrollY = window.scrollY;
+      setScrolled(currentScrollY > 30);
+
+      // Smart auto-hide floating dock on scroll down, restore on scroll up or top
+      if (currentScrollY > 80 && currentScrollY > lastScrollY + 6) {
+        setIsNavVisible(false);
+      } else if (currentScrollY < lastScrollY - 6 || currentScrollY <= 40) {
+        setIsNavVisible(true);
+      }
+      lastScrollY = currentScrollY;
 
       const sections = ['about', 'skills', 'experience', 'projects', 'contact'];
       const scrollPosition = window.scrollY + 250;
@@ -86,8 +98,14 @@ const Navbar: React.FC = () => {
 
   return (
     <>
-      {/* FLOATING LEFT LAUNCHER DOCK */}
-      <div className="fixed left-4 sm:left-6 top-6 sm:top-8 z-50 flex items-center gap-2 sm:gap-2.5">
+      {/* FLOATING LEFT LAUNCHER DOCK WITH SMART SCROLL HIDE & SAFE AREAS */}
+      <div
+        className={`fixed left-[max(1rem,env(safe-area-inset-left))] sm:left-6 top-[max(1rem,env(safe-area-inset-top))] sm:top-8 z-50 flex items-center gap-2 sm:gap-2.5 transition-all duration-300 ease-out ${
+          isNavVisible || isOpen
+            ? 'translate-y-0 opacity-100'
+            : '-translate-y-28 opacity-0 pointer-events-none'
+        }`}
+      >
         
         {/* Main Left Menu Trigger Button */}
         <button

@@ -332,7 +332,7 @@ function App() {
 
   return (
     <div
-      className={`min-h-screen font-sans relative overflow-x-hidden transition-colors duration-700 ${
+      className={`min-h-screen w-full max-w-full font-sans relative overflow-x-hidden transition-colors duration-700 ${
         isLoadingScreenActive ? 'pointer-events-none select-none' : ''
       } ${
         !isPlaying
@@ -404,7 +404,7 @@ function App() {
       />
 
       {/* SECTIONS OVERLAY Z-INDEX */}
-      <div className="relative z-10 flex flex-col gap-14 sm:gap-20">
+      <div className="relative z-10 flex flex-col gap-14 sm:gap-20 w-full min-w-0 max-w-full overflow-x-hidden">
 
         {/* NAVBAR */}
         <Navbar />
