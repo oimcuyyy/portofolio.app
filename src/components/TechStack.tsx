@@ -629,68 +629,70 @@ const TechStack: React.FC<TechStackProps> = ({ skills }) => {
   };
 
   return (
-    <section id="skills" className="py-24 px-6 max-w-5xl mx-auto relative z-10">
+    <section id="skills" className="pt-24 sm:pt-32 pb-20 sm:pb-28 px-4 sm:px-6 max-w-5xl mx-auto relative z-10 scroll-mt-24 sm:scroll-mt-32 overflow-hidden">
       
       {/* SECTION HEADER */}
-      <div className="mb-10 sm:mb-12" data-aos="fade-up">
-        <div className="max-w-2xl mb-8">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-mono text-xs uppercase tracking-widest mb-3.5">
-            <Sparkles size={12} className="animate-spin-slow" />
-            <span>{t.skills.badge}</span>
-            <span className="w-1 h-1 rounded-full bg-emerald-500/40" />
-            <span className="text-[10px] text-emerald-500/80 font-normal">Interactive Learning Stream</span>
+      <div className="mb-8 sm:mb-12" data-aos="fade-up">
+        <div className="max-w-2xl mb-6 sm:mb-8">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-mono text-[11px] sm:text-xs uppercase tracking-wider mb-3">
+            <Sparkles size={12} className="animate-spin-slow shrink-0" />
+            <span className="truncate max-w-[190px] sm:max-w-none">{t.skills.badge}</span>
+            <span className="w-1 h-1 rounded-full bg-emerald-500/40 shrink-0" />
+            <span className="text-[10px] text-emerald-500/80 font-normal shrink-0">Interactive Stream</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+          <h2 className="text-2xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight break-words">
             {t.skills.title}
           </h2>
-          <p className="text-slate-600 dark:text-slate-400 text-sm sm:text-base mt-3.5 leading-relaxed">
+          <p className="text-xs sm:text-base text-slate-600 dark:text-slate-400 mt-2.5 sm:mt-3.5 leading-relaxed">
             Klik skill mana saja untuk melihat catatan materi yang saya pelajari dan rekomendasi video YouTube tempat saya belajar.
           </p>
         </div>
 
-        {/* SLEEK SINGLE-LINE CATEGORY NAVBAR (TIDAK AKAN TURUN BARIS / RAPI) */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-3 border-b border-slate-200/60 dark:border-white/[0.07]">
-          {/* Category Tabs Container */}
-          <div className="inline-flex items-center gap-1.5 p-1.5 rounded-2xl bg-slate-100/90 dark:bg-white/[0.04] border border-slate-200/80 dark:border-white/[0.08] backdrop-blur-xl max-w-full overflow-x-auto no-scrollbar whitespace-nowrap scroll-smooth">
-            {categories.map((cat) => {
-              const isActive = activeCategory === cat;
-              const count = getCategoryCount(cat);
+        {/* SLEEK SINGLE-LINE CATEGORY NAVBAR (MOBILE SCROLL-FRIENDLY, TIDAK BLOWOUT) */}
+        <div className="w-full min-w-0 pb-3 border-b border-slate-200/60 dark:border-white/[0.07] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          {/* Scrollable Tabs Wrapper */}
+          <div className="w-full sm:w-auto min-w-0 overflow-x-auto no-scrollbar scroll-smooth">
+            <div className="inline-flex items-center gap-1.5 p-1 sm:p-1.5 rounded-2xl bg-slate-100/90 dark:bg-white/[0.04] border border-slate-200/80 dark:border-white/[0.08] backdrop-blur-xl">
+              {categories.map((cat) => {
+                const isActive = activeCategory === cat;
+                const count = getCategoryCount(cat);
 
-              return (
-                <button
-                  key={cat}
-                  onClick={() => setActiveCategory(cat)}
-                  className={`relative px-4 py-2 rounded-xl text-xs font-semibold cursor-pointer transition-colors duration-200 select-none whitespace-nowrap flex items-center gap-2 ${
-                    isActive
-                      ? 'text-white dark:text-slate-950 font-bold'
-                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-                  }`}
-                >
-                  {/* Smooth spring sliding background */}
-                  {isActive && (
-                    <motion.div
-                      layoutId="activeSkillTabIndicator"
-                      transition={{ type: 'spring', stiffness: 450, damping: 35 }}
-                      className="absolute inset-0 rounded-xl bg-slate-900 dark:bg-white shadow-sm z-0"
-                    />
-                  )}
-                  
-                  <span className="relative z-10 inline-flex items-center gap-2">
-                    {getCategoryIcon(cat)}
-                    <span>{cat === 'All' ? t.skills.filterAll : cat}</span>
-                    <span
-                      className={`text-[10px] px-1.5 py-0.5 rounded-full font-mono transition-colors ${
-                        isActive
-                          ? 'bg-white/20 dark:bg-slate-900/15 text-white dark:text-slate-900 font-bold'
-                          : 'bg-slate-200/80 dark:bg-white/[0.06] text-slate-500 dark:text-slate-400'
-                      }`}
-                    >
-                      {count}
+                return (
+                  <button
+                    key={cat}
+                    onClick={() => setActiveCategory(cat)}
+                    className={`relative px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl text-xs font-semibold cursor-pointer transition-colors duration-200 select-none whitespace-nowrap flex items-center gap-1.5 sm:gap-2 shrink-0 ${
+                      isActive
+                        ? 'text-white dark:text-slate-950 font-bold'
+                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                    }`}
+                  >
+                    {/* Smooth spring sliding background */}
+                    {isActive && (
+                      <motion.div
+                        layoutId="activeSkillTabIndicator"
+                        transition={{ type: 'spring', stiffness: 450, damping: 35 }}
+                        className="absolute inset-0 rounded-xl bg-slate-900 dark:bg-white shadow-sm z-0"
+                      />
+                    )}
+                    
+                    <span className="relative z-10 inline-flex items-center gap-1.5 sm:gap-2">
+                      {getCategoryIcon(cat)}
+                      <span>{cat === 'All' ? t.skills.filterAll : cat}</span>
+                      <span
+                        className={`text-[10px] px-1.5 py-0.5 rounded-full font-mono transition-colors ${
+                          isActive
+                            ? 'bg-white/20 dark:bg-slate-900/15 text-white dark:text-slate-900 font-bold'
+                            : 'bg-slate-200/80 dark:bg-white/[0.06] text-slate-500 dark:text-slate-400'
+                        }`}
+                      >
+                        {count}
+                      </span>
                     </span>
-                  </span>
-                </button>
-              );
-            })}
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
           {/* Sub-status Indicator */}
@@ -701,7 +703,7 @@ const TechStack: React.FC<TechStackProps> = ({ skills }) => {
         </div>
       </div>
 
-      {/* SLEEK INTERACTIVE STREAM (NON-BOXY / EDITORIAL MINIMALIST) */}
+      {/* SLEEK INTERACTIVE STREAM (RESPONSIF UNTUK SEMUA UKURAN LAYAR HP) */}
       <AnimatePresence mode="wait">
         <motion.div
           key={activeCategory}
@@ -727,46 +729,46 @@ const TechStack: React.FC<TechStackProps> = ({ skills }) => {
                     setSelectedSkill(skill);
                   }
                 }}
-                className="group py-5 px-3 sm:px-5 flex flex-col md:flex-row md:items-center justify-between gap-4 cursor-pointer rounded-2xl transition-all duration-200 hover:bg-slate-100/70 dark:hover:bg-white/[0.03] active:scale-[0.99] select-none"
+                className="group py-4 sm:py-5 px-2.5 sm:px-5 flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4 cursor-pointer rounded-2xl transition-all duration-200 hover:bg-slate-100/70 dark:hover:bg-white/[0.03] active:scale-[0.99] select-none"
               >
                 {/* Left: Brand Icon + Title + Tags */}
-                <div className="flex items-start sm:items-center gap-4 flex-1">
+                <div className="flex items-start gap-3 sm:gap-4 flex-1 min-w-0">
                   {/* Brand Icon Squircle */}
                   <div
-                    className={`w-12 h-12 rounded-2xl ${brand.bgClass} border ${brand.borderClass} flex items-center justify-center shrink-0 shadow-sm transition-transform duration-300 group-hover:scale-110`}
+                    className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl ${brand.bgClass} border ${brand.borderClass} flex items-center justify-center shrink-0 shadow-sm transition-transform duration-300 group-hover:scale-105`}
                   >
                     {brand.primaryIcon}
                   </div>
 
                   {/* Title, Discipline & Capability Tags */}
                   <div className="flex-1 min-w-0">
-                    <div className="flex flex-wrap items-center gap-2 mb-1">
-                      <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white tracking-tight group-hover:text-emerald-500 dark:group-hover:text-emerald-400 transition-colors">
+                    <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 mb-1">
+                      <h3 className="text-sm sm:text-base md:text-lg font-bold text-slate-900 dark:text-white tracking-tight group-hover:text-emerald-500 dark:group-hover:text-emerald-400 transition-colors">
                         {skill.name}
                       </h3>
-                      <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500 dark:text-slate-400 px-2 py-0.5 rounded-full bg-slate-200/60 dark:bg-white/[0.06] border border-slate-300/40 dark:border-white/[0.08]">
+                      <span className="text-[9.5px] sm:text-[10px] font-mono uppercase tracking-wider text-slate-500 dark:text-slate-400 px-2 py-0.5 rounded-full bg-slate-200/60 dark:bg-white/[0.06] border border-slate-300/40 dark:border-white/[0.08]">
                         {skill.category}
                       </span>
                     </div>
 
-                    <p className="text-xs sm:text-[13px] text-slate-600 dark:text-slate-400 line-clamp-1 max-w-2xl mb-2">
+                    <p className="text-xs sm:text-[13px] text-slate-600 dark:text-slate-400 line-clamp-2 max-w-2xl mb-2 leading-relaxed">
                       {skill.description}
                     </p>
 
                     {/* Capability Tags */}
                     {skill.tags && skill.tags.length > 0 && (
-                      <div className="flex flex-wrap gap-1.5">
-                        {skill.tags.slice(0, 4).map((tag) => (
+                      <div className="flex flex-wrap gap-1 sm:gap-1.5">
+                        {skill.tags.slice(0, 3).map((tag) => (
                           <span
                             key={tag}
-                            className="text-[10.5px] font-mono px-2 py-0.5 rounded-md bg-white dark:bg-white/[0.04] text-slate-600 dark:text-slate-300 border border-slate-200/70 dark:border-white/[0.06]"
+                            className="text-[10px] sm:text-[10.5px] font-mono px-1.5 sm:px-2 py-0.5 rounded-md bg-white dark:bg-white/[0.04] text-slate-600 dark:text-slate-300 border border-slate-200/70 dark:border-white/[0.06]"
                           >
                             {tag}
                           </span>
                         ))}
-                        {skill.tags.length > 4 && (
+                        {skill.tags.length > 3 && (
                           <span className="text-[10px] font-mono px-1.5 py-0.5 text-slate-400 dark:text-slate-500 self-center">
-                            +{skill.tags.length - 4} more
+                            +{skill.tags.length - 3} more
                           </span>
                         )}
                       </div>
@@ -774,10 +776,10 @@ const TechStack: React.FC<TechStackProps> = ({ skills }) => {
                   </div>
                 </div>
 
-                {/* Right: Mastery Pips + Clickable Interactive Pill */}
-                <div className="flex items-center justify-between md:justify-end gap-4 shrink-0 pt-2 md:pt-0 border-t md:border-t-0 border-slate-100 dark:border-white/[0.04]">
+                {/* Right / Bottom on Mobile: Mastery Pips + Clickable Interactive Pill */}
+                <div className="flex items-center justify-between md:justify-end gap-3 sm:gap-4 shrink-0 pt-2.5 md:pt-0 border-t md:border-t-0 border-slate-100 dark:border-white/[0.04]">
                   {/* Mastery Pips */}
-                  <div className="flex items-center gap-2 font-mono text-xs">
+                  <div className="flex items-center gap-1.5 sm:gap-2 font-mono text-xs">
                     <div className="flex items-center gap-1" title={`${skill.level} (${pips}/4)`}>
                       {[1, 2, 3, 4].map((pip) => (
                         <span
@@ -790,13 +792,13 @@ const TechStack: React.FC<TechStackProps> = ({ skills }) => {
                         />
                       ))}
                     </div>
-                    <span className="text-[11px] text-slate-500 dark:text-slate-400">
+                    <span className="text-[10.5px] sm:text-[11px] text-slate-500 dark:text-slate-400">
                       {skill.level}
                     </span>
                   </div>
 
                   {/* Tactile Button with YouTube badge & arrow */}
-                  <div className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 bg-white dark:bg-white/[0.05] border border-slate-200/80 dark:border-white/[0.08] shadow-sm group-hover:border-emerald-500/40 group-hover:bg-emerald-500/10 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-all duration-200">
+                  <div className="inline-flex items-center gap-1.5 sm:gap-2 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-[11px] sm:text-xs font-semibold text-slate-700 dark:text-slate-200 bg-white dark:bg-white/[0.05] border border-slate-200/80 dark:border-white/[0.08] shadow-sm group-hover:border-emerald-500/40 group-hover:bg-emerald-500/10 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-all duration-200">
                     <FaYoutube className="text-red-500 shrink-0" size={13} />
                     <span>Catatan & Video</span>
                     <ArrowRight size={13} className="transition-transform group-hover:translate-x-0.5" />
@@ -816,7 +818,7 @@ const TechStack: React.FC<TechStackProps> = ({ skills }) => {
             const pips = getProficiencyPips(selectedSkill.level || 'Advanced');
 
             return (
-              <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
+              <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
                 {/* Backdrop with Heavy Blur */}
                 <motion.div
                   initial={{ opacity: 0 }}
@@ -833,34 +835,34 @@ const TechStack: React.FC<TechStackProps> = ({ skills }) => {
                   animate={{ opacity: 1, scale: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.95, y: 15 }}
                   transition={{ type: 'spring', stiffness: 350, damping: 28 }}
-                  className="relative w-full max-w-2xl bg-white dark:bg-[#080d1a] border border-slate-200 dark:border-white/[0.1] rounded-[2rem] shadow-2xl overflow-hidden z-10 my-auto"
+                  className="relative w-full max-w-2xl bg-white dark:bg-[#080d1a] border border-slate-200 dark:border-white/[0.1] rounded-2xl sm:rounded-[2rem] shadow-2xl overflow-hidden z-10 my-auto"
                 >
                   {/* Subtle Top Reflective Line */}
                   <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-emerald-400/30 to-transparent" />
 
                   {/* MODAL HEADER */}
-                  <div className="p-6 sm:p-8 pb-5 border-b border-slate-100 dark:border-white/[0.07] flex items-start justify-between gap-4">
-                    <div className="flex items-center gap-4">
+                  <div className="p-4 sm:p-8 pb-4 sm:pb-5 border-b border-slate-100 dark:border-white/[0.07] flex items-start justify-between gap-3 sm:gap-4">
+                    <div className="flex items-center gap-3 sm:gap-4 min-w-0">
                       <div
-                        className={`w-14 h-14 rounded-2xl ${brand.bgClass} border ${brand.borderClass} flex items-center justify-center shrink-0 shadow-md`}
+                        className={`w-11 h-11 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl ${brand.bgClass} border ${brand.borderClass} flex items-center justify-center shrink-0 shadow-md`}
                       >
                         {brand.primaryIcon}
                       </div>
-                      <div>
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500 dark:text-slate-400 px-2 py-0.5 rounded-full bg-slate-100 dark:bg-white/[0.05] border border-slate-200 dark:border-white/[0.08]">
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2 mb-1 flex-wrap">
+                          <span className="text-[9.5px] sm:text-[10px] font-mono uppercase tracking-wider text-slate-500 dark:text-slate-400 px-2 py-0.5 rounded-full bg-slate-100 dark:bg-white/[0.05] border border-slate-200 dark:border-white/[0.08]">
                             {selectedSkill.category}
                           </span>
-                          <span className="text-xs font-mono text-emerald-600 dark:text-emerald-400 flex items-center gap-1 font-semibold">
+                          <span className="text-[11px] sm:text-xs font-mono text-emerald-600 dark:text-emerald-400 flex items-center gap-1 font-semibold">
                             <CheckCircle2 size={12} />
                             {selectedSkill.level} ({pips}/4)
                           </span>
                         </div>
-                        <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+                        <h2 className="text-lg sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight truncate">
                           {selectedSkill.name}
                         </h2>
                         {selectedSkill.experience && (
-                          <p className="text-xs font-mono text-slate-400 dark:text-slate-500">
+                          <p className="text-[11px] sm:text-xs font-mono text-slate-400 dark:text-slate-500 truncate">
                             {selectedSkill.experience}
                           </p>
                         )}
@@ -870,38 +872,39 @@ const TechStack: React.FC<TechStackProps> = ({ skills }) => {
                     {/* Close Button with ESC Keyboard Indicator */}
                     <button
                       onClick={() => setSelectedSkill(null)}
-                      className="p-2 rounded-xl text-slate-400 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-white/[0.06] hover:bg-slate-200 dark:hover:bg-white/[0.1] transition-colors cursor-pointer"
+                      className="p-2 sm:p-2.5 rounded-xl text-slate-400 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-white/[0.06] hover:bg-slate-200 dark:hover:bg-white/[0.1] transition-colors cursor-pointer shrink-0 min-h-[40px] min-w-[40px] flex items-center justify-center"
                       title="Tutup (ESC)"
+                      aria-label="Tutup modal"
                     >
                       <X size={18} />
                     </button>
                   </div>
 
                   {/* MODAL BODY */}
-                  <div className="p-6 sm:p-8 space-y-6 max-h-[70vh] overflow-y-auto">
+                  <div className="p-4 sm:p-8 space-y-4 sm:space-y-6 max-h-[75vh] sm:max-h-[70vh] overflow-y-auto">
                     
                     {/* 1. OVERVIEW & DESKRIPSI */}
                     <div>
-                      <h4 className="text-xs font-mono uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-2 flex items-center gap-2">
+                      <h4 className="text-xs font-mono uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1.5 sm:mb-2 flex items-center gap-2">
                         <BookOpen size={13} className="text-emerald-500" />
                         <span>Ringkasan Arsitektur</span>
                       </h4>
-                      <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+                      <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
                         {selectedSkill.description}
                       </p>
                     </div>
 
                     {/* 2. MATERI YANG DIKUASAI */}
                     {selectedSkill.learnings && selectedSkill.learnings.length > 0 && (
-                      <div className="p-5 rounded-2xl bg-slate-50 dark:bg-white/[0.02] border border-slate-200/70 dark:border-white/[0.06]">
-                        <h4 className="text-xs font-mono uppercase tracking-wider text-slate-900 dark:text-white font-bold mb-3 flex items-center gap-2">
+                      <div className="p-4 sm:p-5 rounded-xl sm:rounded-2xl bg-slate-50 dark:bg-white/[0.02] border border-slate-200/70 dark:border-white/[0.06]">
+                        <h4 className="text-xs font-mono uppercase tracking-wider text-slate-900 dark:text-white font-bold mb-2.5 sm:mb-3 flex items-center gap-2">
                           <Code2 size={14} className="text-emerald-500" />
                           <span>Materi & Konsep yang Saya Pelajari</span>
                         </h4>
                         <ul className="space-y-2">
                           {selectedSkill.learnings.map((item, i) => (
-                            <li key={i} className="flex items-start gap-2.5 text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-normal">
-                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-2 shrink-0" />
+                            <li key={i} className="flex items-start gap-2 text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-normal">
+                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-1.5 shrink-0" />
                               <span>{item}</span>
                             </li>
                           ))}
@@ -911,31 +914,31 @@ const TechStack: React.FC<TechStackProps> = ({ skills }) => {
 
                     {/* 3. SUMBER BELAJAR DARI YOUTUBE */}
                     {selectedSkill.youtube && (
-                      <div className="p-5 rounded-2xl bg-red-500/[0.04] dark:bg-red-500/[0.06] border border-red-500/20">
-                        <div className="flex items-center justify-between mb-3">
+                      <div className="p-4 sm:p-5 rounded-xl sm:rounded-2xl bg-red-500/[0.04] dark:bg-red-500/[0.06] border border-red-500/20">
+                        <div className="flex items-center justify-between mb-2.5 sm:mb-3">
                           <div className="flex items-center gap-2">
-                            <div className="w-7 h-7 rounded-lg bg-red-600 text-white flex items-center justify-center shadow-sm">
-                              <FaYoutube size={16} />
+                            <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-red-600 text-white flex items-center justify-center shadow-sm shrink-0">
+                              <FaYoutube size={14} />
                             </div>
-                            <span className="text-xs font-mono font-bold text-red-600 dark:text-red-400 uppercase tracking-wider">
+                            <span className="text-[11px] sm:text-xs font-mono font-bold text-red-600 dark:text-red-400 uppercase tracking-wider">
                               Rekomendasi Video YouTube
                             </span>
                           </div>
-                          <span className="text-[11px] font-mono text-slate-400 dark:text-slate-500">
+                          <span className="text-[10px] sm:text-[11px] font-mono text-slate-400 dark:text-slate-500">
                             Sumber Belajar
                           </span>
                         </div>
 
-                        <div className="mb-3">
-                          <h5 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white">
+                        <div className="mb-2.5 sm:mb-3">
+                          <h5 className="text-xs sm:text-base font-bold text-slate-900 dark:text-white leading-snug">
                             {selectedSkill.youtube.title}
                           </h5>
-                          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                            Kreator / Channel: <span className="font-semibold text-slate-700 dark:text-slate-300">{selectedSkill.youtube.channel}</span>
+                          <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                            Kreator: <span className="font-semibold text-slate-700 dark:text-slate-300">{selectedSkill.youtube.channel}</span>
                           </p>
                         </div>
 
-                        <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed mb-4 bg-white/60 dark:bg-black/20 p-3 rounded-xl border border-red-500/10">
+                        <p className="text-[11px] sm:text-xs text-slate-600 dark:text-slate-300 leading-relaxed mb-3.5 sm:mb-4 bg-white/60 dark:bg-black/20 p-2.5 sm:p-3 rounded-xl border border-red-500/10">
                           <span className="font-semibold text-slate-800 dark:text-slate-200">Catatan Belajar:</span> {selectedSkill.youtube.note}
                         </p>
 
@@ -943,7 +946,7 @@ const TechStack: React.FC<TechStackProps> = ({ skills }) => {
                           href={selectedSkill.youtube.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center justify-center gap-2 w-full py-2.5 px-4 rounded-xl text-xs font-bold text-white bg-red-600 hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-500 transition-colors shadow-sm cursor-pointer"
+                          className="inline-flex items-center justify-center gap-2 w-full min-h-[44px] py-2.5 sm:py-3 px-4 rounded-xl text-xs font-bold text-white bg-red-600 hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-500 transition-colors shadow-sm cursor-pointer select-none"
                         >
                           <Play size={13} fill="currentColor" />
                           <span>Tonton Video Pembelajaran di YouTube</span>
@@ -954,12 +957,12 @@ const TechStack: React.FC<TechStackProps> = ({ skills }) => {
 
                     {/* 4. IMPLEMENTASI DI PORTOFOLIO INI */}
                     {selectedSkill.portfolioImplementation && (
-                      <div className="p-4 rounded-2xl bg-emerald-500/[0.04] dark:bg-emerald-500/[0.06] border border-emerald-500/20">
-                        <h4 className="text-xs font-mono uppercase tracking-wider text-emerald-700 dark:text-emerald-400 font-bold mb-1.5 flex items-center gap-2">
+                      <div className="p-3.5 sm:p-4 rounded-xl sm:rounded-2xl bg-emerald-500/[0.04] dark:bg-emerald-500/[0.06] border border-emerald-500/20">
+                        <h4 className="text-[11px] sm:text-xs font-mono uppercase tracking-wider text-emerald-700 dark:text-emerald-400 font-bold mb-1 flex items-center gap-2">
                           <Layers size={13} />
                           <span>Penerapan di Portofolio Ini</span>
                         </h4>
-                        <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                        <p className="text-[11px] sm:text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
                           {selectedSkill.portfolioImplementation}
                         </p>
                       </div>
@@ -968,11 +971,11 @@ const TechStack: React.FC<TechStackProps> = ({ skills }) => {
                   </div>
 
                   {/* MODAL FOOTER */}
-                  <div className="p-4 sm:p-5 px-6 sm:px-8 bg-slate-50 dark:bg-white/[0.02] border-t border-slate-100 dark:border-white/[0.06] flex items-center justify-between text-xs text-slate-400">
-                    <span className="font-mono">Tekan <kbd className="px-1.5 py-0.5 rounded bg-slate-200 dark:bg-white/10 text-slate-700 dark:text-slate-300">ESC</kbd> untuk kembali</span>
+                  <div className="p-3.5 sm:p-5 px-4 sm:px-8 bg-slate-50 dark:bg-white/[0.02] border-t border-slate-100 dark:border-white/[0.06] flex items-center justify-between text-xs text-slate-400">
+                    <span className="font-mono text-[11px]">Tekan <kbd className="px-1.5 py-0.5 rounded bg-slate-200 dark:bg-white/10 text-slate-700 dark:text-slate-300">ESC</kbd> untuk kembali</span>
                     <button
                       onClick={() => setSelectedSkill(null)}
-                      className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-white/10 transition-colors cursor-pointer"
+                      className="px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-white/10 transition-colors cursor-pointer min-h-[36px]"
                     >
                       Tutup
                     </button>
