@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, type Variants } from 'framer-motion';
 import {
   Sparkles,
   CheckCircle2,
@@ -556,7 +556,7 @@ const getProficiencyPips = (level: string) => {
 };
 
 // Motion animation variants with spring physics (emil-design-eng + motion standard)
-const streamContainerVariants = {
+const streamContainerVariants: Variants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
@@ -571,7 +571,7 @@ const streamContainerVariants = {
   },
 };
 
-const streamItemVariants = {
+const streamItemVariants: Variants = {
   hidden: { opacity: 0, y: 14, scale: 0.985 },
   visible: {
     opacity: 1,
