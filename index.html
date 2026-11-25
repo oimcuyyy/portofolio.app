@@ -20,6 +20,8 @@
   <meta name="author" content="Muhammad Rochimuloh" />
   <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
   <link rel="canonical" href="https://portofolio-app-fawn.vercel.app/" />
+  <!-- IndexNow for Microsoft Bing & Yandex instant indexing -->
+  <link rel="indexnow" href="https://api.indexnow.org/indexnow" />
 
   <!-- Open Graph / Facebook -->
   <meta property="og:type" content="profile" />
@@ -224,6 +226,50 @@
         <span class="initial-footer-dot"></span>
       </div>
     </div>
+
+    <!-- Semantic pre-rendered content for Bingbot, Googlebot & SEO crawlers prior to React hydration -->
+    <main id="prerendered-seo-content" class="max-w-4xl mx-auto px-6 py-12">
+      <header class="mb-8">
+        <nav aria-label="Navigasi Utama">
+          <a href="#about" class="text-emerald-500 mr-4">Tentang</a>
+          <a href="#skills" class="text-emerald-500 mr-4">Keahlian</a>
+          <a href="#experience" class="text-emerald-500 mr-4">Pengalaman</a>
+          <a href="#projects" class="text-emerald-500 mr-4">Proyek</a>
+          <a href="#contact" class="text-emerald-500">Kontak</a>
+        </nav>
+      </header>
+      <article>
+        <h1 class="text-3xl font-extrabold text-white mb-4">
+          Muhammad Rochimuloh — Full-Stack Developer & Software Engineering Student
+        </h1>
+        <p class="text-slate-300 leading-relaxed mb-6">
+          Portfolio resmi Muhammad Rochimuloh (oimcuyyy) — Software Engineering Student di SMKN 20 Jakarta. Menggabungkan arsitektur frontend modern, performa backend tangguh, dan haptic user experience. Tersedia untuk magang, proyek lepas, dan kolaborasi web development.
+        </p>
+        <section id="seo-skills" class="mb-6">
+          <h2 class="text-xl font-bold text-emerald-400 mb-2">Keahlian & Core Stack</h2>
+          <ul class="text-slate-300 list-disc list-inside space-y-1">
+            <li><strong>Frontend:</strong> React 19, Next.js, TypeScript, Tailwind CSS, Vite, HTML5, CSS3, JavaScript ES6+</li>
+            <li><strong>Backend & Database:</strong> Laravel (PHP), Supabase, PostgreSQL, MySQL, RESTful API architecture</li>
+            <li><strong>DevOps & Tooling:</strong> Git, GitHub, Linux, Vercel CI/CD</li>
+          </ul>
+        </section>
+        <section id="seo-experience" class="mb-6">
+          <h2 class="text-xl font-bold text-emerald-400 mb-2">Pendidikan & Pengalaman</h2>
+          <h3 class="text-lg font-semibold text-white">Siswa Rekayasa Perangkat Lunak (RPL) — SMKN 20 Jakarta</h3>
+          <p class="text-slate-400 text-sm">2025 — Sekarang | Jakarta Selatan, Indonesia</p>
+          <p class="text-slate-300 mt-2">Mendalami rekayasa perangkat lunak, algoritma, basis data relasional, dan full-stack web applications.</p>
+        </section>
+        <section id="seo-projects" class="mb-6">
+          <h2 class="text-xl font-bold text-emerald-400 mb-2">Portofolio Proyek</h2>
+          <p class="text-slate-300">Koleksi proyek pengembangan web frontend dan backend dengan performa tinggi, UI presisi, dan arsitektur scalable.</p>
+        </section>
+        <section id="seo-contact" class="mb-6">
+          <h2 class="text-xl font-bold text-emerald-400 mb-2">Kontak & Media Sosial</h2>
+          <p class="text-slate-300">Email: <a href="mailto:belajarmandiri03034@gmail.com" class="text-sky-400">belajarmandiri03034@gmail.com</a></p>
+          <p class="text-slate-300">GitHub: <a href="https://github.com/oimcuyyy" class="text-sky-400">github.com/oimcuyyy</a> | Instagram: <a href="https://www.instagram.com/lunarxoim/" class="text-sky-400">@lunarxoim</a></p>
+        </section>
+      </article>
+    </main>
   </div>
 
   <!-- Semantic fallback for search engines / no-JS crawlers -->
