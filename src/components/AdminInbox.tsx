@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Mail, ShieldAlert, Globe, Clock, Copy, Check, Trash2, RefreshCw } from 'lucide-react';
+import { Mail, ShieldAlert, Globe, Clock, Copy, Check, Trash2, RefreshCw, ExternalLink } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import type { StoredSecurityLog } from './SecurityAlertModal';
 
@@ -261,10 +261,22 @@ const AdminInbox: React.FC<AdminInboxProps> = ({ session, messages, fetchMessage
                         <button
                           onClick={() => handleCopyIp(log.client_ip)}
                           title="Salin Alamat IP"
-                          className="p-1 rounded bg-red-500/10 hover:bg-red-500/25 text-red-300 transition"
+                          className="p-1 rounded bg-red-500/10 hover:bg-red-500/25 text-red-300 transition cursor-pointer"
                         >
                           {copiedIp === log.client_ip ? <Check size={11} /> : <Copy size={11} />}
                         </button>
+                        {log.client_ip && !log.client_ip.includes('Recorded') && !log.client_ip.includes('Detecting') && (
+                          <a
+                            href={`https://ipinfo.io/${encodeURIComponent(log.client_ip)}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            title="Lacak Informasi IP di ipinfo.io"
+                            className="p-1 rounded bg-red-500/10 hover:bg-red-500/25 text-red-300 hover:text-white transition inline-flex items-center gap-1 text-[10px] px-1.5 cursor-pointer"
+                          >
+                            <ExternalLink size={11} />
+                            <span>Lacak</span>
+                          </a>
+                        )}
                       </div>
                     </div>
 
