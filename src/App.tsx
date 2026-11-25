@@ -30,6 +30,15 @@ interface SkillWithDesc extends Skill {
   description?: string;
 }
 
+const ADMIN_EMAIL = (import.meta.env.VITE_ADMIN_EMAIL || 'belajarmandiri03034@gmail.com').toLowerCase();
+
+export const isAdminSession = (session: any): boolean => {
+  if (!session?.user) return false;
+  const userEmail = session.user.email?.toLowerCase();
+  const role = session.user.app_metadata?.role;
+  return userEmail === ADMIN_EMAIL || role === 'admin';
+};
+
 function App() {
   const { isPlaying, activeTheme } = useSenjaPlayback();
   const [projects, setProjects] = useState<Project[]>([]);
@@ -86,12 +95,12 @@ function App() {
 
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
-      if (session) fetchMessages();
+      if (isAdminSession(session)) fetchMessages();
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
-      if (session) {
+      if (isAdminSession(session)) {
         fetchMessages();
       } else {
         setMessages([]);
@@ -183,7 +192,7 @@ function App() {
       setSentSuccess(true);
       setFormData({ name: '', email: '', message: '' });
       setTimeout(() => setSentSuccess(false), 5000);
-      if (session) fetchMessages();
+      if (isAdminSession(session)) fetchMessages();
     } else {
       alert('Pesan gagal dikirim. Silakan hubungi langsung via email.');
     }
@@ -255,7 +264,7 @@ function App() {
 
   const handleAddProject = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!session) {
+    if (!isAdminSession(session)) {
       alert('Akses Ditolak: Anda harus login sebagai admin untuk menambah proyek!');
       return;
     }
@@ -426,7 +435,7 @@ function App() {
         {/* PROJECTS SECTION */}
         <Projects
           projects={projects}
-          session={session}
+          session={isAdminSession(session) ? session : null}
           setIsModalOpen={setIsModalOpen}
           handleLogoutAdmin={handleLogoutAdmin}
           setSelectedProject={setSelectedProject}
@@ -434,7 +443,7 @@ function App() {
 
         {/* ADMIN INBOX SECTION */}
         <AdminInbox
-          session={session}
+          session={isAdminSession(session) ? session : null}
           messages={messages}
           fetchMessages={fetchMessages}
         />
@@ -505,7 +514,14 @@ function App() {
             <button onClick={() => setSelectedProject(null)} className="absolute top-4 right-4 z-10 text-white bg-black/60 p-2 rounded-full hover:bg-emerald-600 transition cursor-pointer"><X size={18} /></button>
 
             <div className="h-64 sm:h-72 w-full relative">
-              <img src={selectedProject.image_url || 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=800&auto=format&fit=crop&q=80'} alt={selectedProject.title} className="w-full h-full object-cover" />
+              <img
+                src={sanitizeUrl(
+                  selectedProject.image_url,
+                  'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=800&auto=format&fit=crop&q=80'
+                )}
+                alt={selectedProject.title}
+                className="w-full h-full object-cover"
+              />
               <div className="absolute inset-0 bg-gradient-to-t from-slate-900 dark:from-[#070b14] via-slate-900/40 to-transparent"></div>
               <h2 className="absolute bottom-6 left-6 right-6 text-2xl sm:text-3xl font-extrabold text-white">{selectedProject.title}</h2>
             </div>

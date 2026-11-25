@@ -101,10 +101,10 @@ const Projects: React.FC<ProjectsProps> = ({
                     {/* Project Image */}
                     <div className="relative aspect-[16/10] overflow-hidden bg-slate-950">
                       <img
-                        src={
-                          project.image_url ||
+                        src={sanitizeUrl(
+                          project.image_url,
                           'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=800&auto=format&fit=crop&q=80'
-                        }
+                        )}
                         alt={project.title}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
                         loading="lazy"

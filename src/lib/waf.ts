@@ -13,7 +13,7 @@
 const SQLI_PATTERNS: RegExp[] = [
   /\bunion\s+(all\s+)?select\b/i,
   /\b(or|and)\s+[\d'"]+\s*=\s*[\d'"]+/i,
-  /(--|\/\*|\*\/)/,
+  /;\s*(--|\/\*)/,
   /;\s*(drop|alter|truncate|delete|insert|update|create)\b/i,
   /\b(sleep|benchmark|waitfor\s+delay|xp_cmdshell|load_file|into\s+outfile)\b/i,
   /\binformation_schema\b/i,
@@ -26,11 +26,10 @@ const XSS_PATTERNS: RegExp[] = [
   /<\s*script\b[^>]*>/i,
   /<\/\s*script\s*>/i,
   /\bon[a-z]{3,15}\s*=/i, // e.g. onerror=, onload=, onclick=
-  /(javascript|vbscript|data):/i,
+  /<\s*iframe\b[^>]*>/i,
   /\b(eval|alert|prompt|confirm)\s*\(/i,
   /\bdocument\.(cookie|location|write)\b/i,
   /\bwindow\.(location|open)\b/i,
-  /<\s*iframe\b[^>]*>/i,
 ];
 
 export interface WafInspectionResult {
