@@ -25,6 +25,7 @@ import Contact from './components/Contact';
 import AdminInbox from './components/AdminInbox';
 import Footer from './components/Footer';
 import LoadingScreen from './components/LoadingScreen';
+import { SecurityAlertModal, type SecurityIncident } from './components/SecurityAlertModal';
 
 interface SkillWithDesc extends Skill {
   description?: string;
@@ -65,6 +66,9 @@ function App() {
   const [adminEmail, setAdminEmail] = useState('');
   const [adminPassword, setAdminPassword] = useState('');
   const [loginLoading, setLoginLoading] = useState(false);
+
+  // STATE SECURITY INCIDENT (CYBER IDS MODAL)
+  const [securityIncident, setSecurityIncident] = useState<SecurityIncident | null>(null);
 
   // STATE PESAN MASUK ADMIN
   const [messages, setMessages] = useState<any[]>([]);
@@ -138,7 +142,12 @@ function App() {
     // WAF Rate Limiter: max 3 messages per minute
     const rateCheck = checkRateLimit('contact_submit', 3, 60000);
     if (!rateCheck.allowed) {
-      alert(`[WAF Shield] Terlalu banyak pengiriman pesan. Mohon tunggu ${rateCheck.remainingSecs} detik sebelum mencoba lagi.`);
+      setSecurityIncident({
+        threatType: 'Rate Limit Violation',
+        fieldName: 'Form Kontak (Anti-Flooding)',
+        reason: `Pengiriman pesan melebihi frekuensi aman. Akses dibatasi selama ${rateCheck.remainingSecs} detik.`,
+        payloadSnippet: `Flooding terdeteksi: batas 3 pengiriman/menit terlampaui.`,
+      });
       return;
     }
 
@@ -150,17 +159,32 @@ function App() {
     const checkMsg = inspectPayload(formData.message, 'Pesan');
 
     if (!checkName.isSafe) {
-      alert(`[WAF Alert] ${checkName.reason}`);
+      setSecurityIncident({
+        threatType: checkName.threatType || 'XSS Injection',
+        fieldName: 'Nama Pengirim',
+        reason: checkName.reason || 'Karakter atau skrip berbahaya terdeteksi.',
+        payloadSnippet: formData.name,
+      });
       setLoading(false);
       return;
     }
     if (!checkEmail.isSafe) {
-      alert(`[WAF Alert] ${checkEmail.reason}`);
+      setSecurityIncident({
+        threatType: checkEmail.threatType || 'XSS Injection',
+        fieldName: 'Alamat Email',
+        reason: checkEmail.reason || 'Karakter atau skrip berbahaya terdeteksi.',
+        payloadSnippet: formData.email,
+      });
       setLoading(false);
       return;
     }
     if (!checkMsg.isSafe) {
-      alert(`[WAF Alert] ${checkMsg.reason}`);
+      setSecurityIncident({
+        threatType: checkMsg.threatType || 'XSS Injection',
+        fieldName: 'Isi Pesan',
+        reason: checkMsg.reason || 'Karakter atau skrip berbahaya terdeteksi.',
+        payloadSnippet: formData.message,
+      });
       setLoading(false);
       return;
     }
@@ -214,20 +238,35 @@ function App() {
     // WAF Rate Limiter: max 5 login attempts per minute
     const rateCheck = checkRateLimit('admin_login', 5, 60000);
     if (!rateCheck.allowed) {
-      alert(`[WAF Shield] Terlalu banyak percobaan login. Akses dibatasi selama ${rateCheck.remainingSecs} detik.`);
+      setSecurityIncident({
+        threatType: 'Rate Limit Violation',
+        fieldName: 'Portal Admin (Brute-force Guard)',
+        reason: `Terlalu banyak percobaan otentikasi. Akses login dibatasi selama ${rateCheck.remainingSecs} detik.`,
+        payloadSnippet: `Percobaan login beruntun terdeteksi.`,
+      });
       return;
     }
 
     if (lockoutTime && Date.now() < lockoutTime) {
       const remainingSecs = Math.ceil((lockoutTime - Date.now()) / 1000);
-      alert(`Terlalu banyak percobaan login gagal. Mohon tunggu ${remainingSecs} detik demi keamanan.`);
+      setSecurityIncident({
+        threatType: 'Rate Limit Violation',
+        fieldName: 'Portal Admin (Lockout Status)',
+        reason: `Sistem mengunci sementara akses login demi perlindungan akun admin. Tunggu ${remainingSecs} detik.`,
+        payloadSnippet: `Lockout countdown aktif.`,
+      });
       return;
     }
 
     // WAF Inspection on admin email input
     const emailCheck = inspectPayload(adminEmail, 'Email');
     if (!emailCheck.isSafe) {
-      alert(`[WAF Alert] ${emailCheck.reason}`);
+      setSecurityIncident({
+        threatType: emailCheck.threatType || 'XSS Injection',
+        fieldName: 'Input Email Admin',
+        reason: emailCheck.reason || 'Karakter atau skrip berbahaya terdeteksi.',
+        payloadSnippet: adminEmail,
+      });
       return;
     }
 
@@ -274,12 +313,22 @@ function App() {
     const titleCheck = inspectPayload(newProject.title, 'Judul Proyek');
     const descCheck = inspectPayload(newProject.description, 'Deskripsi');
     if (!titleCheck.isSafe) {
-      alert(`[WAF Alert] ${titleCheck.reason}`);
+      setSecurityIncident({
+        threatType: titleCheck.threatType || 'XSS Injection',
+        fieldName: 'Judul Proyek Baru',
+        reason: titleCheck.reason || 'Karakter atau skrip berbahaya terdeteksi.',
+        payloadSnippet: newProject.title,
+      });
       setAddLoading(false);
       return;
     }
     if (!descCheck.isSafe) {
-      alert(`[WAF Alert] ${descCheck.reason}`);
+      setSecurityIncident({
+        threatType: descCheck.threatType || 'XSS Injection',
+        fieldName: 'Deskripsi Proyek Baru',
+        reason: descCheck.reason || 'Karakter atau skrip berbahaya terdeteksi.',
+        payloadSnippet: newProject.description,
+      });
       setAddLoading(false);
       return;
     }
@@ -292,17 +341,32 @@ function App() {
 
     // WAF Link Guard: Validate URLs to prevent Link Tampering & javascript: execution
     if (cleanImg && !isValidSafeUrl(cleanImg)) {
-      alert('[WAF Alert] URL Gambar Mockup tidak aman atau tidak valid. Gunakan https:// atau http://');
+      setSecurityIncident({
+        threatType: 'Malicious URL',
+        fieldName: 'URL Mockup Proyek',
+        reason: 'Protokol URL tidak aman (hanya http:// atau https:// yang diperbolehkan).',
+        payloadSnippet: cleanImg,
+      });
       setAddLoading(false);
       return;
     }
     if (cleanGithub && !isValidSafeUrl(cleanGithub)) {
-      alert('[WAF Alert] URL Repo GitHub tidak aman atau tidak valid. Gunakan https:// atau http://');
+      setSecurityIncident({
+        threatType: 'Malicious URL',
+        fieldName: 'URL Repo GitHub',
+        reason: 'Protokol URL tidak aman (hanya http:// atau https:// yang diperbolehkan).',
+        payloadSnippet: cleanGithub,
+      });
       setAddLoading(false);
       return;
     }
     if (cleanDemo && !isValidSafeUrl(cleanDemo)) {
-      alert('[WAF Alert] URL Live Demo tidak aman atau tidak valid. Gunakan https:// atau http://');
+      setSecurityIncident({
+        threatType: 'Malicious URL',
+        fieldName: 'URL Live Demo',
+        reason: 'Protokol URL tidak aman (hanya http:// atau https:// yang diperbolehkan).',
+        payloadSnippet: cleanDemo,
+      });
       setAddLoading(false);
       return;
     }
@@ -582,6 +646,12 @@ function App() {
           </div>
         </div>
       )}
+
+      {/* CYBER INTRUSION DETECTION SYSTEM (SECURITY MODAL) */}
+      <SecurityAlertModal
+        incident={securityIncident}
+        onClose={() => setSecurityIncident(null)}
+      />
     </div>
   );
 }

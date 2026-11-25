@@ -35,6 +35,7 @@ const XSS_PATTERNS: RegExp[] = [
 export interface WafInspectionResult {
   isSafe: boolean;
   reason?: string;
+  threatType?: 'XSS Injection' | 'SQL Injection' | 'Rate Limit Violation' | 'Payload Violation' | 'Malicious URL';
   sanitized: string;
 }
 
@@ -51,6 +52,7 @@ export function inspectPayload(input: string, fieldName = 'Input'): WafInspectio
     if (pattern.test(input)) {
       return {
         isSafe: false,
+        threatType: 'SQL Injection',
         reason: `${fieldName} terdeteksi mengandung pola berbahaya (SQL Injection / Query manipulation).`,
         sanitized: sanitizeText(input),
       };
@@ -62,6 +64,7 @@ export function inspectPayload(input: string, fieldName = 'Input'): WafInspectio
     if (pattern.test(input)) {
       return {
         isSafe: false,
+        threatType: 'XSS Injection',
         reason: `${fieldName} terdeteksi mengandung script atau markup yang tidak diizinkan (XSS Protection).`,
         sanitized: sanitizeText(input),
       };

@@ -103,3 +103,45 @@ USING (
   (auth.jwt() ->> 'email' = 'belajarmandiri03034@gmail.com')
   OR ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin')
 );
+
+
+-- 3. TABEL 'security_logs' (AUDIT TRAIL INTRUSION DETECTION SYSTEM)
+CREATE TABLE IF NOT EXISTS security_logs (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  created_at TIMESTAMPTZ DEFAULT now(),
+  incident_id TEXT NOT NULL,
+  threat_type TEXT NOT NULL,
+  field_name TEXT,
+  client_ip TEXT,
+  user_agent TEXT,
+  payload_preview TEXT
+);
+
+ALTER TABLE security_logs ENABLE ROW LEVEL SECURITY;
+
+-- Pengunjung (anon & authenticated) boleh MENCATAT insiden (INSERT) saat terdeteksi WAF
+DROP POLICY IF EXISTS "Allow anon insert security logs" ON security_logs;
+CREATE POLICY "Allow anon insert security logs"
+ON security_logs FOR INSERT
+TO anon, authenticated
+WITH CHECK (true);
+
+-- HANYA ADMIN SPESIFIK yang boleh MEMBACA daftar log serangan (SELECT)
+DROP POLICY IF EXISTS "Only admin can view security logs" ON security_logs;
+CREATE POLICY "Only admin can view security logs"
+ON security_logs FOR SELECT
+TO authenticated
+USING (
+  (auth.jwt() ->> 'email' = 'belajarmandiri03034@gmail.com')
+  OR ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin')
+);
+
+-- HANYA ADMIN SPESIFIK yang boleh MENGHAPUS log serangan (DELETE)
+DROP POLICY IF EXISTS "Only admin can delete security logs" ON security_logs;
+CREATE POLICY "Only admin can delete security logs"
+ON security_logs FOR DELETE
+TO authenticated
+USING (
+  (auth.jwt() ->> 'email' = 'belajarmandiri03034@gmail.com')
+  OR ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin')
+);
