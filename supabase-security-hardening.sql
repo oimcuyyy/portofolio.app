@@ -202,3 +202,86 @@ USING (
     AND ((auth.jwt() ->> 'email_verified')::boolean = true OR (auth.jwt() -> 'user_metadata' ->> 'email_verified')::boolean = true)
   )
 );
+
+
+-- ============================================================================
+-- 4. SERVER-SIDE RATE LIMITING & ANTI-SPOOF TRIGGERS (POSTGRESQL LEVEL)
+-- Mencegah bypass REST API langsung via PostgREST / cURL / skrip bot
+-- ============================================================================
+
+-- A. Rate Limiting & Timestamp Anti-Spoofing untuk Tabel 'messages'
+CREATE OR REPLACE FUNCTION trg_rate_limit_messages()
+RETURNS TRIGGER AS $$
+DECLARE
+  recent_count INTEGER;
+BEGIN
+  -- Paksa timestamp created_at selalu waktu server PostgreSQL (mencegah pemalsuan waktu oleh client)
+  NEW.created_at := NOW();
+
+  -- Hitung pesan dari email yang sama dalam 5 menit terakhir
+  SELECT COUNT(*) INTO recent_count
+  FROM messages
+  WHERE LOWER(TRIM(email)) = LOWER(TRIM(NEW.email))
+    AND created_at > (NOW() - INTERVAL '5 minutes');
+
+  IF recent_count >= 3 THEN
+    RAISE EXCEPTION 'Rate limit exceeded: Terlalu banyak pesan dari email ini. Coba lagi dalam 5 menit.'
+      USING ERRCODE = '23514'; -- check_violation
+  END IF;
+
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+DROP TRIGGER IF EXISTS trg_enforce_message_rate_limit ON messages;
+CREATE TRIGGER trg_enforce_message_rate_limit
+BEFORE INSERT ON messages
+FOR EACH ROW
+EXECUTE FUNCTION trg_rate_limit_messages();
+
+
+-- B. Rate Limiting & Anti-Flood untuk Tabel 'security_logs'
+CREATE OR REPLACE FUNCTION trg_rate_limit_security_logs()
+RETURNS TRIGGER AS $$
+DECLARE
+  ip_count INTEGER;
+  global_count INTEGER;
+BEGIN
+  -- Paksa timestamp created_at selalu waktu server PostgreSQL
+  NEW.created_at := NOW();
+
+  -- Batasi flood per IP spesifik (maksimal 10 log insiden per menit dari 1 IP)
+  IF NEW.client_ip IS NOT NULL 
+     AND TRIM(NEW.client_ip) <> '' 
+     AND NEW.client_ip NOT IN ('Unavailable', 'Unknown (Proxy/Shielded)', 'Detecting...') THEN
+    SELECT COUNT(*) INTO ip_count
+    FROM security_logs
+    WHERE client_ip = NEW.client_ip
+      AND created_at > (NOW() - INTERVAL '1 minute');
+
+    IF ip_count >= 10 THEN
+      RAISE EXCEPTION 'Rate limit exceeded: Terlalu banyak log dari IP ini.'
+        USING ERRCODE = '23514';
+    END IF;
+  END IF;
+
+  -- Batasi total insiden global (maksimal 30 log per menit ke database untuk cegah storage exhaustion)
+  SELECT COUNT(*) INTO global_count
+  FROM security_logs
+  WHERE created_at > (NOW() - INTERVAL '1 minute');
+
+  IF global_count >= 30 THEN
+    RAISE EXCEPTION 'Rate limit exceeded: Global security log capacity reached.'
+      USING ERRCODE = '23514';
+  END IF;
+
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+DROP TRIGGER IF EXISTS trg_enforce_security_logs_rate_limit ON security_logs;
+CREATE TRIGGER trg_enforce_security_logs_rate_limit
+BEFORE INSERT ON security_logs
+FOR EACH ROW
+EXECUTE FUNCTION trg_rate_limit_security_logs();
+

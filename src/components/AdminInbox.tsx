@@ -9,6 +9,12 @@ interface AdminInboxProps {
   fetchMessages: () => Promise<void>;
 }
 
+const isValidPublicIp = (ip?: string): boolean => {
+  if (!ip) return false;
+  const trimmed = ip.trim();
+  return /^(?:\d{1,3}\.){3}\d{1,3}$|^[a-fA-F0-9:]+$/.test(trimmed) && trimmed !== '127.0.0.1' && trimmed !== '::1';
+};
+
 const AdminInbox: React.FC<AdminInboxProps> = ({ session, messages, fetchMessages }) => {
   const [activeTab, setActiveTab] = useState<'messages' | 'security'>('messages');
   const [securityLogs, setSecurityLogs] = useState<StoredSecurityLog[]>([]);
@@ -244,7 +250,7 @@ const AdminInbox: React.FC<AdminInboxProps> = ({ session, messages, fetchMessage
                         >
                           {copiedIp === log.client_ip ? <Check size={11} /> : <Copy size={11} />}
                         </button>
-                        {log.client_ip && !log.client_ip.includes('Recorded') && !log.client_ip.includes('Detecting') && (
+                        {isValidPublicIp(log.client_ip) && (
                           <a
                             href={`https://ipinfo.io/${encodeURIComponent(log.client_ip)}`}
                             target="_blank"
