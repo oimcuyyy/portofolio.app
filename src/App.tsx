@@ -37,7 +37,8 @@ export const isAdminSession = (session: any): boolean => {
   if (!session?.user) return false;
   const userEmail = session.user.email?.toLowerCase();
   const role = session.user.app_metadata?.role;
-  return userEmail === ADMIN_EMAIL || role === 'admin';
+  const isEmailVerified = !!session.user.email_confirmed_at || !!session.user.confirmed_at;
+  return role === 'admin' || (userEmail === ADMIN_EMAIL && isEmailVerified);
 };
 
 function App() {

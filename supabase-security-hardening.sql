@@ -18,6 +18,10 @@ DROP POLICY IF EXISTS "Only admin can view messages" ON messages;
 DROP POLICY IF EXISTS "Only admin can delete messages" ON messages;
 DROP POLICY IF EXISTS "Enable read for authenticated users" ON messages;
 
+DROP POLICY IF EXISTS "Allow anon insert security logs" ON security_logs;
+DROP POLICY IF EXISTS "Only admin can view security logs" ON security_logs;
+DROP POLICY IF EXISTS "Only admin can delete security logs" ON security_logs;
+
 
 -- 1. HARDENING TABEL 'projects'
 ALTER TABLE projects ENABLE ROW LEVEL SECURITY;
@@ -28,13 +32,16 @@ ON projects FOR SELECT
 TO anon, authenticated 
 USING (true);
 
--- HANYA ADMIN SPESIFIK (Email admin atau role admin di app_metadata) yang boleh MENAMBAH proyek
+-- HANYA ADMIN SPESIFIK (Email admin terverifikasi atau role admin di app_metadata) yang boleh MENAMBAH proyek
 CREATE POLICY "Admin can insert projects" 
 ON projects FOR INSERT 
 TO authenticated 
 WITH CHECK (
-  (auth.jwt() ->> 'email' = 'belajarmandiri03034@gmail.com')
-  OR ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin')
+  ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin')
+  OR (
+    (auth.jwt() ->> 'email' = 'belajarmandiri03034@gmail.com')
+    AND ((auth.jwt() ->> 'email_verified')::boolean = true OR (auth.jwt() -> 'user_metadata' ->> 'email_verified')::boolean = true)
+  )
 );
 
 -- HANYA ADMIN SPESIFIK yang boleh MENGUBAH proyek
@@ -42,12 +49,18 @@ CREATE POLICY "Admin can update projects"
 ON projects FOR UPDATE 
 TO authenticated 
 USING (
-  (auth.jwt() ->> 'email' = 'belajarmandiri03034@gmail.com')
-  OR ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin')
+  ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin')
+  OR (
+    (auth.jwt() ->> 'email' = 'belajarmandiri03034@gmail.com')
+    AND ((auth.jwt() ->> 'email_verified')::boolean = true OR (auth.jwt() -> 'user_metadata' ->> 'email_verified')::boolean = true)
+  )
 )
 WITH CHECK (
-  (auth.jwt() ->> 'email' = 'belajarmandiri03034@gmail.com')
-  OR ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin')
+  ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin')
+  OR (
+    (auth.jwt() ->> 'email' = 'belajarmandiri03034@gmail.com')
+    AND ((auth.jwt() ->> 'email_verified')::boolean = true OR (auth.jwt() -> 'user_metadata' ->> 'email_verified')::boolean = true)
+  )
 );
 
 -- HANYA ADMIN SPESIFIK yang boleh MENGHAPUS proyek
@@ -55,8 +68,11 @@ CREATE POLICY "Admin can delete projects"
 ON projects FOR DELETE 
 TO authenticated 
 USING (
-  (auth.jwt() ->> 'email' = 'belajarmandiri03034@gmail.com')
-  OR ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin')
+  ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin')
+  OR (
+    (auth.jwt() ->> 'email' = 'belajarmandiri03034@gmail.com')
+    AND ((auth.jwt() ->> 'email_verified')::boolean = true OR (auth.jwt() -> 'user_metadata' ->> 'email_verified')::boolean = true)
+  )
 );
 
 
@@ -91,8 +107,11 @@ CREATE POLICY "Only admin can view messages"
 ON messages FOR SELECT 
 TO authenticated 
 USING (
-  (auth.jwt() ->> 'email' = 'belajarmandiri03034@gmail.com')
-  OR ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin')
+  ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin')
+  OR (
+    (auth.jwt() ->> 'email' = 'belajarmandiri03034@gmail.com')
+    AND ((auth.jwt() ->> 'email_verified')::boolean = true OR (auth.jwt() -> 'user_metadata' ->> 'email_verified')::boolean = true)
+  )
 );
 
 -- HANYA ADMIN SPESIFIK yang boleh MENGHAPUS pesan masuk
@@ -100,8 +119,11 @@ CREATE POLICY "Only admin can delete messages"
 ON messages FOR DELETE 
 TO authenticated 
 USING (
-  (auth.jwt() ->> 'email' = 'belajarmandiri03034@gmail.com')
-  OR ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin')
+  ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin')
+  OR (
+    (auth.jwt() ->> 'email' = 'belajarmandiri03034@gmail.com')
+    AND ((auth.jwt() ->> 'email_verified')::boolean = true OR (auth.jwt() -> 'user_metadata' ->> 'email_verified')::boolean = true)
+  )
 );
 
 
@@ -119,29 +141,64 @@ CREATE TABLE IF NOT EXISTS security_logs (
 
 ALTER TABLE security_logs ENABLE ROW LEVEL SECURITY;
 
--- Pengunjung (anon & authenticated) boleh MENCATAT insiden (INSERT) saat terdeteksi WAF
-DROP POLICY IF EXISTS "Allow anon insert security logs" ON security_logs;
+-- Database-Level CHECK Constraints untuk mencegah flooding / payload berukuran raksasa pada security_logs
+ALTER TABLE security_logs DROP CONSTRAINT IF EXISTS security_logs_incident_id_check;
+ALTER TABLE security_logs ADD CONSTRAINT security_logs_incident_id_check
+  CHECK (char_length(trim(incident_id)) > 0 AND char_length(incident_id) <= 40);
+
+ALTER TABLE security_logs DROP CONSTRAINT IF EXISTS security_logs_threat_type_check;
+ALTER TABLE security_logs ADD CONSTRAINT security_logs_threat_type_check
+  CHECK (char_length(trim(threat_type)) > 0 AND char_length(threat_type) <= 50);
+
+ALTER TABLE security_logs DROP CONSTRAINT IF EXISTS security_logs_field_name_check;
+ALTER TABLE security_logs ADD CONSTRAINT security_logs_field_name_check
+  CHECK (field_name IS NULL OR char_length(field_name) <= 60);
+
+ALTER TABLE security_logs DROP CONSTRAINT IF EXISTS security_logs_client_ip_check;
+ALTER TABLE security_logs ADD CONSTRAINT security_logs_client_ip_check
+  CHECK (client_ip IS NULL OR char_length(client_ip) <= 64);
+
+ALTER TABLE security_logs DROP CONSTRAINT IF EXISTS security_logs_user_agent_check;
+ALTER TABLE security_logs ADD CONSTRAINT security_logs_user_agent_check
+  CHECK (user_agent IS NULL OR char_length(user_agent) <= 500);
+
+ALTER TABLE security_logs DROP CONSTRAINT IF EXISTS security_logs_payload_check;
+ALTER TABLE security_logs ADD CONSTRAINT security_logs_payload_check
+  CHECK (payload_preview IS NULL OR char_length(payload_preview) <= 500);
+
+-- Pengunjung (anon & authenticated) boleh MENCATAT insiden (INSERT) dengan batasan panjang karakter ketat
 CREATE POLICY "Allow anon insert security logs"
 ON security_logs FOR INSERT
 TO anon, authenticated
-WITH CHECK (true);
+WITH CHECK (
+  char_length(trim(incident_id)) > 0 AND char_length(incident_id) <= 40 AND
+  char_length(trim(threat_type)) > 0 AND char_length(threat_type) <= 50 AND
+  (field_name IS NULL OR char_length(field_name) <= 60) AND
+  (client_ip IS NULL OR char_length(client_ip) <= 64) AND
+  (user_agent IS NULL OR char_length(user_agent) <= 500) AND
+  (payload_preview IS NULL OR char_length(payload_preview) <= 500)
+);
 
 -- HANYA ADMIN SPESIFIK yang boleh MEMBACA daftar log serangan (SELECT)
-DROP POLICY IF EXISTS "Only admin can view security logs" ON security_logs;
 CREATE POLICY "Only admin can view security logs"
 ON security_logs FOR SELECT
 TO authenticated
 USING (
-  (auth.jwt() ->> 'email' = 'belajarmandiri03034@gmail.com')
-  OR ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin')
+  ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin')
+  OR (
+    (auth.jwt() ->> 'email' = 'belajarmandiri03034@gmail.com')
+    AND ((auth.jwt() ->> 'email_verified')::boolean = true OR (auth.jwt() -> 'user_metadata' ->> 'email_verified')::boolean = true)
+  )
 );
 
 -- HANYA ADMIN SPESIFIK yang boleh MENGHAPUS log serangan (DELETE)
-DROP POLICY IF EXISTS "Only admin can delete security logs" ON security_logs;
 CREATE POLICY "Only admin can delete security logs"
 ON security_logs FOR DELETE
 TO authenticated
 USING (
-  (auth.jwt() ->> 'email' = 'belajarmandiri03034@gmail.com')
-  OR ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin')
+  ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin')
+  OR (
+    (auth.jwt() ->> 'email' = 'belajarmandiri03034@gmail.com')
+    AND ((auth.jwt() ->> 'email_verified')::boolean = true OR (auth.jwt() -> 'user_metadata' ->> 'email_verified')::boolean = true)
+  )
 );

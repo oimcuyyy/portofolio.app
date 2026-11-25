@@ -17,7 +17,6 @@ const SQLI_PATTERNS: RegExp[] = [
   /;\s*(drop|alter|truncate|delete|insert|update|create)\b/i,
   /\b(sleep|benchmark|waitfor\s+delay|xp_cmdshell|load_file|into\s+outfile)\b/i,
   /\binformation_schema\b/i,
-  /\b(0x[0-9a-f]{2,})\b/i,
   /\bexec(\s*|\+)+(sp_|xp_)/i,
 ];
 
@@ -27,7 +26,6 @@ const XSS_PATTERNS: RegExp[] = [
   /<\/\s*script\s*>/i,
   /\bon[a-z]{3,15}\s*=/i, // e.g. onerror=, onload=, onclick=
   /<\s*iframe\b[^>]*>/i,
-  /\b(eval|alert|prompt|confirm)\s*\(/i,
   /\bdocument\.(cookie|location|write)\b/i,
   /\bwindow\.(location|open)\b/i,
 ];

@@ -69,14 +69,14 @@ export const SecurityAlertModal: React.FC<SecurityAlertModalProps> = ({ incident
           }
         }
       } catch {
-        // Fallback or offline
-        resolvedIp = '180.252.xxx.xxx (Recorded)';
+        // Fallback when client IP cannot be resolved
+        resolvedIp = 'Unavailable';
       }
 
       if (!isCancelled) {
         setClientIp(resolvedIp);
 
-        // 3. Persist log to Supabase & localStorage audit trail
+        // 3. Persist log to Supabase security_logs audit table
         const logEntry: StoredSecurityLog = {
           incident_id: generatedId,
           threat_type: incident.threatType,
@@ -87,17 +87,6 @@ export const SecurityAlertModal: React.FC<SecurityAlertModalProps> = ({ incident
           created_at: now.toISOString(),
         };
 
-        // Save locally for instant guaranteed retention
-        try {
-          const localLogsRaw = localStorage.getItem('portfolio_security_logs');
-          const localLogs: StoredSecurityLog[] = localLogsRaw ? JSON.parse(localLogsRaw) : [];
-          localLogs.unshift(logEntry);
-          localStorage.setItem('portfolio_security_logs', JSON.stringify(localLogs.slice(0, 50)));
-        } catch {
-          // ignore localstorage quota
-        }
-
-        // Save to Supabase security_logs table (if table exists)
         try {
           await supabase.from('security_logs').insert([logEntry]);
         } catch {

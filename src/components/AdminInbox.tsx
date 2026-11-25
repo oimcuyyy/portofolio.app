@@ -19,7 +19,7 @@ const AdminInbox: React.FC<AdminInboxProps> = ({ session, messages, fetchMessage
     setIsRefreshing(true);
     let logs: StoredSecurityLog[] = [];
 
-    // 1. Try to fetch from Supabase table 'security_logs'
+    // Fetch directly from Supabase table 'security_logs'
     try {
       const { data, error } = await supabase
         .from('security_logs')
@@ -32,26 +32,6 @@ const AdminInbox: React.FC<AdminInboxProps> = ({ session, messages, fetchMessage
       // Supabase query error fallback
     }
 
-    // 2. Merge with locally cached logs
-    try {
-      const localLogsRaw = localStorage.getItem('portfolio_security_logs');
-      if (localLogsRaw) {
-        const localLogs: StoredSecurityLog[] = JSON.parse(localLogsRaw);
-        // Deduplicate by incident_id
-        const existingIds = new Set(logs.map(l => l.incident_id));
-        for (const log of localLogs) {
-          if (!existingIds.has(log.incident_id)) {
-            logs.push(log);
-            existingIds.add(log.incident_id);
-          }
-        }
-      }
-    } catch {
-      // Localstorage error fallback
-    }
-
-    // Sort descending by date
-    logs.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
     setSecurityLogs(logs);
     setIsRefreshing(false);
   };
@@ -71,7 +51,6 @@ const AdminInbox: React.FC<AdminInboxProps> = ({ session, messages, fetchMessage
   const handleClearLogs = async () => {
     if (!window.confirm('Yakin ingin membersihkan seluruh riwayat log serangan?')) return;
     try {
-      localStorage.removeItem('portfolio_security_logs');
       await supabase.from('security_logs').delete().neq('incident_id', 'none');
       setSecurityLogs([]);
     } catch {
