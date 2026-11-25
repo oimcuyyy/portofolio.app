@@ -83,17 +83,19 @@ const CONTROL_CHARS_REGEX = new RegExp('[\\u0000-\\u0008\\u000B\\u000C\\u000E-\\
 
 /**
  * Sanitizes text by stripping HTML tags and control characters.
+ * Uses strict matched HTML tags to prevent truncating text with math/budget symbols like '< 5jt'.
  */
 export function sanitizeText(text: string): string {
   if (!text || typeof text !== 'string') return '';
   return text
-    .replace(/<[^>]*>?/gm, '') // Remove HTML tags
+    .replace(/<[a-zA-Z\/][^>]*>/g, '') // Remove matched HTML tags only (preserves math symbols like < 5jt)
     .replace(CONTROL_CHARS_REGEX, '') // Remove ASCII control characters
     .trim();
 }
 
 /**
  * Validates and sanitizes URLs to prevent Link Tampering, Phishing,
+ * Open Redirects (including protocol-relative //evil.com),
  * and JavaScript pseudoprotocol execution (`javascript:`, `data:`).
  * Only http, https, mailto, tel, and safe anchors (#) are allowed.
  */
@@ -103,8 +105,20 @@ export function sanitizeUrl(url?: string | null, fallback = '#'): string {
   const trimmed = url.trim();
   if (!trimmed) return fallback;
 
-  // Allow internal safe hash anchors and relative root paths
-  if (trimmed.startsWith('#') || trimmed.startsWith('/')) {
+  // Reject protocol-relative URLs (//evil.com), backslash evasion (/\evil.com, \\evil.com), and carriage returns
+  if (
+    trimmed.startsWith('//') ||
+    trimmed.startsWith('/\\') ||
+    trimmed.startsWith('\\') ||
+    trimmed.includes('\\') ||
+    /[\r\n\t]/.test(trimmed)
+  ) {
+    console.warn(`[WAF Alert] Blocked dangerous protocol-relative or backslash URL: ${trimmed}`);
+    return fallback;
+  }
+
+  // Allow internal safe hash anchors and clean relative root paths
+  if (trimmed.startsWith('#') || (trimmed.startsWith('/') && !trimmed.startsWith('//'))) {
     // Prevent path traversal like /../../
     if (trimmed.includes('..')) return fallback;
     return trimmed;

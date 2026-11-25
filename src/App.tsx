@@ -108,6 +108,15 @@ function App() {
         fetchMessages();
       } else {
         setMessages([]);
+        setIsModalOpen(false);
+        setNewProject({
+          title: '',
+          description: '',
+          image_url: '',
+          tech_stack: '',
+          github_url: '',
+          demo_url: '',
+        });
       }
     });
 
@@ -299,6 +308,15 @@ function App() {
 
   const handleLogoutAdmin = async () => {
     await supabase.auth.signOut();
+    setIsModalOpen(false);
+    setNewProject({
+      title: '',
+      description: '',
+      image_url: '',
+      tech_stack: '',
+      github_url: '',
+      demo_url: '',
+    });
   };
 
   const handleAddProject = async (e: React.FormEvent) => {
