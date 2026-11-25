@@ -640,14 +640,14 @@ const TechStack: React.FC<TechStackProps> = ({ skills }) => {
   return (
     <section
       id="skills"
-      className="w-full max-w-full md:max-w-5xl mx-auto px-4 sm:px-6 pt-28 sm:pt-36 pb-20 sm:pb-28 relative z-10 scroll-mt-28 sm:scroll-mt-36 overflow-hidden box-border"
+      className="w-full max-w-full max-w-6xl mx-auto px-5 sm:px-6 pt-4 sm:pt-6 pb-20 sm:pb-28 relative z-10 scroll-mt-20 sm:scroll-mt-24 overflow-hidden box-border"
     >
-      {/* Ambient Mesh Glow Orbs (Desktop Only, High-Performance Pure CSS Radial Gradient, Zero JS Scroll Overhead) */}
+      {/* Subtle Ambient Glow (Ultra-Smooth Blur, No Hard Box Edges) */}
       <div
-        className="hidden md:block absolute -top-16 -left-20 w-72 h-72 rounded-full bg-[radial-gradient(circle,_rgba(16,185,129,0.08)_0%,_transparent_70%)] pointer-events-none -z-10"
+        className="hidden md:block absolute -top-20 -left-20 w-96 h-96 rounded-full bg-emerald-500/[0.04] blur-[120px] pointer-events-none -z-10"
       />
       <div
-        className="hidden md:block absolute top-1/2 -right-24 w-80 h-80 rounded-full bg-[radial-gradient(circle,_rgba(6,182,212,0.08)_0%,_transparent_70%)] pointer-events-none -z-10"
+        className="hidden md:block absolute top-1/2 -right-20 w-96 h-96 rounded-full bg-cyan-500/[0.04] blur-[120px] pointer-events-none -z-10"
       />
       
       {/* SECTION HEADER WITH HARDWARE-ACCELERATED AOS SCROLL REVEAL */}
@@ -656,39 +656,25 @@ const TechStack: React.FC<TechStackProps> = ({ skills }) => {
         data-aos-duration="600"
         className="w-full max-w-full overflow-hidden mb-6 sm:mb-8"
       >
-        <div className="w-full max-w-2xl mb-6 sm:mb-8">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-mono text-[11px] sm:text-xs uppercase tracking-wider mb-3">
-            <Sparkles size={12} className="animate-spin-slow shrink-0" />
-            <span className="truncate max-w-[190px] sm:max-w-none">{t.skills.badge}</span>
-            <span className="w-1 h-1 rounded-full bg-emerald-500/40 shrink-0" />
-            <span className="text-[10px] text-emerald-500/80 font-normal shrink-0">Interactive Stream</span>
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 pb-6 border-b border-slate-200/60 dark:border-white/[0.07]">
+          {/* Left Column: Badge, Title & Purpose */}
+          <div className="w-full lg:max-w-2xl">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-mono text-[11px] sm:text-xs uppercase tracking-wider mb-3">
+              <Sparkles size={12} className="animate-spin-slow shrink-0" />
+              <span className="truncate max-w-[190px] sm:max-w-none">{t.skills.badge}</span>
+              <span className="w-1 h-1 rounded-full bg-emerald-500/40 shrink-0" />
+              <span className="text-[10px] text-emerald-500/80 font-normal shrink-0">Interactive Stream</span>
+            </div>
+            <h2 className="text-2xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight break-words">
+              {t.skills.title}
+            </h2>
+            <p className="text-xs sm:text-base text-slate-600 dark:text-slate-400 mt-2.5 sm:mt-3 leading-relaxed">
+              Klik skill mana saja untuk melihat catatan materi yang saya pelajari dan rekomendasi video YouTube tempat saya belajar.
+            </p>
           </div>
-          <h2 className="text-2xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight break-words">
-            {t.skills.title}
-          </h2>
-          <p className="text-xs sm:text-base text-slate-600 dark:text-slate-400 mt-2.5 sm:mt-3.5 leading-relaxed">
-            Klik skill mana saja untuk melihat catatan materi yang saya pelajari dan rekomendasi video YouTube tempat saya belajar.
-          </p>
-        </div>
 
-        {/* STREAM CAPABILITIES STATUS BEAM (LIGHTWEIGHT CSS GRADIENT, ZERO JS SCROLL OVERHEAD) */}
-        <div className="w-full mb-5 sm:mb-6">
-          <div className="flex items-center justify-between text-[11px] font-mono text-slate-400 dark:text-slate-500 mb-1.5">
-            <span className="flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              Capabilities Stream
-            </span>
-            <span className="text-emerald-600 dark:text-emerald-400 font-semibold">{filteredSkills.length} dari {allSkills.length} Aktif</span>
-          </div>
-          <div className="w-full h-1 bg-slate-200/80 dark:bg-white/[0.06] rounded-full overflow-hidden relative">
-            <div className="h-full w-full bg-gradient-to-r from-emerald-500 via-teal-400 to-cyan-400 rounded-full opacity-80" />
-          </div>
-        </div>
-
-        {/* SLEEK SINGLE-LINE CATEGORY NAVBAR (MOBILE SCROLL-FRIENDLY, TIDAK BLOWOUT) */}
-        <div className="w-full max-w-full min-w-0 pb-3 border-b border-slate-200/60 dark:border-white/[0.07] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          {/* Scrollable Tabs Wrapper */}
-          <div className="w-full max-w-full sm:w-auto min-w-0 overflow-x-auto no-scrollbar scroll-smooth touch-pan-x">
+          {/* Right Column on Desktop / Scrollable on Mobile: Category Tabs */}
+          <div className="w-full lg:w-auto min-w-0 overflow-x-auto no-scrollbar scroll-smooth touch-pan-x shrink-0">
             <div className="inline-flex items-center gap-1.5 p-1 sm:p-1.5 rounded-2xl bg-slate-100/90 dark:bg-white/[0.04] border border-slate-200/80 dark:border-white/[0.08] backdrop-blur-xl">
               {categories.map((cat) => {
                 const isActive = activeCategory === cat;
@@ -700,7 +686,7 @@ const TechStack: React.FC<TechStackProps> = ({ skills }) => {
                     whileHover={{ scale: 1.03 }}
                     whileTap={{ scale: 0.96 }}
                     onClick={() => setActiveCategory(cat)}
-                    className={`relative px-3.5 sm:px-4 py-2 sm:py-2 min-h-[44px] sm:min-h-0 rounded-xl text-xs font-semibold cursor-pointer transition-colors duration-200 select-none whitespace-nowrap flex items-center gap-1.5 sm:gap-2 shrink-0 touch-manipulation ${
+                    className={`relative px-3.5 sm:px-4 py-2 min-h-[44px] sm:min-h-0 rounded-xl text-xs font-semibold cursor-pointer transition-colors duration-200 select-none whitespace-nowrap flex items-center gap-1.5 sm:gap-2 shrink-0 touch-manipulation ${
                       isActive
                         ? 'text-white dark:text-slate-950 font-bold'
                         : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
@@ -733,11 +719,19 @@ const TechStack: React.FC<TechStackProps> = ({ skills }) => {
               })}
             </div>
           </div>
+        </div>
 
-          {/* Sub-status Indicator */}
-          <div className="hidden sm:flex items-center gap-2 text-xs font-mono text-slate-400 dark:text-slate-500 shrink-0">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-            <span>{filteredSkills.length} dari {allSkills.length} Teknologi Aktif</span>
+        {/* STREAM CAPABILITIES STATUS BEAM (LIGHTWEIGHT CSS GRADIENT, ZERO JS SCROLL OVERHEAD) */}
+        <div className="w-full mt-4 sm:mt-5">
+          <div className="flex items-center justify-between text-[11px] font-mono text-slate-400 dark:text-slate-500 mb-1.5">
+            <span className="flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              Capabilities Stream
+            </span>
+            <span className="text-emerald-600 dark:text-emerald-400 font-semibold">{filteredSkills.length} dari {allSkills.length} Teknologi Aktif</span>
+          </div>
+          <div className="w-full h-1 bg-slate-200/80 dark:bg-white/[0.06] rounded-full overflow-hidden relative">
+            <div className="h-full w-full bg-gradient-to-r from-emerald-500 via-teal-400 to-cyan-400 rounded-full opacity-80" />
           </div>
         </div>
       </div>
