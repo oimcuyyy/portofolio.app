@@ -67,7 +67,7 @@ const AdminInbox: React.FC<AdminInboxProps> = ({ session, messages, fetchMessage
   if (!session) return null;
 
   return (
-    <section className="py-12 px-6 max-w-4xl mx-auto relative z-10">
+    <section className="w-full min-w-0 py-12 px-5 sm:px-6 max-w-4xl mx-auto relative z-10">
       <div className="bg-white/80 dark:bg-slate-900/60 backdrop-blur-2xl border border-emerald-500/30 p-6 sm:p-8 rounded-3xl shadow-2xl">
         
         {/* Header & Action Controls */}
@@ -119,10 +119,10 @@ const AdminInbox: React.FC<AdminInboxProps> = ({ session, messages, fetchMessage
         </div>
 
         {/* Tab Selection */}
-        <div className="flex items-center gap-2 mb-6">
+        <div className="flex flex-wrap items-center gap-2 mb-6">
           <button
             onClick={() => setActiveTab('messages')}
-            className={`px-4 py-2 rounded-xl text-xs font-bold font-mono uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer ${
+            className={`px-4 py-2.5 min-h-[44px] sm:min-h-0 rounded-xl text-xs font-bold font-mono uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer touch-manipulation ${
               activeTab === 'messages'
                 ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/25'
                 : 'bg-slate-100 dark:bg-white/[0.05] text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
@@ -134,7 +134,7 @@ const AdminInbox: React.FC<AdminInboxProps> = ({ session, messages, fetchMessage
 
           <button
             onClick={() => setActiveTab('security')}
-            className={`px-4 py-2 rounded-xl text-xs font-bold font-mono uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer ${
+            className={`px-4 py-2.5 min-h-[44px] sm:min-h-0 rounded-xl text-xs font-bold font-mono uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer touch-manipulation ${
               activeTab === 'security'
                 ? 'bg-red-600 text-white shadow-lg shadow-red-600/25'
                 : 'bg-slate-100 dark:bg-white/[0.05] text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'

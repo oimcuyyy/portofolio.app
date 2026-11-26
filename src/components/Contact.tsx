@@ -28,7 +28,7 @@ const Contact: React.FC<ContactProps> = ({
   };
 
   return (
-    <section id="contact" className="py-24 px-6 max-w-5xl mx-auto relative z-10">
+    <section id="contact" className="w-full min-w-0 py-16 sm:py-24 px-5 sm:px-6 max-w-5xl mx-auto relative z-10">
       
       {/* SECTION HEADER */}
       <div className="text-center max-w-2xl mx-auto mb-16" data-aos="fade-up">
@@ -47,10 +47,10 @@ const Contact: React.FC<ContactProps> = ({
       <div className="grid lg:grid-cols-12 gap-8 items-start">
         
         {/* LEFT COLUMN: DIRECT CONTACT DETAILS */}
-        <div className="lg:col-span-5 space-y-6" data-aos="fade-right">
+        <div className="lg:col-span-5 space-y-6 min-w-0" data-aos="fade-right">
           
           {/* Quick Copy Email Card */}
-          <div className="p-7 rounded-[2rem] border border-slate-200/80 dark:border-white/10 bg-white/70 dark:bg-[#070b14]/75 shadow-lg backdrop-blur-xl">
+          <div className="p-5 sm:p-7 rounded-[1.75rem] sm:rounded-[2rem] border border-slate-200/80 dark:border-white/10 bg-white/70 dark:bg-[#070b14]/75 shadow-lg backdrop-blur-xl">
             <div className="w-10 h-10 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mb-4">
               <Mail size={18} />
             </div>
@@ -109,8 +109,8 @@ const Contact: React.FC<ContactProps> = ({
         </div>
 
         {/* RIGHT COLUMN: CONTACT FORM */}
-        <div className="lg:col-span-7" data-aos="fade-left">
-          <div className="p-8 sm:p-10 rounded-[2.25rem] border border-slate-200/80 dark:border-white/10 bg-white/80 dark:bg-[#070b14]/85 shadow-2xl backdrop-blur-2xl">
+        <div className="lg:col-span-7 min-w-0" data-aos="fade-left">
+          <div className="p-6 sm:p-10 rounded-[1.75rem] sm:rounded-[2.25rem] border border-slate-200/80 dark:border-white/10 bg-white/80 dark:bg-[#070b14]/85 shadow-2xl backdrop-blur-2xl">
             
             {sentSuccess && (
               <div className="mb-6 p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center gap-3 text-emerald-700 dark:text-emerald-300 animate-in fade-in">

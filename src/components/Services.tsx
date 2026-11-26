@@ -13,7 +13,7 @@ const Services: React.FC = () => {
   ];
 
   return (
-    <section id="services" className="py-24 px-6 max-w-6xl mx-auto relative z-10">
+    <section id="services" className="w-full min-w-0 py-16 sm:py-24 px-5 sm:px-6 max-w-6xl mx-auto relative z-10">
       
       {/* SECTION HEADER */}
       <div className="max-w-2xl mb-16" data-aos="fade-up">

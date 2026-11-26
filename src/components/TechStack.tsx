@@ -641,7 +641,7 @@ const TechStack: React.FC<TechStackProps> = ({ skills }) => {
   return (
     <section
       id="skills"
-      className="py-24 px-6 max-w-6xl mx-auto relative z-10 scroll-mt-20 sm:scroll-mt-24"
+      className="w-full min-w-0 py-16 sm:py-24 px-5 sm:px-6 max-w-6xl mx-auto relative z-10 scroll-mt-20 sm:scroll-mt-24"
     >
       {/* Subtle Ambient Glow */}
       <div
@@ -654,15 +654,15 @@ const TechStack: React.FC<TechStackProps> = ({ skills }) => {
       {/* SECTION HEADER - HARMONIZED WITH PROJECTS & SERVICES */}
       <div
         data-aos="fade-up"
-        className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-12 sm:mb-16"
+        className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-10 sm:mb-16 w-full min-w-0"
       >
         {/* Left Column: Badge, Title & Purpose */}
-        <div className="w-full lg:max-w-2xl">
+        <div className="w-full min-w-0 lg:max-w-2xl">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-mono text-xs uppercase tracking-widest mb-3">
             <Sparkles size={13} />
             <span>{t.skills.badge}</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+          <h2 className="text-[clamp(1.625rem,4.5vw,2.25rem)] sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-tight break-words">
             {t.skills.title}
           </h2>
           <p className="text-slate-600 dark:text-slate-400 text-sm sm:text-base mt-2 sm:mt-3 max-w-xl leading-relaxed">
@@ -670,9 +670,9 @@ const TechStack: React.FC<TechStackProps> = ({ skills }) => {
           </p>
         </div>
 
-        {/* Right Column on Desktop / Scrollable on Mobile: Category Tabs */}
-        <div className="w-full lg:w-auto min-w-0 overflow-x-auto no-scrollbar scroll-smooth touch-pan-x shrink-0">
-          <div className="inline-flex items-center gap-1.5 p-1 sm:p-1.5 rounded-2xl bg-slate-100/90 dark:bg-white/[0.04] border border-slate-200/80 dark:border-white/[0.08] backdrop-blur-xl">
+        {/* Right Column on Desktop / Clean Wrapping Tray on Mobile: Category Tabs */}
+        <div className="w-full lg:w-auto min-w-0 lg:shrink-0">
+          <div className="flex flex-wrap lg:flex-nowrap items-center gap-1.5 p-1.5 rounded-2xl bg-slate-100/90 dark:bg-white/[0.04] border border-slate-200/80 dark:border-white/[0.08] backdrop-blur-xl w-full sm:w-auto">
             {categories.map((cat) => {
               const isActive = activeCategory === cat;
               const count = getCategoryCount(cat);
@@ -683,7 +683,7 @@ const TechStack: React.FC<TechStackProps> = ({ skills }) => {
                   whileHover={{ scale: 1.03 }}
                   whileTap={{ scale: 0.96 }}
                   onClick={() => setActiveCategory(cat)}
-                  className={`relative px-3.5 sm:px-4 py-2 min-h-[44px] sm:min-h-0 rounded-xl text-xs font-semibold cursor-pointer transition-colors duration-200 select-none whitespace-nowrap flex items-center gap-1.5 sm:gap-2 shrink-0 touch-manipulation ${
+                  className={`relative px-3 sm:px-4 py-2 min-h-[44px] sm:min-h-0 rounded-xl text-xs font-semibold cursor-pointer transition-colors duration-200 select-none whitespace-nowrap flex items-center gap-1.5 sm:gap-2 touch-manipulation ${
                     isActive
                       ? 'text-white dark:text-slate-950 font-bold'
                       : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
@@ -720,12 +720,12 @@ const TechStack: React.FC<TechStackProps> = ({ skills }) => {
 
       {/* BENTO GRID SPOTLIGHT CARDS - COHESIVE WITH PROJECTS & SERVICES */}
       {filteredSkills.length === 0 ? (
-        <div className="p-12 text-center rounded-[2rem] border border-dashed border-slate-300 dark:border-white/10 bg-white/40 dark:bg-white/[0.02]">
+        <div className="p-8 sm:p-12 text-center rounded-[2rem] border border-dashed border-slate-300 dark:border-white/10 bg-white/40 dark:bg-white/[0.02]">
           <Sparkles size={36} className="mx-auto text-slate-400 mb-3" />
           <h3 className="text-lg font-bold text-slate-800 dark:text-white">Tidak ada skill yang ditemukan</h3>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 sm:gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 w-full min-w-0">
           {filteredSkills.map((skill, index) => {
             const brand = getTechBrand(skill.name, skill.category);
             const pips = getProficiencyPips(skill.level || 'Advanced');
@@ -734,7 +734,7 @@ const TechStack: React.FC<TechStackProps> = ({ skills }) => {
               <SpotlightCard
                 key={skill.id || skill.name}
                 style={{ '--spotlight-color': brand.spotlightColor } as React.CSSProperties}
-                className="group cursor-pointer rounded-[2rem] border border-slate-200/80 dark:border-white/10 bg-white/70 dark:bg-[#070b14]/75 shadow-lg hover:border-emerald-500/40 hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between"
+                className="group cursor-pointer rounded-[1.75rem] sm:rounded-[2rem] border border-slate-200/80 dark:border-white/10 bg-white/70 dark:bg-[#070b14]/75 shadow-lg hover:border-emerald-500/40 sm:hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between"
               >
                 <div
                   data-aos="fade-up"
@@ -749,7 +749,7 @@ const TechStack: React.FC<TechStackProps> = ({ skills }) => {
                       setSelectedSkill(skill);
                     }
                   }}
-                  className="p-6 sm:p-7 flex flex-col h-full justify-between select-none focus:outline-none"
+                  className="p-5 sm:p-7 flex flex-col h-full w-full min-w-0 justify-between select-none focus:outline-none touch-manipulation"
                 >
                   {/* Top Section: Icon Squircle + Category Badge */}
                   <div>
@@ -802,7 +802,7 @@ const TechStack: React.FC<TechStackProps> = ({ skills }) => {
                   </div>
 
                   {/* Bottom Section: Level Pips & Interactive YouTube Catatan Pill */}
-                  <div className="mt-5 pt-4 border-t border-slate-200/60 dark:border-white/[0.06] flex items-center justify-between text-xs font-mono">
+                  <div className="mt-5 pt-4 border-t border-slate-200/60 dark:border-white/[0.06] flex flex-wrap items-center justify-between gap-2 text-xs font-mono">
                     <div className="flex items-center gap-1.5" title={`${skill.level} (${pips}/4)`}>
                       <div className="flex items-center gap-1">
                         {[1, 2, 3, 4].map((pip) => (

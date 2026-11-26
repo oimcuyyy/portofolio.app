@@ -12,7 +12,7 @@ const Hero: React.FC = () => {
   const { isPlaying, activeTheme, currentSong } = useSenjaPlayback();
 
   return (
-    <section className="relative min-h-[90dvh] flex items-center justify-center pt-24 sm:pt-28 pb-12 sm:pb-16 overflow-hidden">
+    <section className="w-full min-w-0 relative min-h-[90dvh] flex items-center justify-center pt-24 sm:pt-28 pb-12 sm:pb-16 overflow-hidden">
       {/* Ambient background glow orbs - Dynamic theme transition with GPU acceleration */}
       <div
         className={`absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[340px] sm:w-[500px] h-[340px] sm:h-[500px] rounded-full blur-[80px] sm:blur-[100px] pointer-events-none -z-10 transform-gpu will-change-transform will-change-opacity transition-all duration-700 ${
@@ -45,7 +45,7 @@ const Hero: React.FC = () => {
         <div className="grid lg:grid-cols-12 gap-10 lg:gap-8 items-center">
 
           {/* LEFT COLUMN: Editorial Typography & Actions */}
-          <div className="lg:col-span-7 flex flex-col items-start text-left" data-aos="fade-up" data-aos-duration="800">
+          <div className="lg:col-span-7 flex flex-col items-start text-left min-w-0" data-aos="fade-up" data-aos-duration="800">
 
             {/* Live Availability Pill - Dynamic theme status */}
             <div
@@ -237,7 +237,7 @@ const Hero: React.FC = () => {
           </div>
 
           {/* RIGHT COLUMN: DOUBLE-BEZEL HARDWARE PROFILE PHOTO CARD */}
-          <div className="lg:col-span-5 flex justify-center" data-aos="fade-left" data-aos-duration="1000">
+          <div className="lg:col-span-5 flex justify-center min-w-0" data-aos="fade-left" data-aos-duration="1000">
             <div className="relative group w-full max-w-sm sm:max-w-md">
 
               {/* Outer Shell (Double-Bezel Hardware Enclosure) */}

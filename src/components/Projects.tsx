@@ -23,7 +23,7 @@ const Projects: React.FC<ProjectsProps> = ({
   const { t } = useLanguage();
 
   return (
-    <section id="projects" className="py-24 px-6 max-w-6xl mx-auto relative z-10">
+    <section id="projects" className="w-full min-w-0 py-16 sm:py-24 px-5 sm:px-6 max-w-6xl mx-auto relative z-10">
       
       {/* SECTION HEADER */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-16 gap-6" data-aos="fade-up">

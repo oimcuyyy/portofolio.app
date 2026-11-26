@@ -100,7 +100,7 @@ const Navbar: React.FC = () => {
     <>
       {/* FLOATING LEFT LAUNCHER DOCK WITH SMART SCROLL HIDE & SAFE AREAS */}
       <div
-        className={`fixed left-[max(1rem,env(safe-area-inset-left))] sm:left-6 top-[max(1rem,env(safe-area-inset-top))] sm:top-8 z-50 flex items-center gap-2 sm:gap-2.5 transition-all duration-300 ease-out ${
+        className={`fixed left-[max(1rem,env(safe-area-inset-left))] sm:left-6 top-[max(1rem,env(safe-area-inset-top))] sm:top-8 z-50 max-w-[calc(100vw-2rem)] flex items-center gap-2 sm:gap-2.5 transition-all duration-300 ease-out ${
           isNavVisible || isOpen
             ? 'translate-y-0 opacity-100'
             : '-translate-y-28 opacity-0 pointer-events-none'

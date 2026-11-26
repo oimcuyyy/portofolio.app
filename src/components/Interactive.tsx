@@ -103,7 +103,7 @@ export function SpotlightCard({
 
   return (
     <div
-      className={`group relative rounded-[2rem] border border-white/[0.08] dark:border-white/[0.08] bg-white/[0.03] dark:bg-[#080d1a]/60 backdrop-blur-xl transition-all duration-500 hover:border-emerald-500/30 overflow-hidden ${className}`}
+      className={`group relative w-full min-w-0 rounded-[2rem] border border-white/[0.08] dark:border-white/[0.08] bg-white/[0.03] dark:bg-[#080d1a]/60 backdrop-blur-xl transition-all duration-500 hover:border-emerald-500/30 overflow-hidden ${className}`}
       onMouseMove={handleMouseMove}
       style={style}
     >
@@ -122,7 +122,7 @@ export function SpotlightCard({
       />
       {/* Top subtle highlight reflection */}
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/15 dark:via-white/20 to-transparent z-10" />
-      <div className="relative z-10 h-full flex flex-col">{children}</div>
+      <div className="relative z-10 h-full w-full min-w-0 flex flex-col">{children}</div>
     </div>
   );
 }

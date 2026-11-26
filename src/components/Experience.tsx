@@ -7,7 +7,7 @@ const Experience: React.FC = () => {
   const { t } = useLanguage();
 
   return (
-    <section id="experience" className="py-24 px-6 max-w-5xl mx-auto relative z-10">
+    <section id="experience" className="w-full min-w-0 py-16 sm:py-24 px-5 sm:px-6 max-w-5xl mx-auto relative z-10">
       
       {/* SECTION HEADER */}
       <div className="text-center max-w-2xl mx-auto mb-16" data-aos="fade-up">
