@@ -1,20 +1,16 @@
-import type { IncomingMessage, ServerResponse } from 'node:http';
+// @ts-check
 
-export interface RateLimitEntry {
-  count: number;
-  resetAt: number;
-}
+/** @typedef {{ count: number; resetAt: number }} RateLimitEntry */
 
 const MAX_MAP_SIZE = 2000;
 
 /**
  * Sends a structured JSON response with strict security headers.
+ * @param {import('node:http').ServerResponse} res
+ * @param {number} statusCode
+ * @param {Record<string, unknown>} payload
  */
-export function sendJson(
-  res: ServerResponse,
-  statusCode: number,
-  payload: Record<string, unknown>
-): void {
+export function sendJson(res, statusCode, payload) {
   res.statusCode = statusCode;
   res.setHeader('Content-Type', 'application/json; charset=utf-8');
   res.setHeader('Cache-Control', 'no-store');
@@ -24,9 +20,10 @@ export function sendJson(
 
 /**
  * Safely extracts the authoritative client IP from Vercel / reverse-proxy headers.
- * Prioritizes Vercel-controlled edge headers before x-forwarded-for.
+ * @param {import('node:http').IncomingMessage} req
+ * @returns {string}
  */
-export function extractClientIp(req: IncomingMessage): string {
+export function extractClientIp(req) {
   const vercelIp = req.headers['x-vercel-forwarded-for'];
   if (typeof vercelIp === 'string' && vercelIp.trim()) {
     return vercelIp.split(',')[0].trim().slice(0, 64);
@@ -46,24 +43,22 @@ export function extractClientIp(req: IncomingMessage): string {
 }
 
 /**
- * Bounded per-IP sliding window rate limiter with automatic expired-entry pruning.
+ * Bounded per-key sliding window rate limiter with automatic expired-entry pruning.
+ * @param {Map<string, RateLimitEntry>} store
+ * @param {string} key
+ * @param {number} maxAttempts
+ * @param {number} windowMs
+ * @returns {{ allowed: boolean; remainingSecs?: number }}
  */
-export function checkMemoryRateLimit(
-  store: Map<string, RateLimitEntry>,
-  key: string,
-  maxAttempts: number,
-  windowMs: number
-): { allowed: boolean; remainingSecs?: number } {
+export function checkMemoryRateLimit(store, key, maxAttempts, windowMs) {
   const now = Date.now();
 
-  // Prune expired entries when store grows to prevent unbounded memory growth
   if (store.size >= MAX_MAP_SIZE) {
     for (const [k, entry] of store.entries()) {
       if (now > entry.resetAt) {
         store.delete(k);
       }
     }
-    // If still above threshold, drop oldest entries (FIFO Map insertion order)
     if (store.size >= MAX_MAP_SIZE) {
       const oldestKey = store.keys().next().value;
       if (oldestKey !== undefined) {
@@ -89,14 +84,14 @@ export function checkMemoryRateLimit(
 
 /**
  * Parses JSON request body safely without hanging on pre-parsed text/plain strings or ended streams.
+ * @param {import('node:http').IncomingMessage & { body?: unknown }} req
+ * @param {number} [maxBytes]
+ * @returns {Promise<Record<string, unknown> | null>}
  */
-export async function readJsonBody(
-  req: IncomingMessage & { body?: unknown },
-  maxBytes = 8192
-): Promise<Record<string, unknown> | null> {
+export async function readJsonBody(req, maxBytes = 8192) {
   if (req.body !== undefined) {
     if (typeof req.body === 'object' && req.body !== null && !Buffer.isBuffer(req.body)) {
-      return req.body as Record<string, unknown>;
+      return /** @type {Record<string, unknown>} */ (req.body);
     }
     if (typeof req.body === 'string') {
       if (Buffer.byteLength(req.body, 'utf8') > maxBytes) {
@@ -105,7 +100,9 @@ export async function readJsonBody(
       if (!req.body.trim()) return {};
       try {
         const parsed = JSON.parse(req.body);
-        return typeof parsed === 'object' && parsed !== null ? (parsed as Record<string, unknown>) : null;
+        return typeof parsed === 'object' && parsed !== null
+          ? /** @type {Record<string, unknown>} */ (parsed)
+          : null;
       } catch {
         return null;
       }
@@ -116,7 +113,9 @@ export async function readJsonBody(
       }
       try {
         const parsed = JSON.parse(req.body.toString('utf8'));
-        return typeof parsed === 'object' && parsed !== null ? (parsed as Record<string, unknown>) : null;
+        return typeof parsed === 'object' && parsed !== null
+          ? /** @type {Record<string, unknown>} */ (parsed)
+          : null;
       } catch {
         return null;
       }
@@ -131,7 +130,7 @@ export async function readJsonBody(
     let raw = '';
     let size = 0;
 
-    req.on('data', (chunk: Buffer) => {
+    req.on('data', (/** @type {Buffer} */ chunk) => {
       size += chunk.length;
       if (size > maxBytes) {
         reject(new Error('PAYLOAD_TOO_LARGE'));
@@ -148,7 +147,11 @@ export async function readJsonBody(
       }
       try {
         const parsed = JSON.parse(raw);
-        resolve(typeof parsed === 'object' && parsed !== null ? (parsed as Record<string, unknown>) : null);
+        resolve(
+          typeof parsed === 'object' && parsed !== null
+            ? /** @type {Record<string, unknown>} */ (parsed)
+            : null
+        );
       } catch {
         resolve(null);
       }
@@ -160,11 +163,11 @@ export async function readJsonBody(
 
 /**
  * Inserts a row into Supabase PostgREST using the server-side service_role key.
+ * @param {'messages' | 'security_logs'} table
+ * @param {Record<string, unknown>} row
+ * @returns {Promise<{ ok: boolean; status: number; errorMessage?: string }>}
  */
-export async function insertSupabaseServiceRow(
-  table: 'messages' | 'security_logs',
-  row: Record<string, unknown>
-): Promise<{ ok: boolean; status: number; errorMessage?: string }> {
+export async function insertSupabaseServiceRow(table, row) {
   const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '';
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 

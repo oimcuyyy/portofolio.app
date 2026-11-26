@@ -10,6 +10,9 @@ import {
   AlertCircle,
   Loader2,
   ShieldCheck,
+  KeyRound,
+  RefreshCw,
+  ArrowLeft,
 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import type { EmailValidationState } from '../App';
@@ -25,6 +28,15 @@ interface ContactProps {
   emailValidation: EmailValidationState;
   setEmailValidation: React.Dispatch<React.SetStateAction<EmailValidationState>>;
   onVerifyEmail: (email: string) => Promise<boolean>;
+  otpStep: 'compose' | 'verify';
+  otpCode: string;
+  setOtpCode: React.Dispatch<React.SetStateAction<string>>;
+  otpMaskedEmail: string;
+  otpError: string | null;
+  setOtpError: React.Dispatch<React.SetStateAction<string | null>>;
+  otpCooldown: number;
+  onResendOtp: () => Promise<void>;
+  onCancelOtp: () => void;
 }
 
 const Contact: React.FC<ContactProps> = ({
@@ -38,6 +50,15 @@ const Contact: React.FC<ContactProps> = ({
   emailValidation,
   setEmailValidation,
   onVerifyEmail,
+  otpStep,
+  otpCode,
+  setOtpCode,
+  otpMaskedEmail,
+  otpError,
+  setOtpError,
+  otpCooldown,
+  onResendOtp,
+  onCancelOtp,
 }) => {
   const { t, language } = useLanguage();
   const [copied, setCopied] = useState(false);
@@ -169,13 +190,16 @@ const Contact: React.FC<ContactProps> = ({
                   type="text"
                   id="name"
                   required
+                  readOnly={otpStep === 'verify'}
                   value={formData.name}
                   onChange={(e) => {
                     setFormData({ ...formData, name: e.target.value });
                     if (formError) setFormError(null);
                   }}
                   placeholder={t.contact.namePlaceholder}
-                  className="w-full min-h-[44px] px-4 py-3 rounded-xl bg-slate-100/70 dark:bg-white/[0.04] border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-600 text-base sm:text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/50 transition-all"
+                  className={`w-full min-h-[44px] px-4 py-3 rounded-xl bg-slate-100/70 dark:bg-white/[0.04] border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-600 text-base sm:text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/50 transition-all ${
+                    otpStep === 'verify' ? 'opacity-65 cursor-not-allowed' : ''
+                  }`}
                 />
               </div>
 
@@ -186,7 +210,7 @@ const Contact: React.FC<ContactProps> = ({
                     {t.contact.emailLabel}
                   </label>
                   <span className="text-[11px] font-mono text-slate-400 dark:text-slate-500">
-                    {language === 'id' ? 'Wajib email aktif & terdaftar' : 'Active registered email required'}
+                    {language === 'id' ? 'Wajib verifikasi OTP email' : 'Email OTP verification required'}
                   </span>
                 </div>
                 <div className="relative">
@@ -194,6 +218,7 @@ const Contact: React.FC<ContactProps> = ({
                     type="email"
                     id="email"
                     required
+                    readOnly={otpStep === 'verify'}
                     aria-invalid={emailValidation.status === 'invalid'}
                     aria-describedby="email-validation-feedback"
                     value={formData.email}
@@ -205,12 +230,14 @@ const Contact: React.FC<ContactProps> = ({
                       if (formError) setFormError(null);
                     }}
                     onBlur={() => {
-                      if (formData.email.trim()) {
+                      if (otpStep === 'compose' && formData.email.trim()) {
                         void onVerifyEmail(formData.email);
                       }
                     }}
                     placeholder={t.contact.emailPlaceholder}
                     className={`w-full min-h-[44px] px-4 pr-10 py-3 rounded-xl bg-slate-100/70 dark:bg-white/[0.04] border text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-600 text-base sm:text-sm focus:outline-none focus:ring-1 transition-all ${
+                      otpStep === 'verify' ? 'opacity-65 cursor-not-allowed' : ''
+                    } ${
                       emailValidation.status === 'invalid'
                         ? 'border-rose-500/80 focus:border-rose-500 focus:ring-rose-500/40'
                         : emailValidation.status === 'valid'
@@ -232,7 +259,7 @@ const Contact: React.FC<ContactProps> = ({
                 </div>
 
                 {/* Inline Feedback Below Input (never on mount) */}
-                {emailValidation.status !== 'idle' && (
+                {emailValidation.status !== 'idle' && otpStep === 'compose' && (
                   <div id="email-validation-feedback" className="mt-2 space-y-1.5">
                     {emailValidation.status === 'checking' && (
                       <p className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
@@ -282,6 +309,7 @@ const Contact: React.FC<ContactProps> = ({
                 <textarea
                   id="message"
                   required
+                  readOnly={otpStep === 'verify'}
                   rows={4}
                   value={formData.message}
                   onChange={(e) => {
@@ -289,24 +317,119 @@ const Contact: React.FC<ContactProps> = ({
                     if (formError) setFormError(null);
                   }}
                   placeholder={t.contact.messagePlaceholder}
-                  className="w-full px-4 py-3.5 rounded-xl bg-slate-100/70 dark:bg-white/[0.04] border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-600 text-base sm:text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/50 transition-all resize-none"
+                  className={`w-full px-4 py-3.5 rounded-xl bg-slate-100/70 dark:bg-white/[0.04] border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-600 text-base sm:text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/50 transition-all resize-none ${
+                    otpStep === 'verify' ? 'opacity-65 cursor-not-allowed' : ''
+                  }`}
                 />
               </div>
+
+              {/* STEP 2: PROGRESSIVE INLINE 6-DIGIT EMAIL OTP VERIFICATION PANEL */}
+              {otpStep === 'verify' && (
+                <div className="p-4 sm:p-5 rounded-2xl bg-emerald-500/[0.06] dark:bg-emerald-500/[0.08] border border-emerald-500/30 space-y-3.5 animate-in fade-in duration-200">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex items-start gap-2.5">
+                      <div className="w-8 h-8 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-500 flex items-center justify-center shrink-0 mt-0.5">
+                        <KeyRound size={15} />
+                      </div>
+                      <div>
+                        <h4 className="text-xs font-mono uppercase tracking-wider font-bold text-slate-900 dark:text-white">
+                          Verifikasi Kepemilikan Email
+                        </h4>
+                        <p className="text-xs text-slate-600 dark:text-slate-300 mt-1 leading-relaxed">
+                          Masukkan kode OTP 6 digit yang telah dikirim ke{' '}
+                          <span className="font-mono font-bold text-emerald-700 dark:text-emerald-300">
+                            {otpMaskedEmail}
+                          </span>
+                          . Periksa Kotak Masuk atau folder Spam.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label htmlFor="otp-code" className="sr-only">
+                      Kode Verifikasi 6 Digit
+                    </label>
+                    <input
+                      id="otp-code"
+                      type="text"
+                      inputMode="numeric"
+                      autoComplete="one-time-code"
+                      maxLength={6}
+                      autoFocus
+                      aria-invalid={Boolean(otpError)}
+                      aria-describedby="otp-validation-feedback"
+                      value={otpCode}
+                      onChange={(e) => {
+                        const digits = e.target.value.replace(/\D/g, '').slice(0, 6);
+                        setOtpCode(digits);
+                        if (otpError) setOtpError(null);
+                      }}
+                      placeholder="000000"
+                      className={`w-full min-h-[48px] px-4 py-3 rounded-xl bg-white dark:bg-[#050811] border text-center font-mono text-xl sm:text-lg font-extrabold tracking-[0.4em] text-slate-900 dark:text-white placeholder:text-slate-300 dark:placeholder:text-slate-700 focus:outline-none focus:ring-1 transition-all ${
+                        otpError
+                          ? 'border-rose-500/80 focus:border-rose-500 focus:ring-rose-500/40'
+                          : 'border-emerald-500/40 focus:border-emerald-500 focus:ring-emerald-500/40'
+                      }`}
+                    />
+
+                    {otpError && (
+                      <p
+                        id="otp-validation-feedback"
+                        role="alert"
+                        className="mt-2 text-xs text-rose-600 dark:text-rose-400 flex items-start gap-1.5 font-medium"
+                      >
+                        <AlertCircle size={13} className="shrink-0 mt-0.5" />
+                        <span>{otpError}</span>
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="flex flex-wrap items-center justify-between gap-2 pt-1 text-xs">
+                    <button
+                      type="button"
+                      onClick={onCancelOtp}
+                      disabled={loading}
+                      className="inline-flex items-center gap-1.5 px-3 py-2 min-h-[40px] rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-200/70 dark:hover:bg-white/10 transition-colors cursor-pointer touch-manipulation"
+                    >
+                      <ArrowLeft size={13} />
+                      <span>Ganti Email</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => void onResendOtp()}
+                      disabled={otpCooldown > 0 || loading}
+                      className="inline-flex items-center gap-1.5 px-3 py-2 min-h-[40px] rounded-xl bg-white/80 dark:bg-white/[0.06] border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-200 hover:border-emerald-500/40 disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer font-mono text-[11px] touch-manipulation"
+                    >
+                      <RefreshCw size={12} className={loading ? 'animate-spin' : ''} />
+                      <span>
+                        {otpCooldown > 0 ? `Kirim ulang (${otpCooldown}d)` : 'Kirim Ulang Kode'}
+                      </span>
+                    </button>
+                  </div>
+                </div>
+              )}
 
               {/* Submit Button with haptic state */}
               <button
                 type="submit"
-                disabled={loading || emailValidation.status === 'checking'}
+                disabled={loading || emailValidation.status === 'checking' || (otpStep === 'verify' && otpCode.length < 6)}
                 className="w-full min-h-[48px] py-3.5 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-950 font-bold text-sm tracking-wide hover:bg-emerald-600 dark:hover:bg-slate-200 active:scale-[0.98] transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-xl cursor-pointer touch-manipulation"
               >
                 {loading ? (
                   <span className="flex items-center gap-2">
                     <span className="w-4 h-4 border-2 border-slate-300 border-t-emerald-500 rounded-full animate-spin" />
-                    {t.contact.sendingBtn}
+                    {otpStep === 'compose' ? 'Mengirim Kode OTP...' : 'Memverifikasi & Mengirim...'}
+                  </span>
+                ) : otpStep === 'compose' ? (
+                  <span className="flex items-center gap-2">
+                    <span>Kirim Kode Verifikasi ke Email</span>
+                    <KeyRound size={15} />
                   </span>
                 ) : (
                   <span className="flex items-center gap-2">
-                    <span>{t.contact.sendBtn}</span>
+                    <span>Verifikasi &amp; Kirim Pesan</span>
                     <Send size={15} />
                   </span>
                 )}

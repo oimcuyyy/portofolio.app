@@ -1,4 +1,4 @@
-import type { IncomingMessage, ServerResponse } from 'node:http';
+// @ts-check
 import crypto from 'node:crypto';
 import {
   sendJson,
@@ -6,9 +6,8 @@ import {
   checkMemoryRateLimit,
   readJsonBody,
   insertSupabaseServiceRow,
-  type RateLimitEntry,
-} from './_lib/httpSecurity.ts';
-import { sanitizeServerText } from './_lib/wafServer.ts';
+} from './_lib/httpSecurity.mjs';
+import { sanitizeServerText } from './_lib/wafServer.mjs';
 
 const ALLOWED_THREAT_TYPES = new Set([
   'XSS Injection',
@@ -18,18 +17,19 @@ const ALLOWED_THREAT_TYPES = new Set([
   'Malicious URL',
 ]);
 
-const secLogIpRateMap = new Map<string, RateLimitEntry>();
+/** @type {Map<string, import('./_lib/httpSecurity.mjs').RateLimitEntry>} */
+const secLogIpRateMap = new Map();
 
-export default async function handler(
-  req: IncomingMessage & { body?: unknown },
-  res: ServerResponse
-): Promise<void> {
+/**
+ * @param {import('node:http').IncomingMessage & { body?: unknown }} req
+ * @param {import('node:http').ServerResponse} res
+ */
+export default async function handler(req, res) {
   if (req.method !== 'POST') {
     sendJson(res, 405, { recorded: false, message: 'Method tidak diizinkan.' });
     return;
   }
 
-  // Authoritative IP strictly extracted from server/edge request headers (never trusted from client body)
   const clientIp = extractClientIp(req);
   const rate = checkMemoryRateLimit(secLogIpRateMap, clientIp, 10, 60_000);
 
@@ -48,7 +48,7 @@ export default async function handler(
     return;
   }
 
-  let body: Record<string, unknown> | null;
+  let body;
   try {
     body = await readJsonBody(req, 8192);
   } catch {

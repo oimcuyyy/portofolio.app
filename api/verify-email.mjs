@@ -1,19 +1,20 @@
-import type { IncomingMessage, ServerResponse } from 'node:http';
+// @ts-check
 import {
   sendJson,
   extractClientIp,
   checkMemoryRateLimit,
   readJsonBody,
-  type RateLimitEntry,
-} from './_lib/httpSecurity.ts';
-import { verifyEmailOnServer } from './_lib/emailVerification.ts';
+} from './_lib/httpSecurity.mjs';
+import { verifyEmailOnServer } from './_lib/emailVerification.mjs';
 
-const ipRateMap = new Map<string, RateLimitEntry>();
+/** @type {Map<string, import('./_lib/httpSecurity.mjs').RateLimitEntry>} */
+const ipRateMap = new Map();
 
-export default async function handler(
-  req: IncomingMessage & { body?: unknown },
-  res: ServerResponse
-): Promise<void> {
+/**
+ * @param {import('node:http').IncomingMessage & { body?: unknown }} req
+ * @param {import('node:http').ServerResponse} res
+ */
+export default async function handler(req, res) {
   if (req.method !== 'POST') {
     sendJson(res, 405, { valid: false, reason: 'Method tidak diizinkan.' });
     return;
@@ -29,7 +30,7 @@ export default async function handler(
     return;
   }
 
-  let body: Record<string, unknown> | null;
+  let body;
   try {
     body = await readJsonBody(req, 1024);
   } catch (err) {

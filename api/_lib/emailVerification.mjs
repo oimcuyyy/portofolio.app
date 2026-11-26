@@ -1,12 +1,7 @@
+// @ts-check
 import { resolveMx } from 'node:dns/promises';
 
-export interface ServerEmailVerifyResult {
-  valid: boolean;
-  mxVerified?: boolean;
-  reason?: string;
-  suggestion?: string;
-  warning?: string;
-}
+/** @typedef {{ valid: boolean; mxVerified?: boolean; reason?: string; suggestion?: string; warning?: string }} ServerEmailVerifyResult */
 
 const DISPOSABLE_OR_FAKE_DOMAINS = new Set([
   'mailinator.com',
@@ -73,7 +68,8 @@ const DISPOSABLE_OR_FAKE_DOMAINS = new Set([
 
 const RESERVED_TLDS = new Set(['local', 'localhost', 'test', 'invalid', 'example', 'internal', 'arpa', 'onion']);
 
-const DOMAIN_TYPO_SUGGESTIONS: Record<string, string> = {
+/** @type {Record<string, string>} */
+const DOMAIN_TYPO_SUGGESTIONS = {
   'gmial.com': 'gmail.com',
   'gmal.com': 'gmail.com',
   'gamil.com': 'gmail.com',
@@ -153,8 +149,10 @@ const DNS_HOSTNAME_REGEX = /^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?(?:\.[a-z0-9](?
 /**
  * Full server-side verification: syntax, provider rules, dummy local parts,
  * disposable blocklist, typo suggestions, and live DNS MX check (<= 3.5s total worst case).
+ * @param {string} rawEmail
+ * @returns {Promise<ServerEmailVerifyResult>}
  */
-export async function verifyEmailOnServer(rawEmail: string): Promise<ServerEmailVerifyResult> {
+export async function verifyEmailOnServer(rawEmail) {
   const email = rawEmail.trim().toLowerCase();
 
   if (!email || email.length > 120 || /\s/.test(email)) {
@@ -245,14 +243,14 @@ export async function verifyEmailOnServer(rawEmail: string): Promise<ServerEmail
     };
   }
 
-  // Bounded DNS MX verification: 1.5s UDP/TCP DNS + 2.0s Google DoH backup (worst case <= 3.5s < client 6.5s timeout)
+  // Bounded DNS MX verification: 1.5s UDP/TCP DNS + 2.0s Google DoH backup
   try {
-    const mxRecords = await Promise.race([
-      resolveMx(domain),
-      new Promise<never>((_, reject) =>
-        setTimeout(() => reject(new Error('DNS_TIMEOUT')), 1500)
-      ),
-    ]);
+    const mxRecords = /** @type {import('node:dns').MxRecord[]} */ (
+      await Promise.race([
+        resolveMx(domain),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('DNS_TIMEOUT')), 1500)),
+      ])
+    );
 
     const activeMx = mxRecords.filter(
       (rec) => rec.exchange && rec.exchange.trim() !== '' && rec.exchange.trim() !== '.'
@@ -268,7 +266,7 @@ export async function verifyEmailOnServer(rawEmail: string): Promise<ServerEmail
 
     return { valid: true, mxVerified: true };
   } catch (err) {
-    const code = (err as { code?: string })?.code;
+    const code = /** @type {{ code?: string }} */ (err)?.code;
     const message = err instanceof Error ? err.message : '';
 
     if (code === 'ENOTFOUND' || code === 'ENODATA' || code === 'NODATA' || code === 'NXDOMAIN') {
@@ -290,7 +288,7 @@ export async function verifyEmailOnServer(rawEmail: string): Promise<ServerEmail
         clearTimeout(dohTimer);
 
         if (dohRes.ok) {
-          const doh = (await dohRes.json()) as { Status?: number; Answer?: Array<{ data?: string }> };
+          const doh = /** @type {{ Status?: number; Answer?: Array<{ data?: string }> }} */ (await dohRes.json());
           const hasValidMx = Array.isArray(doh.Answer) && doh.Answer.some((a) => a.data && !a.data.endsWith(' .'));
           if (doh.Status === 3 || !hasValidMx) {
             return {

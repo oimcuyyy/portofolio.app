@@ -1,29 +1,30 @@
-import type { IncomingMessage, ServerResponse } from 'node:http';
-import crypto from 'node:crypto';
+// @ts-check
 import {
   sendJson,
   extractClientIp,
   checkMemoryRateLimit,
   readJsonBody,
   insertSupabaseServiceRow,
-  type RateLimitEntry,
-} from './_lib/httpSecurity.ts';
-import { verifyEmailOnServer } from './_lib/emailVerification.ts';
-import { inspectServerPayload } from './_lib/wafServer.ts';
+} from './_lib/httpSecurity.mjs';
+import { verifyEmailOnServer } from './_lib/emailVerification.mjs';
+import { inspectServerPayload, logServerSecurityIncident } from './_lib/wafServer.mjs';
+import { verifyOtpChallenge } from './_lib/otpSecurity.mjs';
 
-const contactIpRateMap = new Map<string, RateLimitEntry>();
+/** @type {Map<string, import('./_lib/httpSecurity.mjs').RateLimitEntry>} */
+const contactIpRateMap = new Map();
 
-export default async function handler(
-  req: IncomingMessage & { body?: unknown },
-  res: ServerResponse
-): Promise<void> {
+/**
+ * @param {import('node:http').IncomingMessage & { body?: unknown }} req
+ * @param {import('node:http').ServerResponse} res
+ */
+export default async function handler(req, res) {
   if (req.method !== 'POST') {
     sendJson(res, 405, { ok: false, code: 'METHOD_NOT_ALLOWED', message: 'Method tidak diizinkan.' });
     return;
   }
 
   const clientIp = extractClientIp(req);
-  const rate = checkMemoryRateLimit(contactIpRateMap, clientIp, 3, 5 * 60_000);
+  const rate = checkMemoryRateLimit(contactIpRateMap, clientIp, 5, 5 * 60_000);
   if (!rate.allowed) {
     sendJson(res, 429, {
       ok: false,
@@ -33,7 +34,7 @@ export default async function handler(
     return;
   }
 
-  let body: Record<string, unknown> | null;
+  let body;
   try {
     body = await readJsonBody(req, 16384);
   } catch (err) {
@@ -53,6 +54,8 @@ export default async function handler(
   const rawName = typeof body.name === 'string' ? body.name : '';
   const rawEmail = typeof body.email === 'string' ? body.email : '';
   const rawMessage = typeof body.message === 'string' ? body.message : '';
+  const rawOtpCode = typeof body.otpCode === 'string' ? body.otpCode : '';
+  const rawOtpToken = typeof body.otpToken === 'string' ? body.otpToken : '';
 
   // Server-side WAF inspection (prevents cURL / REST API bypass of client checks)
   const checks = [
@@ -63,19 +66,12 @@ export default async function handler(
 
   for (const item of checks) {
     if (!item.check.isSafe) {
-      const incidentId = `SEC-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}-${crypto
-        .randomBytes(3)
-        .toString('hex')
-        .toUpperCase()}`;
-      const ua = typeof req.headers['user-agent'] === 'string' ? req.headers['user-agent'].slice(0, 500) : 'Unknown';
-
-      await insertSupabaseServiceRow('security_logs', {
-        incident_id: incidentId,
-        threat_type: (item.check.threatType || 'XSS Injection').slice(0, 50),
-        field_name: item.label.slice(0, 60),
-        client_ip: clientIp,
-        user_agent: ua,
-        payload_preview: item.raw.slice(0, 500),
+      await logServerSecurityIncident({
+        req,
+        clientIp,
+        threatType: item.check.threatType || 'XSS Injection',
+        fieldName: item.label,
+        rawPayload: item.raw,
       });
 
       sendJson(res, 422, {
@@ -119,6 +115,22 @@ export default async function handler(
       code: 'EMAIL_INVALID',
       message: emailVerify.reason || 'Alamat email tidak valid atau belum terdaftar.',
       suggestion: emailVerify.suggestion,
+    });
+    return;
+  }
+
+  // Mandatory 6-Digit Email OTP Challenge Verification (blocks nonexistent fake Gmail/Yahoo addresses)
+  const otpCheck = verifyOtpChallenge({
+    email: cleanEmail,
+    otpCode: rawOtpCode,
+    otpToken: rawOtpToken,
+  });
+
+  if (!otpCheck.valid) {
+    sendJson(res, 422, {
+      ok: false,
+      code: otpCheck.code || 'OTP_INVALID',
+      message: otpCheck.message || 'Kode verifikasi email tidak valid.',
     });
     return;
   }

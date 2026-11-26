@@ -57,6 +57,12 @@ function App() {
   const [sentSuccess, setSentSuccess] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [emailValidation, setEmailValidation] = useState<EmailValidationState>({ status: 'idle' });
+  const [otpStep, setOtpStep] = useState<'compose' | 'verify'>('compose');
+  const [otpToken, setOtpToken] = useState('');
+  const [otpMaskedEmail, setOtpMaskedEmail] = useState('');
+  const [otpCode, setOtpCode] = useState('');
+  const [otpError, setOtpError] = useState<string | null>(null);
+  const [otpCooldown, setOtpCooldown] = useState(0);
   const [isLoadingScreenActive, setIsLoadingScreenActive] = useState(true);
 
   const handleLoadingComplete = useCallback(() => {
@@ -157,6 +163,12 @@ function App() {
 
   const latestEmailVerifyRef = useRef(0);
 
+  useEffect(() => {
+    if (otpCooldown <= 0) return;
+    const timer = setTimeout(() => setOtpCooldown((prev) => Math.max(0, prev - 1)), 1000);
+    return () => clearTimeout(timer);
+  }, [otpCooldown]);
+
   const handleVerifyEmail = useCallback(async (rawEmail: string): Promise<boolean> => {
     const trimmed = rawEmail.trim();
     const requestId = ++latestEmailVerifyRef.current;
@@ -188,24 +200,120 @@ function App() {
     setEmailValidation({
       status: 'valid',
       message: result.mxVerified
-        ? 'Domain email terdaftar dan aktif menerima email.'
-        : 'Format email valid dan siap digunakan.',
+        ? 'Domain email aktif. Kode verifikasi OTP akan dikirim ke email ini.'
+        : 'Format email valid. Kode verifikasi OTP akan dikirim ke email ini.',
     });
     return true;
   }, []);
 
+  const requestOtpChallenge = async (cleanName: string, cleanEmail: string): Promise<boolean> => {
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 12000);
+      const res = await fetch('/api/send-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: cleanName, email: cleanEmail }),
+        signal: controller.signal,
+      });
+      clearTimeout(timeoutId);
+
+      const contentType = res.headers.get('content-type') || '';
+      if (!contentType.includes('application/json')) {
+        setFormError('Layanan OTP server belum merespons JSON. Pastikan aplikasi berjalan di Vercel.');
+        return false;
+      }
+
+      const data = (await res.json()) as {
+        ok?: boolean;
+        code?: string;
+        message?: string;
+        suggestion?: string;
+        otpToken?: string;
+        maskedEmail?: string;
+        threatType?: SecurityIncident['threatType'];
+        fieldName?: string;
+      };
+
+      if (res.ok && data.ok && data.otpToken) {
+        setOtpToken(data.otpToken);
+        setOtpMaskedEmail(data.maskedEmail || cleanEmail);
+        setOtpCode('');
+        setOtpError(null);
+        setOtpStep('verify');
+        setOtpCooldown(60);
+        setFormError(null);
+        return true;
+      }
+
+      if (data.code === 'WAF_BLOCKED') {
+        setSecurityIncident({
+          threatType: data.threatType || 'XSS Injection',
+          fieldName: data.fieldName || 'Form Kontak',
+          reason: data.message || 'Karakter atau skrip berbahaya terdeteksi oleh server.',
+          payloadSnippet: formData.email || formData.name,
+        });
+        return false;
+      }
+
+      if (data.code === 'EMAIL_INVALID') {
+        setEmailValidation({
+          status: 'invalid',
+          message: data.message,
+          suggestion: data.suggestion,
+        });
+        setFormError(data.message || 'Alamat email tidak valid atau belum terdaftar.');
+        return false;
+      }
+
+      setFormError(
+        data.message || 'Gagal mengirim kode verifikasi ke email tersebut. Pastikan alamat email aktif dan benar.'
+      );
+      return false;
+    } catch {
+      setFormError('Gagal menghubungi server pengirim OTP. Periksa koneksi Anda dan coba kembali.');
+      return false;
+    }
+  };
+
+  const handleResendOtp = async () => {
+    if (otpCooldown > 0 || loading) return;
+    setFormError(null);
+    setOtpError(null);
+
+    const checkName = inspectPayload(formData.name, 'Nama');
+    const checkEmail = inspectPayload(formData.email, 'Email');
+    if (!checkName.isSafe || !checkEmail.isSafe) return;
+
+    setLoading(true);
+    await requestOtpChallenge(
+      checkName.sanitized.slice(0, 100),
+      checkEmail.sanitized.slice(0, 120).toLowerCase()
+    );
+    setLoading(false);
+  };
+
+  const handleCancelOtp = () => {
+    setOtpStep('compose');
+    setOtpToken('');
+    setOtpCode('');
+    setOtpError(null);
+    setFormError(null);
+  };
+
   const handleSubmitMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormError(null);
+    setOtpError(null);
 
-    // WAF Rate Limiter: max 3 messages per minute
-    const rateCheck = checkRateLimit('contact_submit', 3, 60000);
+    // WAF Rate Limiter: max 5 form actions per minute
+    const rateCheck = checkRateLimit('contact_submit', 5, 60000);
     if (!rateCheck.allowed) {
       setSecurityIncident({
         threatType: 'Rate Limit Violation',
         fieldName: 'Form Kontak (Anti-Flooding)',
         reason: `Pengiriman pesan melebihi frekuensi aman. Akses dibatasi selama ${rateCheck.remainingSecs} detik.`,
-        payloadSnippet: `Flooding terdeteksi: batas 3 pengiriman/menit terlampaui.`,
+        payloadSnippet: `Flooding terdeteksi: batas pengiriman/menit terlampaui.`,
       });
       return;
     }
@@ -264,18 +372,31 @@ function App() {
       return;
     }
 
-    // Client-side Email Rules + Disposable Domain + DNS MX Record Check
-    const isRealEmail = await handleVerifyEmail(cleanEmail);
-    if (!isRealEmail) {
-      setFormError('Gunakan alamat email aktif yang benar-benar terdaftar agar saya dapat membalas pesan Anda.');
+    // Step 1: Verify domain rules/MX and dispatch 6-digit OTP to sender's actual inbox
+    if (otpStep === 'compose') {
+      const isRealEmail = await handleVerifyEmail(cleanEmail);
+      if (!isRealEmail) {
+        setFormError('Gunakan alamat email aktif yang benar-benar terdaftar untuk menerima kode verifikasi.');
+        setLoading(false);
+        return;
+      }
+
+      await requestOtpChallenge(cleanName, cleanEmail);
       setLoading(false);
       return;
     }
 
-    // Server-side authenticated message submission (/api/contact using SUPABASE_SERVICE_ROLE_KEY)
+    // Step 2: Verify 6-digit OTP code & submit message to database
+    const cleanOtp = otpCode.trim();
+    if (!/^\d{6}$/.test(cleanOtp)) {
+      setOtpError('Masukkan 6 digit angka kode verifikasi dari kotak masuk email Anda.');
+      setLoading(false);
+      return;
+    }
+
     try {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 8500);
+      const timeoutId = setTimeout(() => controller.abort(), 9000);
       const res = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -283,6 +404,8 @@ function App() {
           name: cleanName,
           email: cleanEmail,
           message: cleanMessage,
+          otpCode: cleanOtp,
+          otpToken,
         }),
         signal: controller.signal,
       });
@@ -302,9 +425,14 @@ function App() {
         if (res.ok && data.ok) {
           setSentSuccess(true);
           setFormError(null);
+          setOtpError(null);
+          setOtpStep('compose');
+          setOtpToken('');
+          setOtpCode('');
+          setOtpMaskedEmail('');
           setEmailValidation({ status: 'idle' });
           setFormData({ name: '', email: '', message: '' });
-          setTimeout(() => setSentSuccess(false), 5000);
+          setTimeout(() => setSentSuccess(false), 6000);
           if (isAdminSession(session)) fetchMessages();
           setLoading(false);
           return;
@@ -321,7 +449,20 @@ function App() {
           return;
         }
 
+        if (
+          data.code === 'OTP_INVALID' ||
+          data.code === 'OTP_EXPIRED' ||
+          data.code === 'OTP_LOCKED' ||
+          data.code === 'OTP_REUSED' ||
+          data.code === 'OTP_EMAIL_MISMATCH'
+        ) {
+          setOtpError(data.message || 'Kode verifikasi tidak valid.');
+          setLoading(false);
+          return;
+        }
+
         if (data.code === 'EMAIL_INVALID') {
+          setOtpStep('compose');
           setEmailValidation({
             status: 'invalid',
             message: data.message,
@@ -656,6 +797,15 @@ function App() {
           emailValidation={emailValidation}
           setEmailValidation={setEmailValidation}
           onVerifyEmail={handleVerifyEmail}
+          otpStep={otpStep}
+          otpCode={otpCode}
+          setOtpCode={setOtpCode}
+          otpMaskedEmail={otpMaskedEmail}
+          otpError={otpError}
+          setOtpError={setOtpError}
+          otpCooldown={otpCooldown}
+          onResendOtp={handleResendOtp}
+          onCancelOtp={handleCancelOtp}
         />
 
       </div>
