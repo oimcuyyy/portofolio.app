@@ -57,10 +57,12 @@ const AdminInbox: React.FC<AdminInboxProps> = ({ session, messages, fetchMessage
   const handleClearLogs = async () => {
     if (!window.confirm('Yakin ingin membersihkan seluruh riwayat log serangan?')) return;
     try {
-      await supabase.from('security_logs').delete().neq('incident_id', 'none');
-      setSecurityLogs([]);
+      const { error } = await supabase.from('security_logs').delete().not('id', 'is', null);
+      if (!error) {
+        setSecurityLogs([]);
+      }
     } catch {
-      setSecurityLogs([]);
+      // Delete error fallback
     }
   };
 

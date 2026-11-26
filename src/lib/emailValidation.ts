@@ -288,9 +288,10 @@ export async function verifyEmailAvailability(rawEmail: string): Promise<EmailAv
   }
 
   // 1. Primary check via Vercel Serverless /api/verify-email
+  // Client abort is 6500ms > server worst case (1500ms resolveMx + 2000ms DoH = 3500ms)
   try {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 4500);
+    const timeoutId = setTimeout(() => controller.abort(), 6500);
     const res = await fetch('/api/verify-email', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -301,11 +302,18 @@ export async function verifyEmailAvailability(rawEmail: string): Promise<EmailAv
 
     const contentType = res.headers.get('content-type') || '';
     if (res.status !== 404 && contentType.includes('application/json')) {
-      const data = (await res.json()) as { valid: boolean; mxVerified?: boolean; reason?: string; warning?: string };
+      const data = (await res.json()) as {
+        valid: boolean;
+        mxVerified?: boolean;
+        reason?: string;
+        suggestion?: string;
+        warning?: string;
+      };
       const result: EmailAvailabilityResult = {
         valid: Boolean(data.valid),
         mxVerified: data.mxVerified,
         reason: data.reason,
+        suggestion: data.suggestion,
       };
       // Only cache conclusive DNS lookups (avoid caching transient fallback warnings)
       if (!data.warning) {

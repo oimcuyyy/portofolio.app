@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ShieldAlert, Terminal, Globe, Lock, Fingerprint, Clock, AlertTriangle, X } from 'lucide-react';
-import { supabase } from '../lib/supabase';
 
 export interface SecurityIncident {
   threatType: 'XSS Injection' | 'SQL Injection' | 'Rate Limit Violation' | 'Payload Violation' | 'Malicious URL';
@@ -51,51 +50,66 @@ export const SecurityAlertModal: React.FC<SecurityAlertModalProps> = ({ incident
       })
     );
 
-    // 2. Fetch live public client IP with timeout
+    // 2. Submit security event to server (/api/security-log) where authoritative edge IP & ID are recorded
     let isCancelled = false;
-    const fetchIp = async () => {
-      let resolvedIp = 'Unknown (Proxy/Shielded)';
+    const reportAndResolveIp = async () => {
+      let resolvedIp = 'Shielded / Localhost';
+      let serverIncidentId = generatedId;
+
       try {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 3000);
-        const res = await fetch('https://api64.ipify.org?format=json', {
+        const timeoutId = setTimeout(() => controller.abort(), 4000);
+        const res = await fetch('/api/security-log', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            threatType: incident.threatType,
+            fieldName: incident.fieldName,
+            payloadSnippet: incident.payloadSnippet ? incident.payloadSnippet.slice(0, 500) : '',
+          }),
           signal: controller.signal,
         });
         clearTimeout(timeoutId);
-        if (res.ok) {
-          const data = await res.json();
-          if (data && data.ip) {
-            resolvedIp = data.ip;
+
+        const contentType = res.headers.get('content-type') || '';
+        if (contentType.includes('application/json')) {
+          const data = (await res.json()) as { clientIp?: string; incidentId?: string };
+          if (data.incidentId) {
+            serverIncidentId = data.incidentId;
+          }
+          if (data.clientIp && data.clientIp !== 'unknown' && data.clientIp !== '127.0.0.1' && data.clientIp !== '::1') {
+            resolvedIp = data.clientIp;
           }
         }
       } catch {
-        // Fallback when client IP cannot be resolved
-        resolvedIp = 'Unavailable';
+        // Fallback below only for visual UI display
+      }
+
+      // If running in local Vite dev (where /api/* isn't active), resolve display IP via ipify for UI only
+      if ((resolvedIp === 'Shielded / Localhost') && import.meta.env.DEV) {
+        try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 2500);
+          const res = await fetch('https://api64.ipify.org?format=json', {
+            signal: controller.signal,
+          });
+          clearTimeout(timeoutId);
+          if (res.ok) {
+            const data = (await res.json()) as { ip?: string };
+            if (data?.ip) resolvedIp = data.ip;
+          }
+        } catch {
+          resolvedIp = 'Unavailable';
+        }
       }
 
       if (!isCancelled) {
+        setIncidentId(serverIncidentId);
         setClientIp(resolvedIp);
-
-        // 3. Persist log to Supabase security_logs audit table
-        const logEntry: StoredSecurityLog = {
-          incident_id: generatedId,
-          threat_type: incident.threatType,
-          field_name: incident.fieldName,
-          client_ip: resolvedIp,
-          user_agent: navigator.userAgent,
-          payload_preview: incident.payloadSnippet ? incident.payloadSnippet.slice(0, 500) : '',
-          created_at: now.toISOString(),
-        };
-
-        try {
-          await supabase.from('security_logs').insert([logEntry]);
-        } catch {
-          // Supabase log fallback
-        }
       }
     };
 
-    fetchIp();
+    void reportAndResolveIp();
 
     return () => {
       isCancelled = true;

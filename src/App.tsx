@@ -264,7 +264,7 @@ function App() {
       return;
     }
 
-    // Real Email Rules + Disposable Domain + DNS MX Record Check
+    // Client-side Email Rules + Disposable Domain + DNS MX Record Check
     const isRealEmail = await handleVerifyEmail(cleanEmail);
     if (!isRealEmail) {
       setFormError('Gunakan alamat email aktif yang benar-benar terdaftar agar saya dapat membalas pesan Anda.');
@@ -272,28 +272,76 @@ function App() {
       return;
     }
 
-    const { error } = await supabase.from('messages').insert([{
-      name: cleanName,
-      email: cleanEmail,
-      message: cleanMessage,
-    }]);
+    // Server-side authenticated message submission (/api/contact using SUPABASE_SERVICE_ROLE_KEY)
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 8500);
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: cleanName,
+          email: cleanEmail,
+          message: cleanMessage,
+        }),
+        signal: controller.signal,
+      });
+      clearTimeout(timeoutId);
 
-    if (!error) {
-      setSentSuccess(true);
-      setFormError(null);
-      setEmailValidation({ status: 'idle' });
-      setFormData({ name: '', email: '', message: '' });
-      setTimeout(() => setSentSuccess(false), 5000);
-      if (isAdminSession(session)) fetchMessages();
-    } else {
-      const msg = error.message || '';
-      if (msg.includes('Rate limit exceeded')) {
-        setFormError(msg.replace(/^Rate limit exceeded:\s*/i, ''));
-      } else if (msg.includes('messages_real_email_domain_check')) {
-        setFormError('Domain email sementara atau fiktif ditolak oleh sistem database. Gunakan email resmi yang aktif.');
-      } else {
-        setFormError('Pesan gagal dikirim ke server. Silakan coba beberapa saat lagi atau hubungi via email langsung.');
+      const contentType = res.headers.get('content-type') || '';
+      if (contentType.includes('application/json')) {
+        const data = (await res.json()) as {
+          ok?: boolean;
+          code?: string;
+          message?: string;
+          suggestion?: string;
+          threatType?: SecurityIncident['threatType'];
+          fieldName?: string;
+        };
+
+        if (res.ok && data.ok) {
+          setSentSuccess(true);
+          setFormError(null);
+          setEmailValidation({ status: 'idle' });
+          setFormData({ name: '', email: '', message: '' });
+          setTimeout(() => setSentSuccess(false), 5000);
+          if (isAdminSession(session)) fetchMessages();
+          setLoading(false);
+          return;
+        }
+
+        if (data.code === 'WAF_BLOCKED') {
+          setSecurityIncident({
+            threatType: data.threatType || 'XSS Injection',
+            fieldName: data.fieldName || 'Form Kontak',
+            reason: data.message || 'Karakter atau skrip berbahaya terdeteksi oleh server.',
+            payloadSnippet: formData.message,
+          });
+          setLoading(false);
+          return;
+        }
+
+        if (data.code === 'EMAIL_INVALID') {
+          setEmailValidation({
+            status: 'invalid',
+            message: data.message,
+            suggestion: data.suggestion,
+          });
+          setFormError(data.message || 'Alamat email tidak valid atau belum terdaftar.');
+          setLoading(false);
+          return;
+        }
+
+        setFormError(
+          data.message || 'Pesan gagal dikirim ke server. Silakan hubungi langsung melalui alamat email di samping.'
+        );
+        setLoading(false);
+        return;
       }
+
+      setFormError('Endpoint server tidak merespons format JSON. Pastikan aplikasi berjalan pada environment Vercel.');
+    } catch {
+      setFormError('Gagal menghubungi server pengirim pesan. Periksa koneksi Anda atau hubungi melalui Email Langsung.');
     }
     setLoading(false);
   };
