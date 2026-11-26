@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 import { supabase } from './lib/supabase';
@@ -12,6 +12,7 @@ import {
   checkRateLimit,
   sanitizeText,
 } from './lib/waf';
+import { verifyEmailAvailability } from './lib/emailValidation';
 import { CustomCursor } from './components/Interactive';
 import { ParticleNetwork } from './components/ParticleNetwork';
 import { useSenjaPlayback } from './context/SenjaContext';
@@ -31,6 +32,12 @@ interface SkillWithDesc extends Skill {
   description?: string;
 }
 
+export interface EmailValidationState {
+  status: 'idle' | 'checking' | 'valid' | 'invalid';
+  message?: string;
+  suggestion?: string;
+}
+
 const ADMIN_EMAIL = (import.meta.env.VITE_ADMIN_EMAIL || 'belajarmandiri03034@gmail.com').toLowerCase();
 
 export const isAdminSession = (session: any): boolean => {
@@ -48,6 +55,8 @@ function App() {
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
   const [loading, setLoading] = useState(false);
   const [sentSuccess, setSentSuccess] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
+  const [emailValidation, setEmailValidation] = useState<EmailValidationState>({ status: 'idle' });
   const [isLoadingScreenActive, setIsLoadingScreenActive] = useState(true);
 
   const handleLoadingComplete = useCallback(() => {
@@ -146,8 +155,48 @@ function App() {
     if (messagesData) setMessages(messagesData);
   };
 
+  const latestEmailVerifyRef = useRef(0);
+
+  const handleVerifyEmail = useCallback(async (rawEmail: string): Promise<boolean> => {
+    const trimmed = rawEmail.trim();
+    const requestId = ++latestEmailVerifyRef.current;
+
+    if (!trimmed) {
+      setEmailValidation({ status: 'idle' });
+      return false;
+    }
+
+    setEmailValidation({
+      status: 'checking',
+      message: 'Memeriksa keaktifan domain email...',
+    });
+
+    const result = await verifyEmailAvailability(trimmed);
+    if (requestId !== latestEmailVerifyRef.current) {
+      return result.valid;
+    }
+
+    if (!result.valid) {
+      setEmailValidation({
+        status: 'invalid',
+        message: result.reason,
+        suggestion: result.suggestion,
+      });
+      return false;
+    }
+
+    setEmailValidation({
+      status: 'valid',
+      message: result.mxVerified
+        ? 'Domain email terdaftar dan aktif menerima email.'
+        : 'Format email valid dan siap digunakan.',
+    });
+    return true;
+  }, []);
+
   const handleSubmitMessage = async (e: React.FormEvent) => {
     e.preventDefault();
+    setFormError(null);
 
     // WAF Rate Limiter: max 3 messages per minute
     const rateCheck = checkRateLimit('contact_submit', 3, 60000);
@@ -200,18 +249,25 @@ function App() {
     }
 
     const cleanName = checkName.sanitized.slice(0, 100);
-    const cleanEmail = checkEmail.sanitized.slice(0, 120);
+    const cleanEmail = checkEmail.sanitized.slice(0, 120).toLowerCase();
     const cleanMessage = checkMsg.sanitized.slice(0, 2000);
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!cleanName || !cleanEmail || !cleanMessage) {
-      alert('Mohon isi semua bidang formulir dengan benar.');
+    if (cleanName.length < 2) {
+      setFormError('Mohon masukkan nama lengkap Anda (minimal 2 karakter).');
       setLoading(false);
       return;
     }
 
-    if (!emailRegex.test(cleanEmail)) {
-      alert('Format email tidak valid.');
+    if (cleanMessage.length < 3) {
+      setFormError('Mohon tulis isi pesan kolaborasi dengan jelas.');
+      setLoading(false);
+      return;
+    }
+
+    // Real Email Rules + Disposable Domain + DNS MX Record Check
+    const isRealEmail = await handleVerifyEmail(cleanEmail);
+    if (!isRealEmail) {
+      setFormError('Gunakan alamat email aktif yang benar-benar terdaftar agar saya dapat membalas pesan Anda.');
       setLoading(false);
       return;
     }
@@ -224,11 +280,20 @@ function App() {
 
     if (!error) {
       setSentSuccess(true);
+      setFormError(null);
+      setEmailValidation({ status: 'idle' });
       setFormData({ name: '', email: '', message: '' });
       setTimeout(() => setSentSuccess(false), 5000);
       if (isAdminSession(session)) fetchMessages();
     } else {
-      alert('Pesan gagal dikirim. Silakan hubungi langsung via email.');
+      const msg = error.message || '';
+      if (msg.includes('Rate limit exceeded')) {
+        setFormError(msg.replace(/^Rate limit exceeded:\s*/i, ''));
+      } else if (msg.includes('messages_real_email_domain_check')) {
+        setFormError('Domain email sementara atau fiktif ditolak oleh sistem database. Gunakan email resmi yang aktif.');
+      } else {
+        setFormError('Pesan gagal dikirim ke server. Silakan coba beberapa saat lagi atau hubungi via email langsung.');
+      }
     }
     setLoading(false);
   };
@@ -538,6 +603,11 @@ function App() {
           handleSubmitMessage={handleSubmitMessage}
           loading={loading}
           sentSuccess={sentSuccess}
+          formError={formError}
+          setFormError={setFormError}
+          emailValidation={emailValidation}
+          setEmailValidation={setEmailValidation}
+          onVerifyEmail={handleVerifyEmail}
         />
 
       </div>

@@ -88,17 +88,26 @@ ALTER TABLE messages DROP CONSTRAINT IF EXISTS messages_email_format_check;
 ALTER TABLE messages ADD CONSTRAINT messages_email_format_check 
   CHECK (char_length(trim(email)) > 0 AND char_length(email) <= 120 AND email ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$');
 
+ALTER TABLE messages DROP CONSTRAINT IF EXISTS messages_real_email_domain_check;
+ALTER TABLE messages ADD CONSTRAINT messages_real_email_domain_check
+  CHECK (
+    NOT (email ~* '@(mailinator\.com|tempmail\.com|temp-mail\.org|temp-mail\.io|guerrillamail\.com|guerrillamail\.org|yopmail\.com|10minutemail\.com|trashmail\.com|throwawaymail\.com|getnada\.com|maildrop\.cc|dispostable\.com|sharklasers\.com|fakeinbox\.com|mohmal\.com|example\.com|example\.org|example\.net|test\.com|test\.org|fake\.com|palsu\.com|domain\.com|invalid\.com|localhost)$')
+    AND NOT (email ~* '\.(local|localhost|test|invalid|example)$')
+  );
+
 ALTER TABLE messages DROP CONSTRAINT IF EXISTS messages_message_length_check;
 ALTER TABLE messages ADD CONSTRAINT messages_message_length_check 
   CHECK (char_length(trim(message)) > 0 AND char_length(message) <= 2000);
 
--- Pengunjung umum (anon) boleh MENGIRIM (INSERT) pesan jika lolos validasi panjang karakter & format
+-- Pengunjung umum (anon) boleh MENGIRIM (INSERT) pesan jika lolos validasi panjang karakter, format & domain non-disposable
 CREATE POLICY "Anyone can insert messages" 
 ON messages FOR INSERT 
 TO anon, authenticated 
 WITH CHECK (
   char_length(trim(name)) > 0 AND char_length(name) <= 100 AND
   char_length(trim(email)) > 0 AND char_length(email) <= 120 AND
+  email ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$' AND
+  NOT (email ~* '@(mailinator\.com|tempmail\.com|temp-mail\.org|temp-mail\.io|guerrillamail\.com|guerrillamail\.org|yopmail\.com|10minutemail\.com|trashmail\.com|throwawaymail\.com|getnada\.com|maildrop\.cc|dispostable\.com|sharklasers\.com|fakeinbox\.com|mohmal\.com|example\.com|example\.org|example\.net|test\.com|test\.org|fake\.com|palsu\.com|domain\.com|invalid\.com|localhost)$') AND
   char_length(trim(message)) > 0 AND char_length(message) <= 2000
 );
 
@@ -207,42 +216,62 @@ USING (
 -- ============================================================================
 -- 4. SERVER-SIDE RATE LIMITING & ANTI-SPOOF TRIGGERS (POSTGRESQL LEVEL)
 -- Mencegah bypass REST API langsung via PostgREST / cURL / skrip bot
+-- Memakai SET search_path = public, pg_temp untuk kepatuhan Security Advisor
 -- ============================================================================
 
--- A. Rate Limiting & Timestamp Anti-Spoofing untuk Tabel 'messages'
+-- A. Rate Limiting (Per-Email & Global Anti-Rotation) + Timestamp Anti-Spoofing untuk Tabel 'messages'
 CREATE OR REPLACE FUNCTION trg_rate_limit_messages()
-RETURNS TRIGGER AS $$
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public, pg_temp
+AS $$
 DECLARE
-  recent_count INTEGER;
+  recent_email_count INTEGER;
+  global_count INTEGER;
 BEGIN
   -- Paksa timestamp created_at selalu waktu server PostgreSQL (mencegah pemalsuan waktu oleh client)
   NEW.created_at := NOW();
 
-  -- Hitung pesan dari email yang sama dalam 5 menit terakhir
-  SELECT COUNT(*) INTO recent_count
-  FROM messages
+  -- 1. Batas per-email: maksimal 3 pesan dalam 5 menit
+  SELECT COUNT(*) INTO recent_email_count
+  FROM public.messages
   WHERE LOWER(TRIM(email)) = LOWER(TRIM(NEW.email))
     AND created_at > (NOW() - INTERVAL '5 minutes');
 
-  IF recent_count >= 3 THEN
+  IF recent_email_count >= 3 THEN
     RAISE EXCEPTION 'Rate limit exceeded: Terlalu banyak pesan dari email ini. Coba lagi dalam 5 menit.'
       USING ERRCODE = '23514'; -- check_violation
   END IF;
 
+  -- 2. Batas global: maksimal 20 pesan dalam 5 menit (mencegah bot bypass dengan rotasi email acak)
+  SELECT COUNT(*) INTO global_count
+  FROM public.messages
+  WHERE created_at > (NOW() - INTERVAL '5 minutes');
+
+  IF global_count >= 20 THEN
+    RAISE EXCEPTION 'Rate limit exceeded: Sistem sedang sibuk menerima pesan. Coba lagi dalam beberapa menit.'
+      USING ERRCODE = '23514';
+  END IF;
+
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$;
 
-DROP TRIGGER IF EXISTS trg_enforce_message_rate_limit ON messages;
+DROP TRIGGER IF EXISTS trg_enforce_message_rate_limit ON public.messages;
 CREATE TRIGGER trg_enforce_message_rate_limit
-BEFORE INSERT ON messages
+BEFORE INSERT ON public.messages
 FOR EACH ROW
-EXECUTE FUNCTION trg_rate_limit_messages();
+EXECUTE FUNCTION public.trg_rate_limit_messages();
 
 
 -- B. Rate Limiting & Anti-Flood untuk Tabel 'security_logs'
 CREATE OR REPLACE FUNCTION trg_rate_limit_security_logs()
-RETURNS TRIGGER AS $$
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public, pg_temp
+AS $$
 DECLARE
   ip_count INTEGER;
   global_count INTEGER;
@@ -255,7 +284,7 @@ BEGIN
      AND TRIM(NEW.client_ip) <> '' 
      AND NEW.client_ip NOT IN ('Unavailable', 'Unknown (Proxy/Shielded)', 'Detecting...') THEN
     SELECT COUNT(*) INTO ip_count
-    FROM security_logs
+    FROM public.security_logs
     WHERE client_ip = NEW.client_ip
       AND created_at > (NOW() - INTERVAL '1 minute');
 
@@ -267,7 +296,7 @@ BEGIN
 
   -- Batasi total insiden global (maksimal 30 log per menit ke database untuk cegah storage exhaustion)
   SELECT COUNT(*) INTO global_count
-  FROM security_logs
+  FROM public.security_logs
   WHERE created_at > (NOW() - INTERVAL '1 minute');
 
   IF global_count >= 30 THEN
@@ -277,11 +306,11 @@ BEGIN
 
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$;
 
-DROP TRIGGER IF EXISTS trg_enforce_security_logs_rate_limit ON security_logs;
+DROP TRIGGER IF EXISTS trg_enforce_security_logs_rate_limit ON public.security_logs;
 CREATE TRIGGER trg_enforce_security_logs_rate_limit
-BEFORE INSERT ON security_logs
+BEFORE INSERT ON public.security_logs
 FOR EACH ROW
-EXECUTE FUNCTION trg_rate_limit_security_logs();
+EXECUTE FUNCTION public.trg_rate_limit_security_logs();
 

@@ -1,6 +1,18 @@
 import React, { useState } from 'react';
-import { Mail, Send, CheckCircle2, Copy, Check, MessageSquare, Clock } from 'lucide-react';
+import {
+  Mail,
+  Send,
+  CheckCircle2,
+  Copy,
+  Check,
+  MessageSquare,
+  Clock,
+  AlertCircle,
+  Loader2,
+  ShieldCheck,
+} from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
+import type { EmailValidationState } from '../App';
 
 interface ContactProps {
   formData: { name: string; email: string; message: string };
@@ -8,6 +20,11 @@ interface ContactProps {
   handleSubmitMessage: (e: React.FormEvent) => Promise<void>;
   loading: boolean;
   sentSuccess: boolean;
+  formError: string | null;
+  setFormError: React.Dispatch<React.SetStateAction<string | null>>;
+  emailValidation: EmailValidationState;
+  setEmailValidation: React.Dispatch<React.SetStateAction<EmailValidationState>>;
+  onVerifyEmail: (email: string) => Promise<boolean>;
 }
 
 const Contact: React.FC<ContactProps> = ({
@@ -16,6 +33,11 @@ const Contact: React.FC<ContactProps> = ({
   handleSubmitMessage,
   loading,
   sentSuccess,
+  formError,
+  setFormError,
+  emailValidation,
+  setEmailValidation,
+  onVerifyEmail,
 }) => {
   const { t, language } = useLanguage();
   const [copied, setCopied] = useState(false);
@@ -113,7 +135,10 @@ const Contact: React.FC<ContactProps> = ({
           <div className="p-6 sm:p-10 rounded-[1.75rem] sm:rounded-[2.25rem] border border-slate-200/80 dark:border-white/10 bg-white/80 dark:bg-[#070b14]/85 shadow-2xl backdrop-blur-2xl">
             
             {sentSuccess && (
-              <div className="mb-6 p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center gap-3 text-emerald-700 dark:text-emerald-300 animate-in fade-in">
+              <div
+                role="status"
+                className="mb-6 p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center gap-3 text-emerald-700 dark:text-emerald-300 animate-in fade-in"
+              >
                 <CheckCircle2 className="text-emerald-500 shrink-0" size={20} />
                 <p className="text-xs sm:text-sm font-medium">
                   {t.contact.successMsg}
@@ -121,7 +146,19 @@ const Contact: React.FC<ContactProps> = ({
               </div>
             )}
 
-            <form onSubmit={handleSubmitMessage} className="space-y-5">
+            {formError && (
+              <div
+                role="alert"
+                className="mb-6 p-4 rounded-2xl bg-rose-500/10 border border-rose-500/30 flex items-start gap-3 text-rose-700 dark:text-rose-300 animate-in fade-in"
+              >
+                <AlertCircle className="text-rose-500 shrink-0 mt-0.5" size={18} />
+                <p className="text-xs sm:text-sm font-medium leading-relaxed">
+                  {formError}
+                </p>
+              </div>
+            )}
+
+            <form onSubmit={handleSubmitMessage} className="space-y-5" noValidate>
               
               {/* Nama Lengkap */}
               <div>
@@ -133,26 +170,108 @@ const Contact: React.FC<ContactProps> = ({
                   id="name"
                   required
                   value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  onChange={(e) => {
+                    setFormData({ ...formData, name: e.target.value });
+                    if (formError) setFormError(null);
+                  }}
                   placeholder={t.contact.namePlaceholder}
-                  className="w-full px-4 py-3.5 rounded-xl bg-slate-100/70 dark:bg-white/[0.04] border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-600 text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/50 transition-all"
+                  className="w-full min-h-[44px] px-4 py-3 rounded-xl bg-slate-100/70 dark:bg-white/[0.04] border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-600 text-base sm:text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/50 transition-all"
                 />
               </div>
 
               {/* Email */}
               <div>
-                <label htmlFor="email" className="block text-xs font-mono uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-2">
-                  {t.contact.emailLabel}
-                </label>
-                <input
-                  type="email"
-                  id="email"
-                  required
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  placeholder={t.contact.emailPlaceholder}
-                  className="w-full px-4 py-3.5 rounded-xl bg-slate-100/70 dark:bg-white/[0.04] border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-600 text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/50 transition-all"
-                />
+                <div className="flex items-center justify-between gap-2 mb-1">
+                  <label htmlFor="email" className="block text-xs font-mono uppercase tracking-wider text-slate-600 dark:text-slate-400">
+                    {t.contact.emailLabel}
+                  </label>
+                  <span className="text-[11px] font-mono text-slate-400 dark:text-slate-500">
+                    {language === 'id' ? 'Wajib email aktif & terdaftar' : 'Active registered email required'}
+                  </span>
+                </div>
+                <div className="relative">
+                  <input
+                    type="email"
+                    id="email"
+                    required
+                    aria-invalid={emailValidation.status === 'invalid'}
+                    aria-describedby="email-validation-feedback"
+                    value={formData.email}
+                    onChange={(e) => {
+                      setFormData({ ...formData, email: e.target.value });
+                      if (emailValidation.status !== 'idle') {
+                        setEmailValidation({ status: 'idle' });
+                      }
+                      if (formError) setFormError(null);
+                    }}
+                    onBlur={() => {
+                      if (formData.email.trim()) {
+                        void onVerifyEmail(formData.email);
+                      }
+                    }}
+                    placeholder={t.contact.emailPlaceholder}
+                    className={`w-full min-h-[44px] px-4 pr-10 py-3 rounded-xl bg-slate-100/70 dark:bg-white/[0.04] border text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-600 text-base sm:text-sm focus:outline-none focus:ring-1 transition-all ${
+                      emailValidation.status === 'invalid'
+                        ? 'border-rose-500/80 focus:border-rose-500 focus:ring-rose-500/40'
+                        : emailValidation.status === 'valid'
+                        ? 'border-emerald-500/70 focus:border-emerald-500 focus:ring-emerald-500/40'
+                        : 'border-slate-200 dark:border-white/10 focus:border-emerald-500 focus:ring-emerald-500/50'
+                    }`}
+                  />
+                  <div className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 flex items-center">
+                    {emailValidation.status === 'checking' && (
+                      <Loader2 size={16} className="text-slate-400 animate-spin" />
+                    )}
+                    {emailValidation.status === 'valid' && (
+                      <ShieldCheck size={16} className="text-emerald-500" />
+                    )}
+                    {emailValidation.status === 'invalid' && (
+                      <AlertCircle size={16} className="text-rose-500" />
+                    )}
+                  </div>
+                </div>
+
+                {/* Inline Feedback Below Input (never on mount) */}
+                {emailValidation.status !== 'idle' && (
+                  <div id="email-validation-feedback" className="mt-2 space-y-1.5">
+                    {emailValidation.status === 'checking' && (
+                      <p className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+                        <Loader2 size={12} className="animate-spin shrink-0" />
+                        <span>{emailValidation.message}</span>
+                      </p>
+                    )}
+
+                    {emailValidation.status === 'valid' && (
+                      <p className="text-xs text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5 font-medium">
+                        <ShieldCheck size={13} className="shrink-0" />
+                        <span>{emailValidation.message}</span>
+                      </p>
+                    )}
+
+                    {emailValidation.status === 'invalid' && (
+                      <div className="text-xs text-rose-600 dark:text-rose-400 space-y-1.5">
+                        <p className="flex items-start gap-1.5 font-medium leading-relaxed">
+                          <AlertCircle size={13} className="shrink-0 mt-0.5" />
+                          <span>{emailValidation.message}</span>
+                        </p>
+                        {emailValidation.suggestion && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const suggested = emailValidation.suggestion!;
+                              setFormData({ ...formData, email: suggested });
+                              setFormError(null);
+                              void onVerifyEmail(suggested);
+                            }}
+                            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-600 dark:text-emerald-300 font-mono text-[11px] font-semibold transition-colors cursor-pointer touch-manipulation"
+                          >
+                            <span>Gunakan saran: {emailValidation.suggestion}</span>
+                          </button>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
 
               {/* Pesan */}
@@ -165,17 +284,20 @@ const Contact: React.FC<ContactProps> = ({
                   required
                   rows={4}
                   value={formData.message}
-                  onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                  onChange={(e) => {
+                    setFormData({ ...formData, message: e.target.value });
+                    if (formError) setFormError(null);
+                  }}
                   placeholder={t.contact.messagePlaceholder}
-                  className="w-full px-4 py-3.5 rounded-xl bg-slate-100/70 dark:bg-white/[0.04] border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-600 text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/50 transition-all resize-none"
+                  className="w-full px-4 py-3.5 rounded-xl bg-slate-100/70 dark:bg-white/[0.04] border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-600 text-base sm:text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/50 transition-all resize-none"
                 />
               </div>
 
               {/* Submit Button with haptic state */}
               <button
                 type="submit"
-                disabled={loading}
-                className="w-full py-4 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-950 font-bold text-sm tracking-wide hover:bg-emerald-600 dark:hover:bg-slate-200 active:scale-[0.98] transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-xl cursor-pointer"
+                disabled={loading || emailValidation.status === 'checking'}
+                className="w-full min-h-[48px] py-3.5 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-950 font-bold text-sm tracking-wide hover:bg-emerald-600 dark:hover:bg-slate-200 active:scale-[0.98] transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-xl cursor-pointer touch-manipulation"
               >
                 {loading ? (
                   <span className="flex items-center gap-2">
