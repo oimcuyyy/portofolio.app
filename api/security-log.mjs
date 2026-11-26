@@ -3,6 +3,7 @@ import crypto from 'node:crypto';
 import {
   sendJson,
   extractClientIp,
+  extractClientGeo,
   checkMemoryRateLimit,
   readJsonBody,
   insertSupabaseServiceRow,
@@ -31,6 +32,7 @@ export default async function handler(req, res) {
   }
 
   const clientIp = extractClientIp(req);
+  const clientGeo = extractClientGeo(req);
   const rate = checkMemoryRateLimit(secLogIpRateMap, clientIp, 10, 60_000);
 
   const serverIncidentId = `SEC-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}-${crypto
@@ -42,6 +44,7 @@ export default async function handler(req, res) {
     sendJson(res, 429, {
       recorded: false,
       clientIp,
+      clientGeo,
       incidentId: serverIncidentId,
       message: 'Rate limit exceeded.',
     });
@@ -52,7 +55,7 @@ export default async function handler(req, res) {
   try {
     body = await readJsonBody(req, 8192);
   } catch {
-    sendJson(res, 400, { recorded: false, clientIp, incidentId: serverIncidentId });
+    sendJson(res, 400, { recorded: false, clientIp, clientGeo, incidentId: serverIncidentId });
     return;
   }
 
@@ -72,13 +75,14 @@ export default async function handler(req, res) {
     threat_type: threatType,
     field_name: fieldName,
     client_ip: clientIp,
-    user_agent: ua,
+    user_agent: clientGeo ? `[ISP Geo: ${clientGeo}] ${ua}`.slice(0, 500) : ua,
     payload_preview: payloadPreview,
   });
 
   sendJson(res, dbRes.ok ? 201 : 200, {
     recorded: dbRes.ok,
     clientIp,
+    clientGeo,
     incidentId: serverIncidentId,
   });
 }

@@ -19,6 +19,17 @@ export function sendJson(res, statusCode, payload) {
 }
 
 /**
+ * Normalizes raw IP strings (e.g. strips IPv4-mapped IPv6 prefix ::ffff:).
+ * @param {string} rawIp
+ * @returns {string}
+ */
+function normalizeIp(rawIp) {
+  const first = rawIp.split(',')[0].trim();
+  const stripped = first.startsWith('::ffff:') ? first.slice(7) : first;
+  return stripped.slice(0, 64);
+}
+
+/**
  * Safely extracts the authoritative client IP from Vercel / reverse-proxy headers.
  * @param {import('node:http').IncomingMessage} req
  * @returns {string}
@@ -26,20 +37,45 @@ export function sendJson(res, statusCode, payload) {
 export function extractClientIp(req) {
   const vercelIp = req.headers['x-vercel-forwarded-for'];
   if (typeof vercelIp === 'string' && vercelIp.trim()) {
-    return vercelIp.split(',')[0].trim().slice(0, 64);
+    return normalizeIp(vercelIp);
   }
 
   const realIp = req.headers['x-real-ip'];
   if (typeof realIp === 'string' && realIp.trim()) {
-    return realIp.split(',')[0].trim().slice(0, 64);
+    return normalizeIp(realIp);
   }
 
   const forwarded = req.headers['x-forwarded-for'];
   if (typeof forwarded === 'string' && forwarded.trim()) {
-    return forwarded.split(',')[0].trim().slice(0, 64);
+    return normalizeIp(forwarded);
   }
 
-  return (req.socket?.remoteAddress || 'unknown').slice(0, 64);
+  return normalizeIp(req.socket?.remoteAddress || 'unknown');
+}
+
+/**
+ * Extracts coarse ISP city/country geolocation injected by Vercel Edge headers.
+ * @param {import('node:http').IncomingMessage} req
+ * @returns {string | null}
+ */
+export function extractClientGeo(req) {
+  const rawCity = req.headers['x-vercel-ip-city'];
+  const rawRegion = req.headers['x-vercel-ip-country-region'];
+  const rawCountry = req.headers['x-vercel-ip-country'];
+
+  let city = '';
+  if (typeof rawCity === 'string' && rawCity.trim()) {
+    try {
+      city = decodeURIComponent(rawCity.trim());
+    } catch {
+      city = rawCity.trim();
+    }
+  }
+
+  const region = typeof rawRegion === 'string' ? rawRegion.trim() : '';
+  const country = typeof rawCountry === 'string' ? rawCountry.trim() : '';
+  const parts = [city, region, country].filter(Boolean);
+  return parts.length > 0 ? parts.join(', ').slice(0, 120) : null;
 }
 
 /**

@@ -27,6 +27,7 @@ export interface StoredSecurityLog {
 
 export const SecurityAlertModal: React.FC<SecurityAlertModalProps> = ({ incident, onClose }) => {
   const [clientIp, setClientIp] = useState<string>('Detecting...');
+  const [clientGeo, setClientGeo] = useState<string | null>(null);
   const [incidentId, setIncidentId] = useState<string>('');
   const [timestamp, setTimestamp] = useState<string>('');
 
@@ -39,6 +40,7 @@ export const SecurityAlertModal: React.FC<SecurityAlertModalProps> = ({ incident
     const dateStr = now.toISOString().slice(0, 10).replace(/-/g, '');
     const generatedId = `SEC-${dateStr}-${randomHex}`;
     setIncidentId(generatedId);
+    setClientGeo(null);
     setTimestamp(
       now.toLocaleDateString('id-ID', {
         day: 'numeric',
@@ -54,6 +56,7 @@ export const SecurityAlertModal: React.FC<SecurityAlertModalProps> = ({ incident
     let isCancelled = false;
     const reportAndResolveIp = async () => {
       let resolvedIp = 'Shielded / Localhost';
+      let resolvedGeo: string | null = null;
       let serverIncidentId = generatedId;
 
       try {
@@ -73,9 +76,12 @@ export const SecurityAlertModal: React.FC<SecurityAlertModalProps> = ({ incident
 
         const contentType = res.headers.get('content-type') || '';
         if (contentType.includes('application/json')) {
-          const data = (await res.json()) as { clientIp?: string; incidentId?: string };
+          const data = (await res.json()) as { clientIp?: string; clientGeo?: string | null; incidentId?: string };
           if (data.incidentId) {
             serverIncidentId = data.incidentId;
+          }
+          if (data.clientGeo) {
+            resolvedGeo = data.clientGeo;
           }
           if (data.clientIp && data.clientIp !== 'unknown' && data.clientIp !== '127.0.0.1' && data.clientIp !== '::1') {
             resolvedIp = data.clientIp;
@@ -106,6 +112,7 @@ export const SecurityAlertModal: React.FC<SecurityAlertModalProps> = ({ incident
       if (!isCancelled) {
         setIncidentId(serverIncidentId);
         setClientIp(resolvedIp);
+        setClientGeo(resolvedGeo);
       }
     };
 
@@ -189,15 +196,23 @@ export const SecurityAlertModal: React.FC<SecurityAlertModalProps> = ({ incident
               </div>
 
               {/* Client Live IP Section */}
-              <div className="pt-2 border-t border-red-500/15 flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 text-[11.5px]">
-                <span className="text-slate-400 flex items-center gap-1.5">
-                  <Globe size={13} className="text-emerald-400" />
-                  <span>Alamat IP Pelaku:</span>
-                </span>
-                <span className="px-2 py-0.5 rounded-md bg-red-500/20 border border-red-500/35 text-red-300 font-bold inline-flex items-center gap-1 self-start sm:self-auto">
-                  <Lock size={11} />
-                  <span>{clientIp}</span>
-                </span>
+              <div className="pt-2 border-t border-red-500/15 space-y-1.5 text-[11.5px]">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
+                  <span className="text-slate-400 flex items-center gap-1.5">
+                    <Globe size={13} className="text-emerald-400" />
+                    <span>Alamat IP Pelaku:</span>
+                  </span>
+                  <span className="px-2 py-0.5 rounded-md bg-red-500/20 border border-red-500/35 text-red-300 font-bold inline-flex items-center gap-1 self-start sm:self-auto">
+                    <Lock size={11} />
+                    <span>{clientIp}</span>
+                  </span>
+                </div>
+                {clientGeo && (
+                  <div className="flex items-center justify-between text-[10.5px] text-slate-400">
+                    <span>Estimasi Lokasi Jaringan (ISP):</span>
+                    <span className="text-slate-200 font-semibold">{clientGeo}</span>
+                  </div>
+                )}
               </div>
 
               <div className="flex items-center justify-between text-[10.5px] text-slate-500 pt-1">

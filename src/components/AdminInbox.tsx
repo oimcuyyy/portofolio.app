@@ -11,7 +11,7 @@ interface AdminInboxProps {
 
 const isValidPublicIp = (ip?: string): boolean => {
   if (!ip) return false;
-  const trimmed = ip.trim();
+  const trimmed = ip.trim().replace(/^::ffff:/i, '');
   return /^(?:\d{1,3}\.){3}\d{1,3}$|^[a-fA-F0-9:]+$/.test(trimmed) && trimmed !== '127.0.0.1' && trimmed !== '::1';
 };
 
@@ -254,7 +254,7 @@ const AdminInbox: React.FC<AdminInboxProps> = ({ session, messages, fetchMessage
                         </button>
                         {isValidPublicIp(log.client_ip) && (
                           <a
-                            href={`https://ipinfo.io/${encodeURIComponent(log.client_ip)}`}
+                            href={`https://ipinfo.io/${encodeURIComponent(log.client_ip.trim().replace(/^::ffff:/i, ''))}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             title="Lacak Informasi IP di ipinfo.io"
@@ -272,6 +272,18 @@ const AdminInbox: React.FC<AdminInboxProps> = ({ session, messages, fetchMessage
                       <span className="text-white font-bold">{log.field_name}</span>
                     </div>
                   </div>
+
+                  {/* ISP Edge Geolocation (if recorded by server) */}
+                  {log.user_agent && log.user_agent.startsWith('[ISP Geo: ') && (() => {
+                    const match = log.user_agent.match(/^\[ISP Geo:\s*([^\]]+)\]/);
+                    if (!match) return null;
+                    return (
+                      <div className="mb-3 px-2.5 py-2 rounded-xl bg-black/40 border border-red-500/15 flex items-center justify-between text-[11px]">
+                        <span className="text-slate-400">Lokasi Jaringan (ISP):</span>
+                        <span className="text-emerald-300 font-semibold">{match[1]}</span>
+                      </div>
+                    );
+                  })()}
 
                   {/* Blocked Payload Snippet */}
                   {log.payload_preview && (
