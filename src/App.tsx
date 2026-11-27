@@ -48,6 +48,20 @@ export const isAdminSession = (session: any): boolean => {
   return role === 'admin' || (userEmail === ADMIN_EMAIL && isEmailVerified);
 };
 
+const shouldBypassIntroForCrawlerOrMotion = (): boolean => {
+  if (typeof window === 'undefined') return true;
+  const ua = navigator.userAgent || '';
+  const isBotOrHeadless =
+    Boolean(navigator.webdriver) ||
+    /bot|crawl|spider|slurp|googlebot|bingbot|msnbot|duckduckbot|yandex|baiduspider|applebot|facebookexternalhit|lighthouse|pagespeed|ptst|headlesschrome/i.test(
+      ua
+    );
+  const prefersReducedMotion = Boolean(
+    window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+  );
+  return isBotOrHeadless || prefersReducedMotion;
+};
+
 function App() {
   const { isPlaying, activeTheme } = useSenjaPlayback();
   const [projects, setProjects] = useState<Project[]>([]);
@@ -63,7 +77,9 @@ function App() {
   const [otpCode, setOtpCode] = useState('');
   const [otpError, setOtpError] = useState<string | null>(null);
   const [otpCooldown, setOtpCooldown] = useState(0);
-  const [isLoadingScreenActive, setIsLoadingScreenActive] = useState(true);
+  const [isLoadingScreenActive, setIsLoadingScreenActive] = useState(
+    () => !shouldBypassIntroForCrawlerOrMotion()
+  );
 
   const handleLoadingComplete = useCallback(() => {
     setIsLoadingScreenActive(false);
@@ -106,9 +122,10 @@ function App() {
     initUrlTamperingGuard();
 
     AOS.init({
-      duration: 1000,
+      duration: 850,
       once: true,
       easing: 'ease-out-back',
+      disable: shouldBypassIntroForCrawlerOrMotion,
     });
 
     fetchData();

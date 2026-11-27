@@ -44,8 +44,8 @@ const Hero: React.FC = () => {
       <div className="container mx-auto px-5 sm:px-6 max-w-6xl relative z-10">
         <div className="grid lg:grid-cols-12 gap-10 lg:gap-8 items-center">
 
-          {/* LEFT COLUMN: Editorial Typography & Actions */}
-          <div className="lg:col-span-7 flex flex-col items-start text-left min-w-0" data-aos="fade-up" data-aos-duration="800">
+          {/* LEFT COLUMN: Editorial Typography & Actions (renders at opacity:1 immediately for fast LCP & crawler indexing) */}
+          <div className="lg:col-span-7 flex flex-col items-start text-left min-w-0">
 
             {/* Live Availability Pill - Dynamic theme status */}
             <div
@@ -237,7 +237,7 @@ const Hero: React.FC = () => {
           </div>
 
           {/* RIGHT COLUMN: DOUBLE-BEZEL HARDWARE PROFILE PHOTO CARD */}
-          <div className="lg:col-span-5 flex justify-center min-w-0" data-aos="fade-left" data-aos-duration="1000">
+          <div className="lg:col-span-5 flex justify-center min-w-0">
             <div className="relative group w-full max-w-sm sm:max-w-md">
 
               {/* Outer Shell (Double-Bezel Hardware Enclosure) */}

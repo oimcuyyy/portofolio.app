@@ -19,7 +19,7 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({ onComplete }) => {
     document.body.style.overflow = 'hidden';
 
     const startTime = performance.now();
-    const duration = 1600; // 1.6s duration: snappy, responsive, no dragged-out wait
+    const duration = 1100; // Snappy intro duration balancing brand signature & fast LCP
     let animFrameId: number;
     let finishTimer: ReturnType<typeof setTimeout>;
     let lastProgress = -1;
@@ -105,10 +105,10 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({ onComplete }) => {
             }}
           />
 
-          {/* WATERFILL TYPOGRAPHY (GPU-Accelerated Dual Layer clip-path - 100% cross-browser, zero rectangular block glitch) */}
-          <div className="relative inline-block select-none text-center px-4">
+          {/* WATERFILL TYPOGRAPHY (GPU-Accelerated Dual Layer clip-path - uses div/aria-hidden so page keeps strictly one semantic H1) */}
+          <div aria-hidden="true" className="relative inline-block select-none text-center px-4">
             {/* 1. Base Layer (Dark Silhouette: #222734 for ROCHIM, #132a22 for .DEV) */}
-            <h1
+            <div
               className="select-none text-center font-black uppercase leading-none tracking-[-0.08em] sm:tracking-[-0.09em] whitespace-nowrap text-[#222734]"
               style={{
                 fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
@@ -116,7 +116,7 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({ onComplete }) => {
               }}
             >
               ROCHIM<span className="text-[#132a22]">.DEV</span>
-            </h1>
+            </div>
 
             {/* 2. Top Filled Layer (Pure White #ffffff + Vibrant Emerald #34d399, vertically clipped with GPU clip-path inset) */}
             <div
@@ -126,7 +126,7 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({ onComplete }) => {
                 WebkitClipPath: `inset(${100 - progress}% 0 0 0)`,
               }}
             >
-              <h1
+              <div
                 className="select-none text-center font-black uppercase leading-none tracking-[-0.08em] sm:tracking-[-0.09em] whitespace-nowrap text-white"
                 style={{
                   fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
@@ -134,7 +134,7 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({ onComplete }) => {
                 }}
               >
                 ROCHIM<span className="text-emerald-400">.DEV</span>
-              </h1>
+              </div>
             </div>
           </div>
 
